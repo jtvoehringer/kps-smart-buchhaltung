@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-navy:   #1B3A6B;
+  --color-blue:   #1565C0;
+  --color-mint:   #00897B;
+  --color-arctic: #E3F2FD;
+}
