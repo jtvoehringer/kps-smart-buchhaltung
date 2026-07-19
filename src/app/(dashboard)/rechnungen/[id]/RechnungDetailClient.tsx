@@ -330,7 +330,7 @@ export default function RechnungDetailClient({
                   </td>
                   <td className="py-2 pt-3 text-right text-gray-600">{item.quantity} {item.unit}</td>
                   <td className="py-2 pt-3 text-right text-gray-600">{formatCurrency(item.unit_price)}</td>
-                  <td className="py-2 pt-3 text-right font-medium text-gray-800">Netto {formatCurrency(item.amount_net)}</td>
+                  <td className="py-2 pt-3 text-right font-medium text-gray-800">{formatCurrency(item.amount_net)}</td>
                 </tr>
                 <tr className="border-b border-gray-50">
                   <td></td>
@@ -354,6 +354,9 @@ export default function RechnungDetailClient({
             <div className="flex justify-between font-bold text-base pt-1 border-t-2"
               style={{ borderColor: branding?.brand_color ?? '#35609E', color: branding?.brand_color ?? '#35609E' }}>
               <span>Gesamt</span><span>{formatCurrency(Number(invoice.total_gross))}</span>
+            </div>
+            <div className="text-right text-[10px] text-gray-400">
+              Alle Beträge in Euro
             </div>
           </div>
         </div>

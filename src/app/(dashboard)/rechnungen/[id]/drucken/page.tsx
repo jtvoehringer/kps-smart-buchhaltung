@@ -223,7 +223,7 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
                     </td>
                     <td>{item.quantity} {item.unit}</td>
                     <td>{fmt(item.unit_price)}</td>
-                    <td style={{ fontWeight: 600 }}>Netto {fmt(item.amount_net)}</td>
+                    <td style={{ fontWeight: 600 }}>{fmt(item.amount_net)}</td>
                   </tr>
                   <tr className="vat-row">
                     <td></td>
@@ -256,6 +256,9 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
               <div className="totals-row total">
                 <span>Gesamtbetrag</span>
                 <span>{fmt(Number(invoice.total_gross))}</span>
+              </div>
+              <div style={{ fontSize: '7.5pt', color: '#999', textAlign: 'right', marginTop: '3px' }}>
+                Alle Beträge in Euro
               </div>
             </div>
           </div>

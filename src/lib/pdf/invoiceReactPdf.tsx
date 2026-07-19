@@ -134,7 +134,7 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
               </View>
               <Text style={styles.qty}>{item.quantity} {item.unit}</Text>
               <Text style={styles.unitPrice}>{fmt(item.unit_price)}</Text>
-              <Text style={styles.amount}>Netto {fmt(item.amount_net)}</Text>
+              <Text style={styles.amount}>{fmt(item.amount_net)}</Text>
             </View>
             <View style={styles.vatRow}>
               <Text style={styles.vatLabel}>{item.vat_rate} % USt bezogen auf Pos. {i + 1}</Text>
@@ -149,6 +149,9 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
           <View style={[styles.totalsTotal, { borderTopColor: color, color }]}>
             <Text>Gesamtbetrag</Text><Text>{fmt(Number(invoice.total_gross))}</Text>
           </View>
+          <Text style={{ fontSize: 7.5, color: '#999', textAlign: 'right', marginTop: 3 }}>
+            Alle Beträge in Euro
+          </Text>
         </View>
 
         {invoice.notes && <Text style={styles.notes}>{invoice.notes}</Text>}
