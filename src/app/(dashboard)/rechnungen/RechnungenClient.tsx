@@ -1,0 +1,186 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { formatCurrency } from '@/lib/utils';
+
+type Invoice = {
+  id: string;
+  invoice_number: string;
+  invoice_date: string;
+  due_date: string;
+  status: 'draft' | 'open' | 'paid' | 'cancelled';
+  total_net: number;
+  total_vat: number;
+  total_gross: number;
+  paid_date: string | null;
+  customers: { id: string; name: string; company_name: string | null } | null;
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  draft:     'Entwurf',
+  open:      'Offen',
+  paid:      'Bezahlt',
+  cancelled: 'Storniert',
+};
+
+const STATUS_STYLE: Record<string, string> = {
+  draft:     'bg-gray-100 text-gray-500',
+  open:      'bg-amber-100 text-amber-700',
+  paid:      'bg-green-100 text-green-700',
+  cancelled: 'bg-red-100 text-red-400',
+};
+
+export default function RechnungenClient({
+  invoices,
+  clientId,
+}: {
+  invoices: Invoice[];
+  clientId: string;
+}) {
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const filtered = invoices.filter(inv =>
+    filterStatus === 'all' ? true :
+    filterStatus === 'overdue'
+      ? inv.status === 'open' && new Date(inv.due_date) < today
+      : inv.status === filterStatus
+  );
+
+  const totalOpen   = invoices.filter(i => i.status === 'open').reduce((s, i) => s + Number(i.total_gross), 0);
+  const totalOverdue = invoices.filter(i => i.status === 'open' && new Date(i.due_date) < today).reduce((s, i) => s + Number(i.total_gross), 0);
+
+  if (invoices.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
+        <div className="text-4xl mb-3">📄</div>
+        <p className="text-gray-500 text-sm mb-4">Noch keine Rechnungen vorhanden.</p>
+        <Link
+          href="/rechnungen/neu"
+          className="inline-block bg-[#1B3A6B] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#1565C0] transition-colors"
+        >
+          Erste Rechnung erstellen
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Kennzahlen-Kacheln */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Offen</p>
+          <p className="text-xl font-bold text-amber-600">{formatCurrency(totalOpen)}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{invoices.filter(i => i.status === 'open').length} Rechnung(en)</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+          <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Überfällig</p>
+          <p className={`text-xl font-bold ${totalOverdue > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+            {formatCurrency(totalOverdue)}
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {invoices.filter(i => i.status === 'open' && new Date(i.due_date) < today).length} Rechnung(en)
+          </p>
+        </div>
+      </div>
+
+      {/* Filter */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-wrap gap-2">
+        {['all','draft','open','overdue','paid','cancelled'].map(s => (
+          <button
+            key={s}
+            onClick={() => setFilterStatus(s)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              filterStatus === s
+                ? 'bg-[#1B3A6B] text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {s === 'all' ? 'Alle' : s === 'overdue' ? 'Überfällig' : STATUS_LABEL[s]}
+          </button>
+        ))}
+        <span className="ml-auto text-sm text-gray-400 self-center">{filtered.length} Einträge</span>
+      </div>
+
+      {/* Tabelle */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        {filtered.length === 0 ? (
+          <div className="text-center py-12 text-gray-400 text-sm">Keine Rechnungen in dieser Kategorie</div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                <th className="text-left px-4 py-3">Nummer</th>
+                <th className="text-left px-4 py-3">Kunde</th>
+                <th className="text-left px-4 py-3">Datum</th>
+                <th className="text-left px-4 py-3">Fälligkeit</th>
+                <th className="text-right px-4 py-3">Betrag</th>
+                <th className="text-center px-4 py-3">Status</th>
+                <th className="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(inv => {
+                const isOverdue = inv.status === 'open' && new Date(inv.due_date) < today;
+                const overdueDays = isOverdue
+                  ? Math.floor((today.getTime() - new Date(inv.due_date).getTime()) / 86400000)
+                  : 0;
+                return (
+                  <tr key={inv.id} className="border-t border-gray-50 hover:bg-gray-50/50">
+                    <td className="px-4 py-3 font-mono text-[#1B3A6B] font-medium">
+                      {inv.invoice_number || <span className="text-gray-300 italic">Entwurf</span>}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-gray-800">
+                        {inv.customers?.company_name ?? inv.customers?.name ?? '—'}
+                      </div>
+                      {inv.customers?.company_name && (
+                        <div className="text-xs text-gray-400">{inv.customers.name}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-gray-500">
+                      {new Date(inv.invoice_date).toLocaleDateString('de-AT')}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className={isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}>
+                        {new Date(inv.due_date).toLocaleDateString('de-AT')}
+                      </div>
+                      {isOverdue && (
+                        <div className="text-xs text-red-400">{overdueDays} Tage überfällig</div>
+                      )}
+                      {inv.status === 'paid' && inv.paid_date && (
+                        <div className="text-xs text-green-600">
+                          Bezahlt {new Date(inv.paid_date).toLocaleDateString('de-AT')}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right font-semibold text-gray-800">
+                      {formatCurrency(Number(inv.total_gross))}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[inv.status]}`}>
+                        {STATUS_LABEL[inv.status]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Link
+                        href={`/rechnungen/${inv.id}`}
+                        className="text-sm text-gray-400 hover:text-[#1B3A6B] transition-colors"
+                      >
+                        →
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}

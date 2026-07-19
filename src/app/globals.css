@@ -3,8 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --color-navy:   #1B3A6B;
-  --color-blue:   #1565C0;
-  --color-mint:   #00897B;
-  --color-arctic: #E3F2FD;
+  /* KPS Partner Corporate Design (kps-partner.at) */
+  --kps-primary:   #D2092C;  /* Primärrot – Hauptfarbe KPS */
+  --kps-red-dark:  #D90700;  /* Dunkles Rot */
+  --kps-dark:      #2B161B;  /* Dunkel – fast Schwarz (Logo/Sidebar) */
+  --kps-grey:      #7C909A;  /* Grau-Blau (Footer/Akzent) */
+  --kps-light:     #F6F7F8;  /* Hellgrau – Hintergrund */
+  --kps-bg:        #F0F4F8;  /* Dashboard-Hintergrund */
+  --kps-white:     #FFFFFF;
+
+  /* Funktionsfarben (unabhängig von KPS-Brand) */
+  --color-income:  #00897B;  /* Einnahmen – Grün */
+  --color-expense: #C62828;  /* Ausgaben – Rot */
 }

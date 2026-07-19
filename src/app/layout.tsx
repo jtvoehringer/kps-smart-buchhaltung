@@ -4,6 +4,10 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'KPS Smart Buchhaltung',
   description: 'Digitale Buchführung für österreichische EA-Rechner',
+  icons: {
+    icon: '/kps-logo.png',
+    apple: '/kps-logo.png',
+  },
 };
 
 export default function RootLayout({
