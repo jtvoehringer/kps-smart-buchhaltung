@@ -81,7 +81,7 @@ export async function createMandant(formData: FormData) {
       user_id:      mandantUserId,
       company_name: companyName,
       uid_number:   uidNumber || null,
-      vat_period:   vatPeriod || 'quarterly',
+      vat_period:   (vatPeriod || 'quarterly') as 'monthly' | 'quarterly',
     })
     .select('id')
     .single();

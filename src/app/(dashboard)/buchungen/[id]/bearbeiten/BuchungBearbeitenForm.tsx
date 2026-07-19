@@ -66,7 +66,7 @@ export default function BuchungBearbeitenForm({
         type,
         category_id:  categoryId,
         amount_net:   Math.round(netNum  * 100) / 100,
-        vat_rate:     vatRate,
+        vat_rate:     vatRate as 0 | 10 | 13 | 20,
         vat_amount:   Math.round(vatAmt  * 100) / 100,
         booking_date: bookingDate,
         description:  description || null,

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import RechnungForm from '../../RechnungForm';
 
 export default async function RechnungBearbeitenPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -25,7 +26,7 @@ export default async function RechnungBearbeitenPage({ params }: { params: Promi
 
   const [{ data: invoice }, { data: customers }, { data: branding }] = await Promise.all([
     admin.from('invoices').select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('client_id', membership.client_id)
       .maybeSingle(),
     admin.from('customers')
@@ -38,12 +39,12 @@ export default async function RechnungBearbeitenPage({ params }: { params: Promi
 
   if (!invoice) notFound();
   // Nur Entwürfe dürfen bearbeitet werden
-  if (invoice.status !== 'draft') redirect(`/rechnungen/${params.id}`);
+  if (invoice.status !== 'draft') redirect(`/rechnungen/${id}`);
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Link href={`/rechnungen/${params.id}`}
+        <Link href={`/rechnungen/${id}`}
           className="text-gray-400 hover:text-gray-600 transition-colors text-sm">
           ← Rechnung
         </Link>

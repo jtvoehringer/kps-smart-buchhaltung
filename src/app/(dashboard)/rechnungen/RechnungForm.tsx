@@ -50,6 +50,21 @@ type ExistingInvoice = {
   total_gross: number;
 };
 
+type InvoicePayload = {
+  client_id: string;
+  customer_id: string;
+  invoice_date: string;
+  due_date: string;
+  items: InvoiceItem[];
+  total_net: number;
+  total_vat: number;
+  total_gross: number;
+  notes: string | null;
+  footer_override: string | null;
+  invoice_number: string;
+  status: 'draft' | 'open';
+};
+
 const EMPTY_ITEM: InvoiceItem = {
   description: '', quantity: 1, unit: 'Stk.', unit_price: 0,
   vat_rate: 20, amount_net: 0, amount_vat: 0, amount_gross: 0,
@@ -127,7 +142,7 @@ export default function RechnungForm({
     setLoading(true);
     setError('');
 
-    const payload: Record<string, unknown> = {
+    const payload: InvoicePayload = {
       client_id:      clientId,
       customer_id:    customerId,
       invoice_date:   invoiceDate,
@@ -138,6 +153,8 @@ export default function RechnungForm({
       total_gross:    Math.round(totalGross * 100) / 100,
       notes:          notes || null,
       footer_override: footerOverride || null,
+      invoice_number: existing?.invoice_number ?? '',
+      status:         (existing?.status as 'draft' | 'open' | undefined) ?? 'draft',
     };
 
     if (finalize && !existing) {
@@ -187,11 +204,13 @@ export default function RechnungForm({
     // Auto-Buchung bei Finalisierung
     if (finalize && invoiceId) {
       // Kategorie für Einnahmen suchen (erste passende Einnahmen-Kategorie)
+      // Hinweis: "categories" hat keine client_id-Spalte (nur tenant_id) – die
+      // RLS-Policy "Kategorien lesen" filtert bereits auf systemweite +
+      // eigene Tenant-Kategorien, daher hier kein zusätzlicher .or()-Filter nötig.
       const { data: cat } = await supabase
         .from('categories')
         .select('id')
         .eq('type', 'income')
-        .or(`tenant_id.is.null,client_id.eq.${clientId}`)
         .order('sort_order')
         .limit(1)
         .maybeSingle();
@@ -202,7 +221,7 @@ export default function RechnungForm({
           category_id:  cat.id,
           type:         'income',
           amount_net:   Math.round(totalNet   * 100) / 100,
-          vat_rate:     items[0]?.vat_rate ?? 20,
+          vat_rate:     (items[0]?.vat_rate ?? 20) as 0 | 10 | 13 | 20,
           vat_amount:   Math.round(totalVat  * 100) / 100,
           booking_date: invoiceDate,
           description:  `Rechnung ${payload.invoice_number ?? ''} – ${customers.find(c => c.id === customerId)?.name ?? ''}`.trim(),

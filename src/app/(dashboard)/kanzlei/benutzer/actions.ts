@@ -74,7 +74,7 @@ export async function createBenutzer(formData: FormData) {
       tenant_id: me.tenant_id,
       email,
       full_name: fullName || null,
-      role,
+      role: role as 'admin' | 'kanzlei' | 'klient' | 'superadmin', // oben bereits gegen erlaubte Werte geprüft
     });
 
   if (userError) {
@@ -111,7 +111,7 @@ export async function updateBenutzerRole(userId: string, newRole: string) {
 
   const { error } = await adminSupabase
     .from('users')
-    .update({ role: newRole })
+    .update({ role: newRole as 'admin' | 'kanzlei' | 'klient' | 'superadmin' }) // oben bereits gegen erlaubte Werte geprüft
     .eq('id', userId);
 
   if (error) return { error: `Rolle konnte nicht geändert werden: ${error.message}` };

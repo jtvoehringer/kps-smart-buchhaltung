@@ -146,7 +146,7 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
         category_id: r.categoryId,
         type:        r.type,
         amount_net:  amtNet,
-        vat_rate:    cat.vat_rate,
+        vat_rate:    cat.vat_rate as 0 | 10 | 13 | 20,
         vat_amount:  vatAmt,
         booking_date: r.date,
         description: [r.counterpart, r.description].filter(Boolean).join(' – ').slice(0, 500) || null,
@@ -183,15 +183,17 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
     }
 
     // Import-History (optional – schlägt still fehl wenn bank_imports noch nicht existiert)
+    // Hinweis: Supabase-Query-Builder sind nur "thenable" (kein echtes Promise
+    // mit .catch), daher zweiarmiges .then(onFulfilled, onRejected) statt .catch().
     await supabase.from('bank_imports').insert({
       client_id:   clientId,
       imported_by: userId,
       file_name:   fileName,
-      file_type:   fileType || 'csv',
+      file_type:   (fileType || 'csv') as 'camt053' | 'csv',
       iban:        iban || null,
       tx_total:    rows.length,
       tx_imported: imported,
-    }).then(() => {}).catch(() => {});
+    }).then(() => {}, () => {});
 
     setImportMsg(`✅ ${imported} Buchung${imported !== 1 ? 'en' : ''} importiert.${!withExtras ? ' (Tipp: Migration 008 ausführen für Duplikat-Schutz)' : ''}`);
     setImporting(false);

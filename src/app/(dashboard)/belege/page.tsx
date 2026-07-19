@@ -5,7 +5,7 @@ import { createClient }      from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect }          from 'next/navigation';
 import { getMyClientId }     from '@/lib/supabase/get-my-client';
-import BelegeClient          from './BelegeClient';
+import BelegeClient, { type Receipt } from './BelegeClient';
 
 export default async function BelegePage() {
   const supabase = await createClient();
@@ -19,11 +19,11 @@ export default async function BelegePage() {
   // Modul-Guard
   const { data: client } = await admin
     .from('clients')
-    .select('company_name, modules_enabled')
+    .select('company_name, modules_enabled, tenant_id')
     .eq('id', clientId)
     .maybeSingle();
 
-  const modules: string[] = (client as { modules_enabled?: string[] } | null)?.modules_enabled ?? [];
+  const modules: string[] = client?.modules_enabled ?? [];
   if (!modules.includes('ocr')) redirect('/dashboard');
 
   // Bestehende Belege laden (neueste zuerst)
@@ -38,6 +38,16 @@ export default async function BelegePage() {
     .order('created_at', { ascending: false })
     .limit(100);
 
+  // Kategorien laden (für die Kategorie-Auswahl beim Verbuchen eines Belegs)
+  // Kategorien sind entweder systemweit (tenant_id NULL) oder auf den Tenant der
+  // Kanzlei beschränkt – "categories" hat keine client_id-Spalte.
+  const { data: categories } = await admin
+    .from('categories')
+    .select('id, name, type, vat_rate')
+    .or(`tenant_id.is.null${client?.tenant_id ? `,tenant_id.eq.${client.tenant_id}` : ''}`)
+    .order('type')
+    .order('sort_order');
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
@@ -46,7 +56,8 @@ export default async function BelegePage() {
       </div>
       <BelegeClient
         clientId={clientId}
-        initialReceipts={receipts ?? []}
+        initialReceipts={(receipts ?? []) as unknown as Receipt[]}
+        categories={categories ?? []}
       />
     </div>
   );

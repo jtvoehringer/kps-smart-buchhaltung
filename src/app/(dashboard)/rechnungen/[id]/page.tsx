@@ -7,6 +7,7 @@ import Link from 'next/link';
 import RechnungDetailClient from './RechnungDetailClient';
 
 export default async function RechnungDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -26,7 +27,7 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
   const [{ data: invoice }, { data: customers }, { data: branding }] = await Promise.all([
     admin.from('invoices')
       .select(`*, customers(id,name,company_name,street,zip,city,country,uid_number,email)`)
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('client_id', membership.client_id)
       .maybeSingle(),
     admin.from('customers')

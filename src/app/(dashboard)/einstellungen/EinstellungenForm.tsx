@@ -114,7 +114,7 @@ export default function EinstellungenForm({
       .from('clients')
       .update({
         booking_mode: bookingMode,
-        vat_period:   vatPeriod,
+        vat_period:   vatPeriod as 'monthly' | 'quarterly',
         uid_number:   uidNumber || null,
       })
       .eq('id', client.id);

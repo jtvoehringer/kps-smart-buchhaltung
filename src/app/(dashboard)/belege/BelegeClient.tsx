@@ -17,7 +17,7 @@ type OcrData = {
   typ:            'einnahme' | 'ausgabe' | null;
 };
 
-type Receipt = {
+export type Receipt = {
   id:             string;
   file_name:      string;
   file_url:       string;
@@ -31,9 +31,12 @@ type Receipt = {
   created_at:     string;
 };
 
+type Category = { id: string; name: string; type: string; vat_rate: number };
+
 type Props = {
   clientId:        string;
   initialReceipts: Receipt[];
+  categories:      Category[];
 };
 
 // ── Hilfsfunktionen ──────────────────────────────────────────────────────────
@@ -68,7 +71,7 @@ function fileSize(bytes: number | null) {
 
 // ── Hauptkomponente ───────────────────────────────────────────────────────────
 
-export default function BelegeClient({ clientId, initialReceipts }: Props) {
+export default function BelegeClient({ clientId, initialReceipts, categories }: Props) {
   const router                      = useRouter();
   const supabase                    = createClient();
   const fileInputRef                = useRef<HTMLInputElement>(null);
@@ -79,8 +82,15 @@ export default function BelegeClient({ clientId, initialReceipts }: Props) {
   const [dragOver, setDragOver]     = useState(false);
   const [selected, setSelected]     = useState<Receipt | null>(null);
   const [editing, setEditing]       = useState<Partial<OcrData>>({});
+  const [categoryId, setCategoryId] = useState('');
   const [booking, setBooking]       = useState(false);
   const [bookErr, setBookErr]       = useState('');
+
+  // Kategorie-Vorschlag: erste Kategorie, die zum erkannten Typ (Einnahme/Ausgabe) passt
+  function suggestCategoryId(typ: 'einnahme' | 'ausgabe' | null | undefined): string {
+    const wantType = typ === 'einnahme' ? 'income' : 'expense';
+    return categories.find(c => c.type === wantType)?.id ?? categories[0]?.id ?? '';
+  }
 
   // ── Upload ────────────────────────────────────────────────────────────────
 
@@ -124,7 +134,9 @@ export default function BelegeClient({ clientId, initialReceipts }: Props) {
         if (dbErr || !receipt) throw new Error(dbErr?.message ?? 'DB-Fehler');
 
         // Neue Receipt in Liste einfügen
-        setReceipts(prev => [receipt as Receipt, ...prev]);
+        // (ocr_data ist DB-seitig generisches JSONB; erst nach der OCR-Verarbeitung
+        // hat es die engere OcrData-Form – daher Cast über unknown)
+        setReceipts(prev => [receipt as unknown as Receipt, ...prev]);
 
         // OCR automatisch starten
         startOcr(receipt.id);
@@ -164,6 +176,7 @@ export default function BelegeClient({ clientId, initialReceipts }: Props) {
   function openReceipt(r: Receipt) {
     setSelected(r);
     setEditing(r.ocr_data ?? {});
+    setCategoryId(suggestCategoryId(r.ocr_data?.typ));
     setBookErr('');
   }
 
@@ -171,6 +184,7 @@ export default function BelegeClient({ clientId, initialReceipts }: Props) {
 
   async function handleBook() {
     if (!selected) return;
+    if (!categoryId) { setBookErr('Bitte eine Kategorie auswählen.'); return; }
     setBooking(true);
     setBookErr('');
 
@@ -185,13 +199,15 @@ export default function BelegeClient({ clientId, initialReceipts }: Props) {
       .from('transactions')
       .insert({
         client_id:    clientId,
+        category_id:  categoryId,
         booking_date: d.datum ?? new Date().toISOString().split('T')[0],
         description:  `${d.lieferant ? d.lieferant + ' – ' : ''}${d.beschreibung ?? ''}`.trim(),
         type,
         amount_net:   net,
         vat_amount:   vat,
-        amount_gross: gross,
-        vat_rate:     Number(d.mwst_satz ?? 20),
+        // amount_gross NICHT mitschicken: ist in der DB eine GENERATED ALWAYS-Spalte
+        // (amount_net + vat_amount), Postgres berechnet sie automatisch.
+        vat_rate:     Number(d.mwst_satz ?? 20) as 0 | 10 | 13 | 20,
       })
       .select('id')
       .single();
@@ -394,7 +410,10 @@ export default function BelegeClient({ clientId, initialReceipts }: Props) {
                       {(['ausgabe', 'einnahme'] as const).map(t => (
                         <button
                           key={t}
-                          onClick={() => setEditing(p => ({ ...p, typ: t }))}
+                          onClick={() => {
+                            setEditing(p => ({ ...p, typ: t }));
+                            setCategoryId(suggestCategoryId(t));
+                          }}
                           className={`flex-1 py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
                             editing.typ === t
                               ? t === 'ausgabe'
@@ -407,6 +426,23 @@ export default function BelegeClient({ clientId, initialReceipts }: Props) {
                         </button>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Kategorie */}
+                  <div className="col-span-2">
+                    <label className="text-xs text-gray-500 font-medium block mb-1">Kategorie</label>
+                    <select
+                      value={categoryId}
+                      onChange={e => setCategoryId(e.target.value)}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/30 bg-white"
+                    >
+                      <option value="">– bitte wählen –</option>
+                      {categories
+                        .filter(c => c.type === (editing.typ === 'einnahme' ? 'income' : 'expense'))
+                        .map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
                   </div>
 
                   {/* Datum */}
@@ -507,7 +543,7 @@ export default function BelegeClient({ clientId, initialReceipts }: Props) {
                 {selected.status !== 'booked' ? (
                   <button
                     onClick={handleBook}
-                    disabled={booking || !editing.betrag_brutto}
+                    disabled={booking || !editing.betrag_brutto || !categoryId}
                     className="w-full py-3 bg-[#1B3A6B] hover:bg-[#1565C0] text-white font-semibold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {booking ? 'Wird verbucht…' : '✅ Als Buchung übernehmen'}

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import KundeForm from '../KundeForm';
 
 export default async function KundeBearbeitenPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -25,7 +26,7 @@ export default async function KundeBearbeitenPage({ params }: { params: Promise<
   const { data: customer } = await admin
     .from('customers')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('client_id', membership.client_id)
     .maybeSingle();
 

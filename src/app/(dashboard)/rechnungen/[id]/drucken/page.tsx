@@ -8,6 +8,7 @@ import { redirect, notFound } from 'next/navigation';
 import DruckButtons from './DruckButtons';
 
 export default async function RechnungDruckenPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -27,7 +28,7 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
   const [{ data: invoice }, { data: branding }, { data: clientData }] = await Promise.all([
     admin.from('invoices')
       .select(`*, customers(*)`)
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('client_id', membership.client_id)
       .maybeSingle(),
     admin.from('client_branding').select('*')
@@ -125,7 +126,7 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
       </head>
       <body>
         <div className="no-print">
-          <DruckButtons invoiceId={params.id} />
+          <DruckButtons invoiceId={id} />
         </div>
 
         <div className="page">

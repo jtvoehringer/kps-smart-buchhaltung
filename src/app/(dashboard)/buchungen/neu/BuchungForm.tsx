@@ -119,8 +119,9 @@ export default function BuchungForm({
         category_id:  categoryId,
         type,
         amount_net:   Math.round(netNum      * 100) / 100,
-        amount_gross: Math.round(grossNum    * 100) / 100,
-        vat_rate:     vatRate,
+        // amount_gross NICHT mitschicken: ist in der DB eine GENERATED ALWAYS-Spalte
+        // (amount_net + vat_amount), Postgres berechnet sie automatisch.
+        vat_rate:     vatRate as 0 | 10 | 13 | 20,
         vat_amount:   Math.round(vatAmtSaved * 100) / 100,
         booking_date: bookingDate,
         description:  descFinal,
