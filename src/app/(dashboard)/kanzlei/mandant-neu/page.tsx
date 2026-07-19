@@ -19,7 +19,7 @@ export default async function MandantNeuPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1B3A6B]">Neuen Mandanten anlegen</h1>
+        <h1 className="text-2xl font-bold text-[#35609E]">Neuen Mandanten anlegen</h1>
         <p className="text-gray-500 text-sm">Mandant wird angelegt und erhält eine Einladungs-E-Mail</p>
       </div>
       <MandantNeuForm tenantId={me.tenant_id} />

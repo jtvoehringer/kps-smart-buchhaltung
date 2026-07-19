@@ -49,7 +49,7 @@ export default function EinstellungenForm({
   const [uidNumber,   setUidNumber]   = useState(client.uid_number ?? '');
 
   // ── Branding ──────────────────────────────────────────────
-  const [brandColor,      setBrandColor]      = useState(branding?.brand_color      ?? '#1B3A6B');
+  const [brandColor,      setBrandColor]      = useState(branding?.brand_color      ?? '#35609E');
   const [companyStreet,   setCompanyStreet]   = useState(branding?.company_street   ?? '');
   const [companyZip,      setCompanyZip]      = useState(branding?.company_zip      ?? '');
   const [companyCity,     setCompanyCity]     = useState(branding?.company_city     ?? '');
@@ -298,8 +298,8 @@ export default function EinstellungenForm({
             type="text"
             value={brandColor}
             onChange={e => setBrandColor(e.target.value)}
-            placeholder="#1B3A6B"
-            className="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+            placeholder="#35609E"
+            className="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#35609E]"
           />
           <div
             className="flex-1 h-10 rounded-lg border border-gray-100"
@@ -322,12 +322,12 @@ export default function EinstellungenForm({
             <input
               type="text" placeholder="PLZ"
               value={companyZip} onChange={e => setCompanyZip(e.target.value)}
-              className="w-28 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+              className="w-28 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
             />
             <input
               type="text" placeholder="Ort"
               value={companyCity} onChange={e => setCompanyCity(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
             />
           </div>
           <input
@@ -339,12 +339,12 @@ export default function EinstellungenForm({
             <input
               type="tel" placeholder="Telefon"
               value={companyPhone} onChange={e => setCompanyPhone(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
             />
             <input
               type="email" placeholder="E-Mail"
               value={companyEmail} onChange={e => setCompanyEmail(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
             />
           </div>
           <input
@@ -369,12 +369,12 @@ export default function EinstellungenForm({
             <input
               type="text" placeholder="BIC"
               value={bic} onChange={e => setBic(e.target.value)}
-              className="w-40 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+              className="w-40 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
             />
             <input
               type="text" placeholder="Bankname"
               value={bankName} onChange={e => setBankName(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
             />
           </div>
         </div>
@@ -416,7 +416,7 @@ export default function EinstellungenForm({
           </div>
           <div className="bg-gray-50 rounded-lg px-4 py-3 flex items-center gap-3">
             <span className="text-xs text-gray-400">Vorschau nächste Rechnung:</span>
-            <span className="font-mono font-semibold text-[#1B3A6B]">{nrPreview}</span>
+            <span className="font-mono font-semibold text-[#35609E]">{nrPreview}</span>
           </div>
         </div>
         <div className="mt-4">
@@ -425,7 +425,7 @@ export default function EinstellungenForm({
             <input
               type="number" min={0} max={365}
               value={paymentDays} onChange={e => setPaymentDays(Number(e.target.value))}
-              className="w-28 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+              className="w-28 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
             />
             <span className="text-sm text-gray-500">Tage ab Rechnungsdatum</span>
           </div>
@@ -441,7 +441,7 @@ export default function EinstellungenForm({
           placeholder="z.B. Gerichtsstand Wien · Steuerberater: KPS Steuerberatung GmbH"
           value={invoiceFooter}
           onChange={e => setInvoiceFooter(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B] resize-none"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] resize-none"
         />
       </div>
 
@@ -456,7 +456,7 @@ export default function EinstellungenForm({
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#1B3A6B] hover:bg-[#1565C0] text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
+        className="w-full bg-[#35609E] hover:bg-[#4F90E8] text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
       >
         {loading ? 'Speichern…' : 'Alle Einstellungen speichern'}
       </button>
@@ -466,12 +466,12 @@ export default function EinstellungenForm({
 
 // ── Hilfsstyles & Subkomponenten ──────────────────────────────
 
-const inputCls = 'w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]';
+const inputCls = 'w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]';
 
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="pt-2 pb-1">
-      <h2 className="text-base font-bold text-[#1B3A6B] uppercase tracking-wide">{title}</h2>
+      <h2 className="text-base font-bold text-[#35609E] uppercase tracking-wide">{title}</h2>
       {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
     </div>
   );
@@ -484,7 +484,7 @@ function ModeButton({ active, onClick, icon, label, sub }: {
     <button
       type="button"
       onClick={onClick}
-      style={active ? { backgroundColor: '#1B3A6B', color: 'white', borderColor: '#1B3A6B' } : {}}
+      style={active ? { backgroundColor: '#35609E', color: 'white', borderColor: '#35609E' } : {}}
       className={`flex-1 py-4 rounded-xl border-2 text-sm transition-all ${
         active ? '' : 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700'
       }`}
@@ -501,7 +501,7 @@ function PeriodButton({ active, onClick, label }: { active: boolean; onClick: ()
     <button
       type="button"
       onClick={onClick}
-      style={active ? { backgroundColor: '#1B3A6B', color: 'white', borderColor: '#1B3A6B' } : {}}
+      style={active ? { backgroundColor: '#35609E', color: 'white', borderColor: '#35609E' } : {}}
       className={`flex-1 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
         active ? '' : 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700'
       }`}

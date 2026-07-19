@@ -195,6 +195,10 @@ export type InvoiceItem = {
   amount_net: number;
   amount_vat: number;
   amount_gross: number;
+  // Leistungsnachweis pro Position (Rechnungslayout)
+  berater?: string;
+  leistung_von?: string | null;
+  leistung_bis?: string | null;
 };
 
 export type Invoice = {
@@ -213,6 +217,8 @@ export type Invoice = {
   transaction_id: string | null;
   notes: string | null;
   footer_override: string | null;
+  sent_at: string | null;
+  sent_to: string | null;
   created_at: string;
   updated_at: string;
   // Joins (optional)
@@ -487,6 +493,8 @@ export type Database = {
           transaction_id?: string | null;
           notes?: string | null;
           footer_override?: string | null;
+          sent_at?: string | null;
+          sent_to?: string | null;
         };
         Update: Partial<Invoice>;
         Relationships: [

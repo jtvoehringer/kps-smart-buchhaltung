@@ -40,7 +40,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-3">
             <Image src="/kps-logo.png" alt="KPS Logo" width={150} height={73} priority />
           </div>
-          <h1 className="text-2xl font-bold text-[#1B3A6B]">Smart Buchhaltung</h1>
+          <h1 className="text-2xl font-bold text-[#35609E]">Smart Buchhaltung</h1>
           <p className="text-gray-500 text-sm mt-1">Bitte melden Sie sich an</p>
         </div>
 
@@ -57,7 +57,7 @@ export default function LoginPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="max@mustermann.at"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
               suppressHydrationWarning
             />
           </div>
@@ -74,7 +74,7 @@ export default function LoginPage() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
               suppressHydrationWarning
             />
           </div>
@@ -86,14 +86,14 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#1B3A6B] hover:bg-[#1565C0] text-white font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-50"
+            className="w-full bg-[#35609E] hover:bg-[#4F90E8] text-white font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-50"
           >
             {loading ? 'Anmelden…' : 'Anmelden'}
           </button>
         </form>
 
         <p className="text-center mt-4">
-          <a href="/passwort-vergessen" className="text-xs text-gray-400 hover:text-[#1B3A6B]">
+          <a href="/passwort-vergessen" className="text-xs text-gray-400 hover:text-[#35609E]">
             Passwort vergessen?
           </a>
         </p>

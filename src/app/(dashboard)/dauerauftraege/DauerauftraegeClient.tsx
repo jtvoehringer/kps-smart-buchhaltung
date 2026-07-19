@@ -84,7 +84,7 @@ export default function DauerauftraegeClient({
       <div className="flex justify-end">
         <Link
           href="/dauerauftraege/neu"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#1B3A6B] hover:bg-[#152d54] transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#35609E] hover:bg-[#152d54] transition-colors shadow-sm"
         >
           <span>＋</span>
           <span>Neuer Dauerauftrag</span>
@@ -104,7 +104,7 @@ export default function DauerauftraegeClient({
           </p>
           <Link
             href="/dauerauftraege/neu"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#1B3A6B] hover:bg-[#152d54] transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#35609E] hover:bg-[#152d54] transition-colors"
           >
             Ersten Dauerauftrag anlegen
           </Link>

@@ -74,7 +74,7 @@ export default function UVAClient({ companyName, vatLiable, vatPeriod, transacti
   if (!vatLiable) {
     return (
       <div className="p-6 max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-[#1B3A6B] mb-2">UVA</h1>
+        <h1 className="text-2xl font-bold text-[#35609E] mb-2">UVA</h1>
         <p className="text-gray-500 text-sm mb-6">{companyName}</p>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
           <div className="text-4xl mb-3">ℹ️</div>
@@ -94,7 +94,7 @@ export default function UVAClient({ companyName, vatLiable, vatPeriod, transacti
       {/* Header */}
       <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#1B3A6B]">Umsatzsteuervoranmeldung</h1>
+          <h1 className="text-2xl font-bold text-[#35609E]">Umsatzsteuervoranmeldung</h1>
           <p className="text-gray-500 text-sm">{companyName}</p>
         </div>
         <div className="flex items-center gap-3">
@@ -102,7 +102,7 @@ export default function UVAClient({ companyName, vatLiable, vatPeriod, transacti
           <button
             onClick={handlePrint}
             title="UVA als PDF drucken / speichern"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border-2 border-[#1B3A6B] text-[#1B3A6B] hover:bg-[#1B3A6B] hover:text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border-2 border-[#35609E] text-[#35609E] hover:bg-[#35609E] hover:text-white transition-colors"
           >
             <span>🖨</span>
             <span>PDF / Drucken</span>
@@ -111,7 +111,7 @@ export default function UVAClient({ companyName, vatLiable, vatPeriod, transacti
           <select
             value={year}
             onChange={e => setYear(Number(e.target.value))}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/20"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#35609E]/20"
           >
             {availableYears.map(y => (
               <option key={y} value={y}>{y}</option>
@@ -128,8 +128,8 @@ export default function UVAClient({ companyName, vatLiable, vatPeriod, transacti
             onClick={() => setQuarter(q)}
             className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
               quarter === q
-                ? 'bg-[#1B3A6B] text-white shadow-sm'
-                : 'bg-white text-gray-500 border border-gray-200 hover:border-[#1B3A6B]/30 hover:text-[#1B3A6B]'
+                ? 'bg-[#35609E] text-white shadow-sm'
+                : 'bg-white text-gray-500 border border-gray-200 hover:border-[#35609E]/30 hover:text-[#35609E]'
             }`}
           >
             Q{q}
@@ -219,7 +219,7 @@ function UVATable({
   total: number;
   totalLabel: string;
 }) {
-  const headerColor = color === 'blue' ? 'bg-[#1B3A6B]' : 'bg-[#00897B]';
+  const headerColor = color === 'blue' ? 'bg-[#35609E]' : 'bg-[#00897B]';
   const activeRows = rows.filter(r => r.bgl > 0 || r.steuer > 0);
 
   return (

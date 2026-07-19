@@ -78,7 +78,7 @@ export default function BmdExportClient({ clients }: Props) {
             <select
               value={clientId}
               onChange={e => { setClientId(e.target.value); setPreviewRows(null); }}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/30 bg-white"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 bg-white"
             >
               {clients.length === 0 && (
                 <option value="">Keine Mandanten gefunden</option>
@@ -96,7 +96,7 @@ export default function BmdExportClient({ clients }: Props) {
               type="date"
               value={dateFrom}
               onChange={e => { setDateFrom(e.target.value); setPreviewRows(null); }}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/30"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function BmdExportClient({ clients }: Props) {
               type="date"
               value={dateTo}
               onChange={e => { setDateTo(e.target.value); setPreviewRows(null); }}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]/30"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30"
             />
           </div>
 
@@ -124,7 +124,7 @@ export default function BmdExportClient({ clients }: Props) {
                     setDateTo(`${y}-12-31`);
                     setPreviewRows(null);
                   }}
-                  className="text-xs px-2.5 py-1 rounded-md border border-[#1B3A6B]/20 text-[#1B3A6B] hover:bg-[#1B3A6B]/5 transition-colors"
+                  className="text-xs px-2.5 py-1 rounded-md border border-[#35609E]/20 text-[#35609E] hover:bg-[#35609E]/5 transition-colors"
                 >
                   {y}
                 </button>
@@ -139,7 +139,7 @@ export default function BmdExportClient({ clients }: Props) {
                     key={q}
                     type="button"
                     onClick={() => { setDateFrom(from); setDateTo(to); setPreviewRows(null); }}
-                    className="text-xs px-2.5 py-1 rounded-md border border-[#1B3A6B]/20 text-[#1B3A6B] hover:bg-[#1B3A6B]/5 transition-colors"
+                    className="text-xs px-2.5 py-1 rounded-md border border-[#35609E]/20 text-[#35609E] hover:bg-[#35609E]/5 transition-colors"
                   >
                     Q{q}
                   </button>
@@ -153,14 +153,14 @@ export default function BmdExportClient({ clients }: Props) {
           <button
             onClick={fetchPreview}
             disabled={!clientId || loading}
-            className="flex-1 sm:flex-none px-5 py-2 rounded-lg border border-[#1B3A6B] text-[#1B3A6B] text-sm font-medium hover:bg-[#1B3A6B]/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 sm:flex-none px-5 py-2 rounded-lg border border-[#35609E] text-[#35609E] text-sm font-medium hover:bg-[#35609E]/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Lädt…' : '🔍 Vorschau'}
           </button>
           <button
             onClick={downloadCsv}
             disabled={!clientId || loading}
-            className="flex-1 sm:flex-none px-5 py-2 rounded-lg bg-[#1B3A6B] hover:bg-[#1565C0] text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 sm:flex-none px-5 py-2 rounded-lg bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Exportiert…' : '📤 CSV herunterladen'}
           </button>
@@ -224,7 +224,7 @@ export default function BmdExportClient({ clients }: Props) {
       )}
 
       {/* Hinweis */}
-      <div className="rounded-xl border border-[#98C6DD]/50 bg-[#98C6DD]/10 px-5 py-4 text-sm text-[#0E3C62]">
+      <div className="rounded-xl border border-accent/40 bg-surface-band px-5 py-4 text-sm text-accent-dark">
         <p className="font-semibold mb-1">ℹ️ BMD NTCS EA-Import</p>
         <p className="text-xs leading-relaxed opacity-80">
           Die CSV-Datei ist kompatibel mit dem BMD NTCS EA-Import (Semikolon-getrennt, ISO-8859-1).

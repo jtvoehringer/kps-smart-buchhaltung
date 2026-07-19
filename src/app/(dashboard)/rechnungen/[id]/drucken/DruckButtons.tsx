@@ -15,7 +15,7 @@ export default function DruckButtons({ invoiceId }: { invoiceId: string }) {
       <button
         onClick={() => window.print()}
         style={{
-          background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px',
+          background: '#35609E', color: 'white', border: 'none', borderRadius: '8px',
           padding: '8px 18px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
         }}
       >

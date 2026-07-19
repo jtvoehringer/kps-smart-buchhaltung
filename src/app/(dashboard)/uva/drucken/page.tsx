@@ -109,13 +109,13 @@ export default async function UVADruckenPage({
             max-width: 800px;
             margin: 0 auto;
           }
-          .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; border-bottom: 2px solid #2B161B; padding-bottom: 16px; }
+          .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; border-bottom: 2px solid #3F454C; padding-bottom: 16px; }
           .logo-block { display: flex; align-items: center; gap: 12px; }
-          .logo { width: 36px; height: 36px; background: #2B161B; color: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 10px; letter-spacing: 0.5px; }
+          .logo { width: 36px; height: 36px; background: #3F454C; color: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 10px; letter-spacing: 0.5px; }
           .brand-name { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #888; }
-          .company-name { font-size: 15px; font-weight: 700; color: #1B3A6B; margin-top: 2px; }
+          .company-name { font-size: 15px; font-weight: 700; color: #35609E; margin-top: 2px; }
           .header-right { text-align: right; }
-          .doc-title { font-size: 18px; font-weight: 800; color: #1B3A6B; }
+          .doc-title { font-size: 18px; font-weight: 800; color: #35609E; }
           .period { font-size: 13px; color: #555; margin-top: 3px; }
           .meta-row { display: flex; gap: 24px; margin-bottom: 24px; }
           .meta-card { background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 16px; flex: 1; }
@@ -123,7 +123,7 @@ export default async function UVADruckenPage({
           .meta-value { font-size: 13px; font-weight: 600; color: #1a1a1a; }
           .section { margin-bottom: 20px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
           .section-header { padding: 10px 16px; }
-          .section-header.blue { background: #1B3A6B; }
+          .section-header.blue { background: #35609E; }
           .section-header.teal { background: #00897B; }
           .section-header h3 { color: white; font-size: 12px; font-weight: 700; }
           .section-header p { color: rgba(255,255,255,0.65); font-size: 10px; margin-top: 1px; }
@@ -155,7 +155,7 @@ export default async function UVADruckenPage({
           .footer-disclaimer { font-size: 9px; color: #9ca3af; max-width: 480px; line-height: 1.5; }
           .footer-meta { font-size: 9px; color: #9ca3af; text-align: right; }
           .no-print { margin-bottom: 16px; display: flex; gap: 8px; }
-          .btn-print { background: #1B3A6B; color: white; border: none; padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+          .btn-print { background: #35609E; color: white; border: none; padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
           .btn-close { background: #f3f4f6; color: #374151; border: none; padding: 8px 18px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
           .empty-note { padding: 16px; text-align: center; color: #9ca3af; font-size: 11px; }
           @media print {

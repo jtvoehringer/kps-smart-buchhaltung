@@ -31,7 +31,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         role={me?.role ?? 'klient'}
         modulesEnabled={modulesEnabled}
       />
-      <main className="flex-1 overflow-y-auto bg-[#F8F8F3]">
+      <main className="flex-1 overflow-y-auto bg-surface">
         {children}
       </main>
     </div>

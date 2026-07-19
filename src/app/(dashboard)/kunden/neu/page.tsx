@@ -29,7 +29,7 @@ export default async function NeuerKundePage() {
           ← Kunden
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#1B3A6B]">Neuer Kunde</h1>
+        <h1 className="text-2xl font-bold text-[#35609E]">Neuer Kunde</h1>
       </div>
       <KundeForm clientId={membership.client_id} />
     </div>

@@ -109,14 +109,14 @@ export default function BuchungBearbeitenForm({
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Buchungsdatum</label>
         <input type="date" required value={bookingDate} onChange={e => setBookingDate(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
       </div>
 
       {/* Kategorie */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
         <select required value={categoryId} onChange={e => setCategoryId(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]">
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
           {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </div>
@@ -126,12 +126,12 @@ export default function BuchungBearbeitenForm({
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">{isBrutto ? 'Brutto (€)' : 'Netto (€)'}</label>
           <input type="number" required min="0.01" step="0.01" value={amount} onChange={e => setAmount(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]" />
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">USt %</label>
           <select value={vatRate} onChange={e => setVatRate(Number(e.target.value))}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]">
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
             {[0, 10, 13, 20].map(r => <option key={r} value={r}>{r} %</option>)}
           </select>
         </div>
@@ -154,7 +154,7 @@ export default function BuchungBearbeitenForm({
         </label>
         <input type="text" placeholder="z.B. Rechnung Nr. 2024-001 …" value={description}
           onChange={e => setDescription(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
       </div>
 
       {/* Belegverwaltung */}
@@ -176,7 +176,7 @@ export default function BuchungBearbeitenForm({
           Abbrechen
         </button>
         <button type="submit" disabled={loading}
-          className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#1B3A6B] hover:bg-[#1565C0] transition-colors disabled:opacity-50">
+          className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#35609E] hover:bg-[#4F90E8] transition-colors disabled:opacity-50">
           {loading ? 'Speichern…' : 'Änderungen speichern'}
         </button>
       </div>

@@ -99,7 +99,7 @@ export default function BuchungslisteClient({
           <button onClick={() => setFilterYear(availableYears[availableYears.indexOf(year) + 1] ?? year)}
             disabled={year === availableYears[availableYears.length - 1]}
             className="w-7 h-7 rounded border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 text-sm">&#x2039;</button>
-          <span className="font-bold text-[#1B3A6B] w-12 text-center text-sm">{year}</span>
+          <span className="font-bold text-[#35609E] w-12 text-center text-sm">{year}</span>
           <button onClick={() => setFilterYear(availableYears[availableYears.indexOf(year) - 1] ?? year)}
             disabled={year === availableYears[0]}
             className="w-7 h-7 rounded border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 text-sm">&#x203A;</button>
@@ -109,7 +109,7 @@ export default function BuchungslisteClient({
           <select
             value={filterMonth}
             onChange={e => setFilterMonth(Number(e.target.value))}
-            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]"
+            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
           >
             {MONTHS.map((m, i) => <option key={i} value={i}>{m}</option>)}
           </select>
@@ -123,7 +123,7 @@ export default function BuchungslisteClient({
                 filterType === t
                   ? t === 'income' ? 'bg-[#00897B] text-white'
                   : t === 'expense' ? 'bg-[#C62828] text-white'
-                  : 'bg-[#1B3A6B] text-white'
+                  : 'bg-[#35609E] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -203,7 +203,7 @@ export default function BuchungslisteClient({
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`/buchungen/${t.id}/bearbeiten`}
-                            className="text-gray-300 hover:text-[#1B3A6B] transition-colors text-sm"
+                            className="text-gray-300 hover:text-[#35609E] transition-colors text-sm"
                             title="Buchung bearbeiten"
                           >
                             &#x270F;&#xFE0F;

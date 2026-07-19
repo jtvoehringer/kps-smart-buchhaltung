@@ -52,8 +52,9 @@ const kanzleiItems = [
   { href: '/kanzlei/bmd-export',  label: 'BMD-Export',         icon: '📤' },
 ];
 
-const NAV_BG     = '#98C6DD';
-const NAV_ACCENT = '#0E3C62';
+// IC&P Corporate Design – Grau/Blau
+const NAV_BG     = '#3F454C'; // Grau dunkel
+const NAV_ACCENT = '#4F90E8'; // Blau (aktive Elemente)
 
 export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
   const pathname = usePathname();
@@ -99,19 +100,18 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className="px-4 pt-5 pb-4 border-b border-[#0E3C62]/20 flex-shrink-0">
+      <div className="px-4 pt-5 pb-4 border-b border-white/10 flex-shrink-0">
         <Link href="/dashboard" className="flex flex-col items-start gap-2 group" onClick={() => setMobileOpen(false)}>
           <Image
             src="/kps-logo.png"
             alt="KPS Logo"
             width={120}
             height={58}
-            className="transition-opacity group-hover:opacity-80"
+            className="transition-opacity group-hover:opacity-80 bg-white rounded-md px-2 py-1"
             priority
           />
           <span
-            className="text-[11px] font-black tracking-[0.18em] uppercase leading-none transition-opacity group-hover:opacity-70"
-            style={{ color: '#0E3C62' }}
+            className="text-[11px] font-black tracking-[0.18em] uppercase leading-none transition-opacity group-hover:opacity-70 text-white/90"
           >
             SMART BUCHHALTUNG
           </span>
@@ -133,7 +133,7 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
         {['admin', 'kanzlei', 'superadmin'].includes(role) && (
           <>
             <div className="pt-4 pb-1.5 px-2">
-              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(14,60,98,0.45)' }}>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">
                 Kanzlei
               </span>
             </div>
@@ -149,16 +149,15 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
         )}
       </nav>
 
-      <div className="px-3 py-4 border-t border-[#0E3C62]/20 flex-shrink-0">
+      <div className="px-3 py-4 border-t border-white/10 flex-shrink-0">
         <div className="px-3 py-1 mb-2">
-          <p className="text-[10px] uppercase tracking-widest font-bold" style={{ color: 'rgba(14,60,98,0.45)' }}>
+          <p className="text-[10px] uppercase tracking-widest font-bold text-white/40">
             {roleLabel}
           </p>
         </div>
         <button
           onClick={handleLogout}
-          className="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2.5 hover:bg-[#0E3C62]/10"
-          style={{ color: 'rgba(14,60,98,0.6)' }}
+          className="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2.5 hover:bg-white/10 text-white/70"
         >
           <span>↩</span>
           <span>Abmelden</span>
@@ -169,9 +168,9 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
             alt="IC&P Consultants"
             width={22}
             height={22}
-            className="rounded-full opacity-70"
+            className="rounded-full opacity-80"
           />
-          <p className="text-[9px]" style={{ color: 'rgba(14,60,98,0.35)' }}>
+          <p className="text-[9px] text-white/40">
             &copy; IC&amp;P Consultants e.U. &middot; v0.9
           </p>
         </div>
@@ -190,7 +189,7 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
 
       <button
         onClick={() => setMobileOpen(o => !o)}
-        style={{ backgroundColor: NAV_BG, color: '#0E3C62' }}
+        style={{ backgroundColor: NAV_BG, color: '#ffffff' }}
         className="md:hidden fixed top-3 left-3 z-40 flex items-center justify-center w-9 h-9 rounded-lg shadow-lg"
       >
         {mobileOpen ? '✕' : '☰'}
@@ -225,12 +224,12 @@ function NavLink({
       onClick={onClick}
       style={active
         ? { backgroundColor: NAV_ACCENT, color: '#ffffff' }
-        : { color: '#0E3C62' }
+        : { color: 'rgba(255,255,255,0.75)' }
       }
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
         active
           ? 'font-semibold'
-          : 'hover:bg-[#0E3C62]/10'
+          : 'hover:bg-white/10'
       }`}
     >
       <span className="w-5 text-center text-base leading-none flex-shrink-0">{icon}</span>

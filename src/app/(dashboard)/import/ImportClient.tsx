@@ -223,7 +223,7 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
           onDrop={onDrop}
           onClick={() => fileInput.current?.click()}
           className={`border-2 border-dashed rounded-2xl px-8 py-12 text-center cursor-pointer transition-colors ${
-            dragOver ? 'border-[#1B3A6B] bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+            dragOver ? 'border-[#35609E] bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
           }`}
         >
           <div className="text-4xl mb-3">🏦</div>
@@ -283,7 +283,7 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
                 <div className="flex gap-3 mt-2">
                   <button
                     onClick={() => router.push('/buchungen')}
-                    className="px-4 py-1.5 bg-[#1B3A6B] text-white text-xs font-semibold rounded-lg hover:bg-[#1565C0] transition-colors"
+                    className="px-4 py-1.5 bg-[#35609E] text-white text-xs font-semibold rounded-lg hover:bg-[#4F90E8] transition-colors"
                   >
                     → Buchungsübersicht
                   </button>
@@ -305,7 +305,7 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
                 type="checkbox"
                 checked={selectedCount > 0 && selectedCount === rows.filter(r => !r.isDuplicate).length}
                 onChange={e => toggleAll(e.target.checked)}
-                className="w-4 h-4 accent-[#1B3A6B]"
+                className="w-4 h-4 accent-[#35609E]"
               />
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                 {selectedCount} von {rows.filter(r => !r.isDuplicate).length} ausgewählt
@@ -343,7 +343,7 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
                             type="checkbox"
                             checked={row.selected}
                             onChange={() => toggleRow(idx)}
-                            className="w-4 h-4 accent-[#1B3A6B]"
+                            className="w-4 h-4 accent-[#35609E]"
                           />
                         )}
                       </td>
@@ -368,7 +368,7 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
                           <select
                             value={row.categoryId}
                             onChange={e => setCat(idx, e.target.value)}
-                            className={`w-full border rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#1B3A6B] ${
+                            className={`w-full border rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#35609E] ${
                               !row.categoryId ? 'border-amber-300 bg-amber-50' : 'border-gray-200'
                             }`}
                           >
@@ -402,7 +402,7 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
                 <button
                   onClick={handleImport}
                   disabled={importing || importable === 0}
-                  className="px-6 py-3 bg-[#1B3A6B] hover:bg-[#1565C0] text-white font-semibold rounded-xl transition-colors disabled:opacity-40"
+                  className="px-6 py-3 bg-[#35609E] hover:bg-[#4F90E8] text-white font-semibold rounded-xl transition-colors disabled:opacity-40"
                 >
                   {importing
                     ? 'Wird importiert…'

@@ -39,7 +39,7 @@ export default async function DauerauftraegePage() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1B3A6B]">Daueraufträge</h1>
+          <h1 className="text-2xl font-bold text-[#35609E]">Daueraufträge</h1>
           <p className="text-gray-500 text-sm mt-0.5">
             Wiederkehrende Buchungen – werden automatisch täglich verarbeitet
           </p>

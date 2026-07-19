@@ -52,7 +52,7 @@ export default function KundenClient({
         <p className="text-gray-500 text-sm mb-4">Noch keine Kunden angelegt.</p>
         <Link
           href="/kunden/neu"
-          className="inline-block bg-[#1B3A6B] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#1565C0] transition-colors"
+          className="inline-block bg-[#35609E] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#4F90E8] transition-colors"
         >
           Ersten Kunden anlegen
         </Link>
@@ -112,7 +112,7 @@ export default function KundenClient({
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/kunden/${c.id}`}
-                        className="text-gray-300 hover:text-[#1B3A6B] transition-colors"
+                        className="text-gray-300 hover:text-[#35609E] transition-colors"
                         title="Bearbeiten"
                       >
                         ✏️

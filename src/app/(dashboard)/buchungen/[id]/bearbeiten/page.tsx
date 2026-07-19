@@ -41,7 +41,7 @@ export default async function BuchungBearbeitenPage({ params }: { params: Promis
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1B3A6B]">Buchung bearbeiten</h1>
+        <h1 className="text-2xl font-bold text-[#35609E]">Buchung bearbeiten</h1>
         <p className="text-gray-500 text-sm">Änderungen werden sofort gespeichert.</p>
       </div>
       <BuchungBearbeitenForm

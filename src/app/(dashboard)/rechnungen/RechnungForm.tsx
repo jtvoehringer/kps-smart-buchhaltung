@@ -33,6 +33,10 @@ type InvoiceItem = {
   amount_net: number;
   amount_vat: number;
   amount_gross: number;
+  // Zusätzliche Felder für das Rechnungslayout (Leistungsnachweis pro Position)
+  berater?: string;
+  leistung_von?: string | null;
+  leistung_bis?: string | null;
 };
 
 type ExistingInvoice = {
@@ -68,6 +72,7 @@ type InvoicePayload = {
 const EMPTY_ITEM: InvoiceItem = {
   description: '', quantity: 1, unit: 'Stk.', unit_price: 0,
   vat_rate: 20, amount_net: 0, amount_vat: 0, amount_gross: 0,
+  berater: '', leistung_von: null, leistung_bis: null,
 };
 
 function todayStr() {
@@ -235,7 +240,7 @@ export default function RechnungForm({
     setLoading(false);
   }
 
-  const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]';
+  const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]';
 
   return (
     <div className="space-y-5 max-w-4xl">
@@ -280,9 +285,12 @@ export default function RechnungForm({
           {items.map((item, idx) => (
             <div key={idx} className="grid gap-2 pb-3 border-b border-gray-50 last:border-0 last:pb-0">
               <div className="flex gap-2 items-start">
+                <span className="mt-2 text-xs font-semibold text-accent-dark w-12 flex-shrink-0">
+                  Pos. {idx + 1}
+                </span>
                 <div className="flex-1">
                   <input
-                    type="text" placeholder="Beschreibung der Leistung"
+                    type="text" placeholder="Beschreibung der Leistung / Produkt"
                     value={item.description}
                     onChange={e => updateItem(idx, { description: e.target.value })}
                     className={inputCls}
@@ -295,7 +303,7 @@ export default function RechnungForm({
                   </button>
                 )}
               </div>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-5 gap-2 pl-12">
                 <div>
                   <label className="text-xs text-gray-400 block mb-0.5">Menge</label>
                   <input type="number" min={0} step="0.01" value={item.quantity}
@@ -332,13 +340,34 @@ export default function RechnungForm({
                   </div>
                 </div>
               </div>
+              <div className="grid grid-cols-3 gap-2 pl-12">
+                <div>
+                  <label className="text-xs text-gray-400 block mb-0.5">Berater</label>
+                  <input type="text" placeholder="Name des Beraters"
+                    value={item.berater ?? ''}
+                    onChange={e => updateItem(idx, { berater: e.target.value })}
+                    className={inputCls} />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 block mb-0.5">Leistungszeitraum von</label>
+                  <input type="date" value={item.leistung_von ?? ''}
+                    onChange={e => updateItem(idx, { leistung_von: e.target.value || null })}
+                    className={inputCls} />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 block mb-0.5">Leistungszeitraum bis</label>
+                  <input type="date" value={item.leistung_bis ?? ''}
+                    onChange={e => updateItem(idx, { leistung_bis: e.target.value || null })}
+                    className={inputCls} />
+                </div>
+              </div>
             </div>
           ))}
         </div>
         <button
           type="button"
           onClick={addItem}
-          className="mt-4 text-sm text-[#1B3A6B] hover:text-[#1565C0] font-medium transition-colors"
+          className="mt-4 text-sm text-[#35609E] hover:text-[#4F90E8] font-medium transition-colors"
         >
           + Position hinzufügen
         </button>
@@ -357,6 +386,9 @@ export default function RechnungForm({
             <span>Brutto gesamt</span>
             <span>{formatCurrency(totalGross)}</span>
           </div>
+          <div className="pt-2 text-xs text-gray-400">
+            Zahlungskonditionen: Innerhalb von {paymentDays} Tagen netto
+          </div>
         </div>
       </div>
 
@@ -365,7 +397,7 @@ export default function RechnungForm({
         <h2 className="font-semibold text-gray-800 mb-3">Notiz / Anmerkung (erscheint auf Rechnung)</h2>
         <textarea rows={2} placeholder="z.B. Zahlbar binnen 14 Tagen ohne Abzug…"
           value={notes} onChange={e => setNotes(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B] resize-none" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] resize-none" />
       </div>
 
       {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
@@ -377,11 +409,11 @@ export default function RechnungForm({
           Abbrechen
         </button>
         <button type="button" onClick={() => handleSave(false)} disabled={loading}
-          className="flex-1 py-3 rounded-xl border-2 border-[#1B3A6B] text-[#1B3A6B] text-sm font-semibold hover:bg-[#1B3A6B]/5 transition-colors disabled:opacity-50">
+          className="flex-1 py-3 rounded-xl border-2 border-[#35609E] text-[#35609E] text-sm font-semibold hover:bg-[#35609E]/5 transition-colors disabled:opacity-50">
           {loading ? 'Speichern…' : 'Als Entwurf speichern'}
         </button>
         <button type="button" onClick={() => handleSave(true)} disabled={loading}
-          className="flex-1 py-3 rounded-xl bg-[#1B3A6B] hover:bg-[#1565C0] text-white text-sm font-semibold transition-colors disabled:opacity-50">
+          className="flex-1 py-3 rounded-xl bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold transition-colors disabled:opacity-50">
           {loading ? 'Finalisieren…' : existing?.status === 'draft' ? 'Finalisieren & verbuchen' : 'Speichern'}
         </button>
       </div>

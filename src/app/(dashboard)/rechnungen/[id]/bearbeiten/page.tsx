@@ -49,7 +49,7 @@ export default async function RechnungBearbeitenPage({ params }: { params: Promi
           ← Rechnung
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#1B3A6B]">Entwurf bearbeiten</h1>
+        <h1 className="text-2xl font-bold text-[#35609E]">Entwurf bearbeiten</h1>
       </div>
       <RechnungForm
         clientId={membership.client_id}

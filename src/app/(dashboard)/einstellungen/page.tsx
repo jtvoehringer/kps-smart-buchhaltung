@@ -25,7 +25,7 @@ export default async function EinstellungenPage() {
   if (membershipError || !membership?.client_id) {
     return (
       <div className="p-6 max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-[#1B3A6B] mb-6">Einstellungen</h1>
+        <h1 className="text-2xl font-bold text-[#35609E] mb-6">Einstellungen</h1>
         <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-sm text-red-700 space-y-2">
           <p className="font-semibold">⚠️ Kein Mandantenzugang gefunden</p>
           <p><strong>User-ID:</strong> {user.id}</p>
@@ -47,7 +47,7 @@ export default async function EinstellungenPage() {
   if (clientError || !client) {
     return (
       <div className="p-6 max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-[#1B3A6B] mb-6">Einstellungen</h1>
+        <h1 className="text-2xl font-bold text-[#35609E] mb-6">Einstellungen</h1>
         <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-sm text-red-700 space-y-2">
           <p className="font-semibold">⚠️ Mandant nicht gefunden</p>
           <p><strong>Client-ID:</strong> {membership.client_id}</p>
@@ -74,7 +74,7 @@ export default async function EinstellungenPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1B3A6B]">Einstellungen</h1>
+        <h1 className="text-2xl font-bold text-[#35609E]">Einstellungen</h1>
         <p className="text-gray-500 text-sm">Buchführungs-Einstellungen für {client.company_name}</p>
       </div>
       <EinstellungenForm client={client} branding={branding ?? null} />

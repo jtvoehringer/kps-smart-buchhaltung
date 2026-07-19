@@ -52,7 +52,7 @@ export default function DashboardClient({
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#1B3A6B]">{companyName}</h1>
+          <h1 className="text-2xl font-bold text-[#35609E]">{companyName}</h1>
           <p className="text-gray-500 text-sm">Jahresübersicht</p>
         </div>
         {/* Jahres-Selector */}
@@ -65,7 +65,7 @@ export default function DashboardClient({
             disabled={selectedYear === availableYears[availableYears.length - 1]}
             className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
           >‹</button>
-          <span className="font-bold text-[#1B3A6B] text-lg w-16 text-center">{selectedYear}</span>
+          <span className="font-bold text-[#35609E] text-lg w-16 text-center">{selectedYear}</span>
           <button
             onClick={() => setSelectedYear(y => {
               const idx = availableYears.indexOf(y);
@@ -126,8 +126,8 @@ export default function DashboardClient({
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t-2 border-gray-200 bg-[#1B3A6B]/5 font-semibold">
-              <td className="px-6 py-3 text-[#1B3A6B]">Jahrestotal</td>
+            <tr className="border-t-2 border-gray-200 bg-[#35609E]/5 font-semibold">
+              <td className="px-6 py-3 text-[#35609E]">Jahrestotal</td>
               <td className="px-4 py-3 text-right text-[#00897B]">{formatCurrency(totalIncome)}</td>
               <td className="px-4 py-3 text-right text-[#C62828]">{formatCurrency(totalExpense)}</td>
               <td className={`px-4 py-3 text-right ${totalIncome - totalExpense >= 0 ? 'text-[#00897B]' : 'text-[#C62828]'}`}>

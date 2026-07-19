@@ -58,10 +58,10 @@ export default function ModulToggle({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-[#1B3A6B]/20 shadow-sm p-5 mb-5">
+    <div className="bg-white rounded-xl border border-[#35609E]/20 shadow-sm p-5 mb-5">
       <div className="flex items-center gap-2 mb-4">
         <h2 className="font-semibold text-gray-700">Module</h2>
-        <span className="text-xs bg-[#1B3A6B] text-white px-2 py-0.5 rounded-full font-medium">
+        <span className="text-xs bg-[#35609E] text-white px-2 py-0.5 rounded-full font-medium">
           Superadmin
         </span>
       </div>
@@ -73,7 +73,7 @@ export default function ModulToggle({
             <div
               key={mod.id}
               className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
-                isOn ? 'border-[#1B3A6B] bg-[#1B3A6B]/5' : 'border-gray-200 bg-gray-50'
+                isOn ? 'border-[#35609E] bg-[#35609E]/5' : 'border-gray-200 bg-gray-50'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -92,7 +92,7 @@ export default function ModulToggle({
                 onClick={() => toggleModule(mod.id)}
                 disabled={saving}
                 className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-50 focus:outline-none ${
-                  isOn ? 'bg-[#1B3A6B]' : 'bg-gray-300'
+                  isOn ? 'bg-[#35609E]' : 'bg-gray-300'
                 }`}
                 title={isOn ? 'Deaktivieren' : 'Aktivieren'}
               >

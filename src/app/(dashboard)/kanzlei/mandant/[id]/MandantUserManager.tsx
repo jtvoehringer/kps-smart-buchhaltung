@@ -112,12 +112,12 @@ export default function MandantUserManager({
             placeholder="benutzer@beispiel.at"
             required
             disabled={isPending}
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B] disabled:opacity-50"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={isPending || !email.trim()}
-            className="px-4 py-2 bg-[#1B3A6B] hover:bg-[#1565C0] text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
           >
             {isPending ? 'Hinzufügen…' : 'Hinzufügen'}
           </button>

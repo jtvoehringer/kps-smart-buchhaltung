@@ -1,2 +1,0 @@
-cd "C:\Users\joerg\Documents\Claude\Projects\Smart book keeping\kps-smart-buchhaltung"
-npm run dev

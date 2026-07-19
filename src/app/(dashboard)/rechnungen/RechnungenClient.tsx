@@ -60,7 +60,7 @@ export default function RechnungenClient({
         <p className="text-gray-500 text-sm mb-4">Noch keine Rechnungen vorhanden.</p>
         <Link
           href="/rechnungen/neu"
-          className="inline-block bg-[#1B3A6B] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#1565C0] transition-colors"
+          className="inline-block bg-[#35609E] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#4F90E8] transition-colors"
         >
           Erste Rechnung erstellen
         </Link>
@@ -96,7 +96,7 @@ export default function RechnungenClient({
             onClick={() => setFilterStatus(s)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               filterStatus === s
-                ? 'bg-[#1B3A6B] text-white'
+                ? 'bg-[#35609E] text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
@@ -131,7 +131,7 @@ export default function RechnungenClient({
                   : 0;
                 return (
                   <tr key={inv.id} className="border-t border-gray-50 hover:bg-gray-50/50">
-                    <td className="px-4 py-3 font-mono text-[#1B3A6B] font-medium">
+                    <td className="px-4 py-3 font-mono text-[#35609E] font-medium">
                       {inv.invoice_number || <span className="text-gray-300 italic">Entwurf</span>}
                     </td>
                     <td className="px-4 py-3">
@@ -169,7 +169,7 @@ export default function RechnungenClient({
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={`/rechnungen/${inv.id}`}
-                        className="text-sm text-gray-400 hover:text-[#1B3A6B] transition-colors"
+                        className="text-sm text-gray-400 hover:text-[#35609E] transition-colors"
                       >
                         →
                       </Link>

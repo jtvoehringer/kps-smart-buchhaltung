@@ -3,16 +3,18 @@
 @tailwind utilities;
 
 :root {
-  /* KPS Partner Corporate Design (kps-partner.at) */
-  --kps-primary:   #D2092C;  /* Primärrot – Hauptfarbe KPS */
-  --kps-red-dark:  #D90700;  /* Dunkles Rot */
-  --kps-dark:      #2B161B;  /* Dunkel – fast Schwarz (Logo/Sidebar) */
-  --kps-grey:      #7C909A;  /* Grau-Blau (Footer/Akzent) */
-  --kps-light:     #F6F7F8;  /* Hellgrau – Hintergrund */
-  --kps-bg:        #F0F4F8;  /* Dashboard-Hintergrund */
-  --kps-white:     #FFFFFF;
+  /* IC&P Corporate Design (Grau/Blau) */
+  --brand:        #707883;  /* Primärfarbe – Grau */
+  --brand-dark:   #3F454C;  /* Grau dunkel – Sidebar/Headlines */
+  --brand-light:  #AEB4BC;  /* Grau hell */
+  --accent:       #4F90E8;  /* Sekundärfarbe – Blau (Buttons, aktive Elemente) */
+  --accent-dark:  #35609E;  /* Blau dunkel (Hover, Rechnungs-Akzent) */
+  --surface:      #F6F7F9;  /* Hintergrund */
+  --surface-band: #E7F0FC;  /* Akzent-Band (Hinweisboxen) */
+  --surface-card: #CFD9E6;  /* Grafik-Karten */
+  --white:        #FFFFFF;
 
-  /* Funktionsfarben (unabhängig von KPS-Brand) */
+  /* Funktionsfarben (unabhängig vom Brand) */
   --color-income:  #00897B;  /* Einnahmen – Grün */
   --color-expense: #C62828;  /* Ausgaben – Rot */
 }

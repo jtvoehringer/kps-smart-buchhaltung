@@ -198,14 +198,14 @@ export default function BuchungForm({
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Buchungsdatum</label>
         <input type="date" required value={bookingDate} onChange={e => setBookingDate(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
       </div>
 
       {/* Kategorie */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
         <select required value={categoryId} onChange={e => setCategoryId(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]">
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
           {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </div>
@@ -216,12 +216,12 @@ export default function BuchungForm({
           <label className="block text-sm font-medium text-gray-700 mb-1">{isBrutto ? 'Brutto (€)' : 'Netto (€)'}</label>
           <input type="number" required min="0.01" step="0.01" placeholder="0,00" value={amount}
             onChange={e => setAmount(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]" />
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">USt %</label>
           <select value={vatRate} onChange={e => setVatRate(Number(e.target.value))} disabled={isEAuto}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B] disabled:bg-gray-100 disabled:cursor-not-allowed">
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] disabled:bg-gray-100 disabled:cursor-not-allowed">
             <option value={0}>0 %</option>
             <option value={10}>10 %</option>
             <option value={13}>13 %</option>
@@ -314,7 +314,7 @@ export default function BuchungForm({
         </label>
         <input type="text" placeholder="z.B. Büromaterial Dezember, Rechnung Nr. 2024-001 …"
           value={description} onChange={e => setDescription(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3A6B]" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
       </div>
 
       {/* Belege (optional) */}
@@ -325,7 +325,7 @@ export default function BuchungForm({
             <span className="ml-1.5 text-xs text-gray-400 font-normal">(optional · PDF, JPG, PNG · max. {MAX_SIZE_MB} MB)</span>
           </span>
           <button type="button" onClick={() => fileInputRef.current?.click()}
-            className="text-xs text-[#1B3A6B] hover:text-[#1565C0] font-medium border border-[#1B3A6B] hover:border-[#1565C0] px-3 py-1 rounded-lg transition-colors">
+            className="text-xs text-[#35609E] hover:text-[#4F90E8] font-medium border border-[#35609E] hover:border-[#4F90E8] px-3 py-1 rounded-lg transition-colors">
             + Datei wählen
           </button>
           <input ref={fileInputRef} type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp"

@@ -2,6 +2,7 @@
 // Kein KPS-Branding – nur das Design des Klienten
 export const dynamic = 'force-dynamic';
 
+import { Fragment } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
@@ -39,11 +40,12 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
 
   if (!invoice) notFound();
 
-  const color  = branding?.brand_color  ?? '#1B3A6B';
+  const color  = branding?.brand_color  ?? '#35609E';
   const items  = (invoice.items ?? []) as Array<{
     description: string; quantity: number; unit: string;
     unit_price: number; vat_rate: number;
     amount_net: number; amount_vat: number; amount_gross: number;
+    berater?: string; leistung_von?: string | null; leistung_bis?: string | null;
   }>;
   const c      = invoice.customers as {
     name: string; company_name: string | null;
@@ -51,8 +53,14 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
     country: string; uid_number: string | null; email: string | null;
   } | null;
 
+  const paymentDays = branding?.payment_days ?? 14;
+
   function fmt(n: number) {
     return new Intl.NumberFormat('de-AT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+  }
+
+  function fmtDate(d: string) {
+    return new Date(d).toLocaleDateString('de-AT');
   }
 
   // VAT-Gruppen für Zusammenfassung
@@ -104,7 +112,15 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
           table.items tbody td { padding: 7px 4px 7px 0; border-bottom: 1px solid #f0f0f0;
                                   font-size: 10pt; vertical-align: top; text-align: right; }
           table.items tbody td:first-child { text-align: left; }
-          table.items tbody td.desc { max-width: 200px; }
+          table.items tbody td.desc { max-width: 260px; text-align: left; }
+          table.items tbody tr.pos-row td { border-bottom: none; padding-top: 10px; }
+          table.items tbody tr.pos-row td.pos-nr { color: ${color}; font-weight: 700; font-size: 9pt; text-align: left; white-space: nowrap; }
+          .pos-title { font-weight: 600; color: #222; }
+          .pos-sub { font-size: 8.5pt; color: #888; margin-top: 2px; }
+          table.items tbody tr.vat-row td { border-bottom: 1px solid #f0f0f0; padding-top: 0; padding-bottom: 8px;
+                                             font-size: 8.5pt; color: #999; }
+          table.items tbody tr.vat-row td.vat-label { text-align: left; }
+          table.items tbody tr.vat-row td.vat-amount { text-align: right; }
           .totals { display: flex; justify-content: flex-end; margin-top: 12px; margin-bottom: 20px; }
           .totals-box { width: 200px; }
           .totals-row { display: flex; justify-content: space-between; padding: 3px 0;
@@ -158,8 +174,9 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
                 <div className="nr">{invoice.invoice_number}</div>
               )}
               <div className="date">
-                <div>Datum: {new Date(invoice.invoice_date).toLocaleDateString('de-AT')}</div>
-                <div>Fälligkeit: {new Date(invoice.due_date).toLocaleDateString('de-AT')}</div>
+                <div>{[branding?.company_city, fmtDate(invoice.invoice_date)].filter(Boolean).join(', ')}</div>
+                <div>Fälligkeit: {fmtDate(invoice.due_date)}</div>
+                {c?.uid_number && <div style={{ marginTop: '4px' }}>Ihre UID: {c.uid_number}</div>}
               </div>
             </div>
           </div>
@@ -173,7 +190,6 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
                 <div className="rname" style={{ fontWeight: c.company_name ? 400 : 600 }}>{c.name}</div>
                 {c.street    && <div className="rdetail">{c.street}</div>}
                 {(c.zip || c.city) && <div className="rdetail">{[c.zip, c.city].filter(Boolean).join(' ')}</div>}
-                {c.uid_number && <div className="rdetail" style={{ marginTop: '3px' }}>UID: {c.uid_number}</div>}
               </div>
             </div>
           )}
@@ -182,24 +198,39 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
           <table className="items">
             <thead>
               <tr>
-                <th style={{ width: '40%' }}>Beschreibung</th>
+                <th style={{ width: '10%' }}>Pos.</th>
+                <th style={{ width: '48%' }}>Leistung</th>
                 <th>Menge</th>
-                <th>Einh.</th>
                 <th>Einzelpreis</th>
-                <th>USt %</th>
-                <th>Betrag brutto</th>
+                <th>Betrag</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item, i) => (
-                <tr key={i}>
-                  <td className="desc">{item.description}</td>
-                  <td>{item.quantity}</td>
-                  <td>{item.unit}</td>
-                  <td>{fmt(item.unit_price)}</td>
-                  <td>{item.vat_rate} %</td>
-                  <td style={{ fontWeight: 600 }}>{fmt(item.amount_gross)}</td>
-                </tr>
+                <Fragment key={i}>
+                  <tr className="pos-row">
+                    <td className="pos-nr">Pos. {i + 1}</td>
+                    <td className="desc">
+                      <div className="pos-title">{item.description}</div>
+                      <div className="pos-sub">
+                        {(item.leistung_von || item.leistung_bis) && (
+                          <span>
+                            Leistungszeitraum: {item.leistung_von ? fmtDate(item.leistung_von) : '…'} – {item.leistung_bis ? fmtDate(item.leistung_bis) : '…'}
+                          </span>
+                        )}
+                        {item.berater && <span>{(item.leistung_von || item.leistung_bis) ? ' · ' : ''}Berater: {item.berater}</span>}
+                      </div>
+                    </td>
+                    <td>{item.quantity} {item.unit}</td>
+                    <td>{fmt(item.unit_price)}</td>
+                    <td style={{ fontWeight: 600 }}>Netto {fmt(item.amount_net)}</td>
+                  </tr>
+                  <tr className="vat-row">
+                    <td></td>
+                    <td className="vat-label" colSpan={3}>{item.vat_rate} % USt bezogen auf Pos. {i + 1}</td>
+                    <td className="vat-amount">USt {fmt(item.amount_vat)}</td>
+                  </tr>
+                </Fragment>
               ))}
             </tbody>
           </table>
@@ -235,19 +266,22 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
           )}
 
           {/* Zahlungshinweis */}
-          {branding?.iban && (
-            <div className="payment">
-              <h3>Zahlungshinweis</h3>
-              <p>
-                IBAN: {branding.iban}
-                {branding.bic    ? ` · BIC: ${branding.bic}`         : ''}
-                {branding.bank_name ? ` · ${branding.bank_name}`     : ''}
-              </p>
-              {invoice.invoice_number && (
-                <p>Verwendungszweck: <strong>{invoice.invoice_number}</strong></p>
-              )}
-            </div>
-          )}
+          <div className="payment">
+            <h3>Zahlungskonditionen</h3>
+            <p>Innerhalb von {paymentDays} Tagen netto</p>
+            {branding?.iban && (
+              <>
+                <p style={{ marginTop: '6px' }}>
+                  IBAN: {branding.iban}
+                  {branding.bic    ? ` · BIC: ${branding.bic}`         : ''}
+                  {branding.bank_name ? ` · ${branding.bank_name}`     : ''}
+                </p>
+                {invoice.invoice_number && (
+                  <p>Verwendungszweck: <strong>{invoice.invoice_number}</strong></p>
+                )}
+              </>
+            )}
+          </div>
 
           {/* Bezahlt-Stempel */}
           {invoice.status === 'paid' && invoice.paid_date && (

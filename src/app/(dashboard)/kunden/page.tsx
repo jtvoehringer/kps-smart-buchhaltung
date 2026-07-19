@@ -41,12 +41,12 @@ export default async function KundenPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#1B3A6B]">Kunden</h1>
+          <h1 className="text-2xl font-bold text-[#35609E]">Kunden</h1>
           <p className="text-gray-500 text-sm">{customers?.length ?? 0} aktive Kunden</p>
         </div>
         <Link
           href="/kunden/neu"
-          className="bg-[#1B3A6B] hover:bg-[#1565C0] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+          className="bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
         >
           + Neuer Kunde
         </Link>

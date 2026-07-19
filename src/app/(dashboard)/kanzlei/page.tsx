@@ -83,7 +83,7 @@ export default async function KanzleiPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1B3A6B]">
+        <h1 className="text-2xl font-bold text-[#35609E]">
           {isSuperadmin ? '🔑 Superadmin-Übersicht' : 'Kanzlei-Dashboard'}
         </h1>
         <p className="text-gray-500 text-sm">
@@ -95,7 +95,7 @@ export default async function KanzleiPage() {
       <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
           <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Mandanten gesamt</p>
-          <p className="text-2xl font-bold text-[#1B3A6B]">{(clients ?? []).length}</p>
+          <p className="text-2xl font-bold text-[#35609E]">{(clients ?? []).length}</p>
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
           <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Aktive Mandanten</p>
@@ -103,7 +103,7 @@ export default async function KanzleiPage() {
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
           <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Buchungen {currentYear}</p>
-          <p className="text-2xl font-bold text-[#1B3A6B]">{totalBookings}</p>
+          <p className="text-2xl font-bold text-[#35609E]">{totalBookings}</p>
         </div>
       </div>
 
@@ -113,7 +113,7 @@ export default async function KanzleiPage() {
           <h2 className="font-semibold text-gray-800">Mandanten</h2>
           <Link
             href="/kanzlei/mandant-neu"
-            className="bg-[#1B3A6B] hover:bg-[#1565C0] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+            className="bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
           >
             ➕ Neuer Mandant
           </Link>
@@ -124,7 +124,7 @@ export default async function KanzleiPage() {
             <div className="text-4xl mb-3">👥</div>
             <p className="text-sm">Noch keine Mandanten angelegt</p>
             <p className="text-xs mt-2">
-              <Link href="/kanzlei/mandant-neu" className="text-[#1B3A6B] hover:underline">
+              <Link href="/kanzlei/mandant-neu" className="text-[#35609E] hover:underline">
                 Ersten Mandanten anlegen →
               </Link>
             </p>
@@ -181,7 +181,7 @@ export default async function KanzleiPage() {
                     <td className="px-4 py-3 text-center">
                       <Link
                         href={`/kanzlei/mandant/${c.id}`}
-                        className="text-xs text-[#1B3A6B] hover:text-[#1565C0] font-medium hover:underline"
+                        className="text-xs text-[#35609E] hover:text-[#4F90E8] font-medium hover:underline"
                       >
                         Bearbeiten
                       </Link>

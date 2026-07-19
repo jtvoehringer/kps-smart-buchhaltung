@@ -29,7 +29,7 @@ export default async function BuchungNeuPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1B3A6B]">Buchung erfassen</h1>
+        <h1 className="text-2xl font-bold text-[#35609E]">Buchung erfassen</h1>
         <p className="text-gray-500 text-sm">Neue Einnahme oder Ausgabe eingeben</p>
       </div>
       <BuchungForm clientId={client.id} categories={categories ?? []} bookingMode={client.booking_mode ?? 'netto'} />

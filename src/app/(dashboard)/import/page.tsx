@@ -33,7 +33,7 @@ export default async function ImportPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1B3A6B]">Bankdaten importieren</h1>
+        <h1 className="text-2xl font-bold text-[#35609E]">Bankdaten importieren</h1>
         <p className="text-gray-500 text-sm">
           CAMT.053 (XML) oder Bank-CSV — Buchungen werden automatisch auf Duplikate geprüft
         </p>
