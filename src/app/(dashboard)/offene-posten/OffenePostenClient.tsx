@@ -180,6 +180,7 @@ export default function OffenePostenClient({
 
     // Bereits bei Erfassung hochgeladenen Beleg mit der neuen Buchung verknüpfen
     if (inv.beleg_storage_path) {
+      const { data: { user } } = await supabase.auth.getUser();
       await supabase.from('attachments').insert({
         transaction_id: newTx.id,
         client_id:      clientId,
@@ -187,6 +188,7 @@ export default function OffenePostenClient({
         storage_path:   inv.beleg_storage_path,
         mime_type:      inv.beleg_mime_type ?? 'application/octet-stream',
         file_size:      inv.beleg_file_size ?? 0,
+        uploaded_by:    user?.id ?? '',
       });
     }
 
