@@ -550,6 +550,10 @@ export type Database = {
         Args: Record<string, never>;
         Returns: string[];
       };
+      uva_uebermitteln: {
+        Args: { p_tax_return_id: string };
+        Returns: TaxReturn;
+      };
     };
   };
 };
