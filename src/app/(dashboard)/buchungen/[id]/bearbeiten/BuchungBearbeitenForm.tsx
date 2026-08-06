@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { Receipt, Calculator, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
 import BelegUpload from './BelegUpload';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
@@ -85,9 +86,10 @@ export default function BuchungBearbeitenForm({
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-5">
 
-      <div className={`text-xs px-3 py-2 rounded-lg font-medium ${isBrutto ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'}`}>
-        {isBrutto ? '🧾 Brutto-Modus' : '📥 Netto-Modus'}
-        <span className="ml-2 font-normal opacity-70">· in Einstellungen änderbar</span>
+      <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg font-medium ${isBrutto ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'}`}>
+        {isBrutto ? <Receipt size={16} strokeWidth={2} className="shrink-0" /> : <Calculator size={16} strokeWidth={2} className="shrink-0" />}
+        <span>{isBrutto ? 'Brutto-Modus' : 'Netto-Modus'}</span>
+        <span className="font-normal opacity-70">· in Einstellungen änderbar</span>
       </div>
 
       {/* Typ */}
@@ -95,11 +97,18 @@ export default function BuchungBearbeitenForm({
         <label className="block text-sm font-medium text-gray-700 mb-2">Art der Buchung</label>
         <div className="flex gap-3">
           {(['income', 'expense'] as const).map(t => (
-            <button key={t} type="button" onClick={() => setType(t)}
-              style={type === t ? { backgroundColor: t === 'income' ? '#00897B' : '#C62828', color: 'white', borderColor: t === 'income' ? '#00897B' : '#C62828' } : {}}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${type !== t ? 'bg-white text-gray-600 border-gray-200 hover:border-gray-400' : ''}`}
+            <button
+              key={t}
+              type="button"
+              onClick={() => setType(t)}
+              className={`flex items-center justify-center gap-1.5 flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${
+                type === t
+                  ? t === 'income' ? 'bg-income text-white border-income' : 'bg-expense text-white border-expense'
+                  : t === 'income' ? 'bg-white text-gray-600 border-gray-200 hover:border-income' : 'bg-white text-gray-600 border-gray-200 hover:border-expense'
+              }`}
             >
-              {t === 'income' ? '↑ Einnahme' : '↓ Ausgabe'}
+              {t === 'income' ? <ArrowUpCircle size={16} strokeWidth={2} /> : <ArrowDownCircle size={16} strokeWidth={2} />}
+              {t === 'income' ? 'Einnahme' : 'Ausgabe'}
             </button>
           ))}
         </div>
@@ -176,8 +185,15 @@ export default function BuchungBearbeitenForm({
           Abbrechen
         </button>
         <button type="submit" disabled={loading}
-          className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#35609E] hover:bg-[#4F90E8] transition-colors disabled:opacity-50">
-          {loading ? 'Speichern…' : 'Änderungen speichern'}
+          className={`flex items-center justify-center gap-1.5 flex-1 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
+            type === 'income' ? 'bg-income hover:bg-income-dark' : 'bg-expense hover:bg-expense-dark'
+          }`}>
+          {loading ? 'Speichern…' : (
+            <>
+              {type === 'income' ? <ArrowUpCircle size={16} strokeWidth={2} /> : <ArrowDownCircle size={16} strokeWidth={2} />}
+              Änderungen speichern
+            </>
+          )}
         </button>
       </div>
     </form>

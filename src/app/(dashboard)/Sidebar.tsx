@@ -5,6 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import {
+  ClipboardList, Plus, Tags, Landmark, Receipt, RefreshCw,
+  FileText, User, ScanSearch, LayoutDashboard, Settings,
+  Building2, Users, Upload, LogOut, X, Menu,
+  type LucideIcon,
+} from 'lucide-react';
 
 type Props = {
   companyName: string;
@@ -12,46 +18,48 @@ type Props = {
   modulesEnabled: string[];
 };
 
+type NavItem = { href: string; label: string; icon: LucideIcon };
+
 // Basis-Items für Klienten (immer sichtbar)
-const klientBaseItems = [
-  { href: '/buchungen',      label: 'Buchungsübersicht', icon: '📋' },
-  { href: '/buchungen/neu',  label: 'Buchung erfassen',  icon: '➕' },
-  { href: '/buchungen/kategorien', label: 'Kategorien',  icon: '🏷️' },
-  { href: '/import',         label: 'Bank-Import',       icon: '🏦' },
-  { href: '/uva',            label: 'UVA',               icon: '🧾' },
-  { href: '/dauerauftraege', label: 'Daueraufträge',     icon: '🔄' },
+const klientBaseItems: NavItem[] = [
+  { href: '/buchungen',      label: 'Buchungsübersicht', icon: ClipboardList },
+  { href: '/buchungen/neu',  label: 'Buchung erfassen',  icon: Plus },
+  { href: '/buchungen/kategorien', label: 'Kategorien',  icon: Tags },
+  { href: '/import',         label: 'Bank-Import',       icon: Landmark },
+  { href: '/uva',            label: 'UVA',               icon: Receipt },
+  { href: '/dauerauftraege', label: 'Daueraufträge',     icon: RefreshCw },
 ];
 
 // Nur sichtbar wenn Modul 'invoicing' aktiv
-const invoicingItems = [
-  { href: '/rechnungen',     label: 'Rechnungen',        icon: '📄' },
-  { href: '/kunden',         label: 'Kunden',            icon: '👤' },
+const invoicingItems: NavItem[] = [
+  { href: '/rechnungen',     label: 'Rechnungen',        icon: FileText },
+  { href: '/kunden',         label: 'Kunden',            icon: User },
 ];
 
 // Nur sichtbar wenn Modul 'ocr' aktiv
-const ocrItems = [
-  { href: '/belege',         label: 'Belege (OCR)',      icon: '🔍' },
+const ocrItems: NavItem[] = [
+  { href: '/belege',         label: 'Belege (OCR)',      icon: ScanSearch },
 ];
 
 // Superadmin-Basis (immer sichtbar)
-const superadminBaseItems = [
-  { href: '/dashboard',      label: 'Dashboard',         icon: '📊' },
-  { href: '/buchungen',      label: 'Buchungsübersicht', icon: '📋' },
-  { href: '/buchungen/neu',  label: 'Buchung erfassen',  icon: '➕' },
-  { href: '/buchungen/kategorien', label: 'Kategorien',  icon: '🏷️' },
-  { href: '/import',         label: 'Bank-Import',       icon: '🏦' },
-  { href: '/uva',            label: 'UVA',               icon: '🧾' },
-  { href: '/dauerauftraege', label: 'Daueraufträge',     icon: '🔄' },
+const superadminBaseItems: NavItem[] = [
+  { href: '/dashboard',      label: 'Dashboard',         icon: LayoutDashboard },
+  { href: '/buchungen',      label: 'Buchungsübersicht', icon: ClipboardList },
+  { href: '/buchungen/neu',  label: 'Buchung erfassen',  icon: Plus },
+  { href: '/buchungen/kategorien', label: 'Kategorien',  icon: Tags },
+  { href: '/import',         label: 'Bank-Import',       icon: Landmark },
+  { href: '/uva',            label: 'UVA',               icon: Receipt },
+  { href: '/dauerauftraege', label: 'Daueraufträge',     icon: RefreshCw },
 ];
 
-const superadminTailItems = [
-  { href: '/einstellungen',  label: 'Einstellungen',     icon: '⚙️' },
+const superadminTailItems: NavItem[] = [
+  { href: '/einstellungen',  label: 'Einstellungen',     icon: Settings },
 ];
 
-const kanzleiItems = [
-  { href: '/kanzlei',             label: 'Kanzlei-Übersicht', icon: '🏢' },
-  { href: '/kanzlei/benutzer',    label: 'Benutzer',           icon: '👥' },
-  { href: '/kanzlei/bmd-export',  label: 'BMD-Export',         icon: '📤' },
+const kanzleiItems: NavItem[] = [
+  { href: '/kanzlei',             label: 'Kanzlei-Übersicht', icon: Building2 },
+  { href: '/kanzlei/benutzer',    label: 'Benutzer',           icon: Users },
+  { href: '/kanzlei/bmd-export',  label: 'BMD-Export',         icon: Upload },
 ];
 
 // IC&P Corporate Design – Grau/Blau
@@ -161,7 +169,7 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
           onClick={handleLogout}
           className="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2.5 hover:bg-white/10 text-white/70"
         >
-          <span>↩</span>
+          <LogOut size={16} strokeWidth={1.75} className="flex-shrink-0" />
           <span>Abmelden</span>
         </button>
         <div className="mt-3 px-3 flex items-center gap-2">
@@ -194,7 +202,7 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
         style={{ backgroundColor: NAV_BG, color: '#ffffff' }}
         className="md:hidden fixed top-3 left-3 z-40 flex items-center justify-center w-9 h-9 rounded-lg shadow-lg"
       >
-        {mobileOpen ? '✕' : '☰'}
+        {mobileOpen ? <X size={18} strokeWidth={2} /> : <Menu size={18} strokeWidth={2} />}
       </button>
 
       {mobileOpen && (
@@ -216,9 +224,9 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
 }
 
 function NavLink({
-  href, label, icon, active, onClick,
+  href, label, icon: Icon, active, onClick,
 }: {
-  href: string; label: string; icon: string; active: boolean; onClick: () => void;
+  href: string; label: string; icon: LucideIcon; active: boolean; onClick: () => void;
 }) {
   return (
     <Link
@@ -234,7 +242,7 @@ function NavLink({
           : 'hover:bg-white/10'
       }`}
     >
-      <span className="w-5 text-center text-base leading-none flex-shrink-0">{icon}</span>
+      <Icon size={18} strokeWidth={1.75} className="flex-shrink-0" />
       <span className="flex-1">{label}</span>
     </Link>
   );

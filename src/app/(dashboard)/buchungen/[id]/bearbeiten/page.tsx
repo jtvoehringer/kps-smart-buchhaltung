@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect, notFound } from 'next/navigation';
 import BuchungBearbeitenForm from './BuchungBearbeitenForm';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
+import { Pencil } from 'lucide-react';
 
 export default async function BuchungBearbeitenPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -41,8 +42,11 @@ export default async function BuchungBearbeitenPage({ params }: { params: Promis
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#35609E]">Buchung bearbeiten</h1>
-        <p className="text-gray-500 text-sm">Änderungen werden sofort gespeichert.</p>
+        <h1 className="text-2xl font-bold text-[#35609E] flex items-center gap-2">
+          <Pencil size={24} strokeWidth={1.75} className="text-accent-dark" />
+          Buchung bearbeiten
+        </h1>
+        <p className="text-gray-500 text-sm mt-0.5">Änderungen werden sofort gespeichert.</p>
       </div>
       <BuchungBearbeitenForm
         transaction={transaction}
