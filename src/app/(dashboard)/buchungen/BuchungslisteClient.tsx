@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { formatCurrency } from '@/lib/utils';
+import {
+  ChevronLeft, ChevronRight, Download, Inbox, Pencil, X, Lock,
+  ArrowUpCircle, ArrowDownCircle,
+} from 'lucide-react';
 
 type Transaction = {
   id: string;
@@ -54,7 +58,7 @@ export default function BuchungslisteClient({
   const totalExpense = filtered.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount_gross), 0);
 
   function handleExport() {
-    const BOM = '\uFEFF';
+    const BOM = '﻿';
     const headers = ['Datum', 'Typ', 'Kategorie', 'Beschreibung', 'Netto (EUR)', 'USt %', 'USt-Betrag (EUR)', 'Brutto (EUR)'];
     const rows = filtered.map(t => [
       new Date(t.booking_date).toLocaleDateString('de-AT'),
@@ -98,14 +102,18 @@ export default function BuchungslisteClient({
         <div className="flex items-center gap-1">
           <button onClick={() => setFilterYear(availableYears[availableYears.indexOf(year) + 1] ?? year)}
             disabled={year === availableYears[availableYears.length - 1]}
-            className="w-7 h-7 rounded border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 text-sm">&#x2039;</button>
+            className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30">
+            <ChevronLeft size={14} strokeWidth={2} />
+          </button>
           <span className="font-bold text-[#35609E] w-12 text-center text-sm">{year}</span>
           <button onClick={() => setFilterYear(availableYears[availableYears.indexOf(year) - 1] ?? year)}
             disabled={year === availableYears[0]}
-            className="w-7 h-7 rounded border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 text-sm">&#x203A;</button>
+            className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30">
+            <ChevronRight size={14} strokeWidth={2} />
+          </button>
         </div>
         <div>
-          <label className="text-xs text-gray-500 font-medium mr-2">Monat</label>
+          <label className="text-sm text-gray-600 font-medium mr-2">Monat</label>
           <select
             value={filterMonth}
             onChange={e => setFilterMonth(Number(e.target.value))}
@@ -119,15 +127,17 @@ export default function BuchungslisteClient({
             <button
               key={t}
               onClick={() => setFilterType(t)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 filterType === t
-                  ? t === 'income' ? 'bg-[#00897B] text-white'
-                  : t === 'expense' ? 'bg-[#C62828] text-white'
+                  ? t === 'income' ? 'bg-income text-white'
+                  : t === 'expense' ? 'bg-expense text-white'
                   : 'bg-[#35609E] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              {t === 'all' ? 'Alle' : t === 'income' ? '\u2191 Einnahmen' : '\u2193 Ausgaben'}
+              {t === 'income' && <ArrowUpCircle size={14} strokeWidth={2} />}
+              {t === 'expense' && <ArrowDownCircle size={14} strokeWidth={2} />}
+              {t === 'all' ? 'Alle' : t === 'income' ? 'Einnahmen' : 'Ausgaben'}
             </button>
           ))}
         </div>
@@ -139,9 +149,9 @@ export default function BuchungslisteClient({
             onClick={handleExport}
             disabled={filtered.length === 0}
             title="Gefilterte Buchungen als CSV exportieren"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-40 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-40 transition-colors"
           >
-            <span>&#x2B07;</span> CSV
+            <Download size={14} strokeWidth={2} /> CSV
           </button>
         </div>
       </div>
@@ -149,15 +159,15 @@ export default function BuchungslisteClient({
       {/* Tabelle */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <div className="text-4xl mb-3">&#x1F4ED;</div>
+          <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
+            <Inbox size={32} strokeWidth={1.5} className="text-gray-300" />
             <p className="text-sm">Keine Buchungen gefunden</p>
           </div>
         ) : (
           <>
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                <tr className="bg-gray-50 text-xs font-semibold text-gray-600 uppercase tracking-wide border-b border-gray-100">
                   <th className="text-left px-4 py-3">Datum</th>
                   <th className="text-left px-4 py-3">Kategorie</th>
                   <th className="text-left px-4 py-3">Beschreibung</th>
@@ -175,10 +185,10 @@ export default function BuchungslisteClient({
                       {new Date(t.booking_date).toLocaleDateString('de-AT')}
                     </td>
                     <td className="px-4 py-3 text-gray-700">
-                      {t.categories?.name ?? '\u2014'}
+                      {t.categories?.name ?? '—'}
                     </td>
                     <td className="px-4 py-3 text-gray-500 max-w-xs truncate">
-                      {t.description ?? '\u2014'}
+                      {t.description ?? '—'}
                     </td>
                     <td className="px-4 py-3 text-right text-gray-700">
                       {formatCurrency(Number(t.amount_net))}
@@ -186,15 +196,18 @@ export default function BuchungslisteClient({
                     <td className="px-4 py-3 text-right text-gray-500">
                       {t.vat_rate} %
                     </td>
-                    <td className={`px-4 py-3 text-right font-medium ${t.type === 'income' ? 'text-[#00897B]' : 'text-[#C62828]'}`}>
+                    <td className={`px-4 py-3 text-right font-medium ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
                       {formatCurrency(Number(t.amount_gross))}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium ${
                         t.type === 'income'
                           ? 'bg-green-100 text-green-700'
                           : 'bg-red-100 text-red-700'
                       }`}>
+                        {t.type === 'income'
+                          ? <ArrowUpCircle size={12} strokeWidth={2} />
+                          : <ArrowDownCircle size={12} strokeWidth={2} />}
                         {t.type === 'income' ? 'Einnahme' : 'Ausgabe'}
                       </span>
                     </td>
@@ -203,23 +216,25 @@ export default function BuchungslisteClient({
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`/buchungen/${t.id}/bearbeiten`}
-                            className="text-gray-300 hover:text-[#35609E] transition-colors text-sm"
+                            className="text-gray-300 hover:text-[#35609E] transition-colors"
                             title="Buchung bearbeiten"
                           >
-                            &#x270F;&#xFE0F;
+                            <Pencil size={14} strokeWidth={2} />
                           </Link>
                           <button
                             onClick={() => handleDelete(t.id)}
                             disabled={deletingId === t.id}
-                            className="text-gray-300 hover:text-red-500 transition-colors disabled:opacity-50 text-lg leading-none"
+                            className="text-gray-300 hover:text-red-500 transition-colors disabled:opacity-50"
                             title="Buchung löschen"
                           >
-                            &times;
+                            <X size={16} strokeWidth={2} />
                           </button>
                         </div>
                       )}
                       {t.is_locked && (
-                        <span className="text-xs text-gray-300" title="Gesperrt – UVA bereits übermittelt">&#x1F512;</span>
+                        <span className="text-gray-300 inline-flex" title="Gesperrt – UVA bereits übermittelt">
+                          <Lock size={14} strokeWidth={2} />
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -229,9 +244,9 @@ export default function BuchungslisteClient({
 
             {/* Summenzeile */}
             <div className="border-t-2 border-gray-200 bg-gray-50 px-4 py-3 flex justify-end gap-8 text-sm font-semibold">
-              <span className="text-[#00897B]">Einnahmen: {formatCurrency(totalIncome)}</span>
-              <span className="text-[#C62828]">Ausgaben: {formatCurrency(totalExpense)}</span>
-              <span className={totalIncome - totalExpense >= 0 ? 'text-[#00897B]' : 'text-[#C62828]'}>
+              <span className="text-income">Einnahmen: {formatCurrency(totalIncome)}</span>
+              <span className="text-expense">Ausgaben: {formatCurrency(totalExpense)}</span>
+              <span className={totalIncome - totalExpense >= 0 ? 'text-income' : 'text-expense'}>
                 Saldo: {formatCurrency(Math.abs(totalIncome - totalExpense))}
               </span>
             </div>

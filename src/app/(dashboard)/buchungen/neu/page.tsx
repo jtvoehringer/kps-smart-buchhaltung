@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import BuchungForm from './BuchungForm';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
+import { ReceiptText } from 'lucide-react';
 
 export default async function BuchungNeuPage() {
   const supabase = await createClient();
@@ -29,8 +30,11 @@ export default async function BuchungNeuPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#35609E]">Buchung erfassen</h1>
-        <p className="text-gray-500 text-sm">Neue Einnahme oder Ausgabe eingeben</p>
+        <h1 className="text-2xl font-bold text-[#35609E] flex items-center gap-2">
+          <ReceiptText size={24} strokeWidth={1.75} className="text-accent-dark" />
+          Buchung erfassen
+        </h1>
+        <p className="text-gray-500 text-sm mt-0.5">Neue Einnahme oder Ausgabe eingeben</p>
       </div>
       <BuchungForm clientId={client.id} categories={categories ?? []} bookingMode={client.booking_mode ?? 'netto'} />
     </div>

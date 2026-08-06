@@ -22,6 +22,9 @@ module.exports = {
           band:    '#E7F0FC',
           card:    '#CFD9E6',
         },
+        // Semantische Buchungstypen (unverändert von Marken-Umstellung, siehe globals.css)
+        income:  { DEFAULT: '#00897B', dark: '#00796B' },
+        expense: { DEFAULT: '#C62828', dark: '#B71C1C' },
       },
     },
   },

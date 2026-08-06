@@ -16,6 +16,7 @@ type Props = {
 const klientBaseItems = [
   { href: '/buchungen',      label: 'Buchungsübersicht', icon: '📋' },
   { href: '/buchungen/neu',  label: 'Buchung erfassen',  icon: '➕' },
+  { href: '/buchungen/kategorien', label: 'Kategorien',  icon: '🏷️' },
   { href: '/import',         label: 'Bank-Import',       icon: '🏦' },
   { href: '/uva',            label: 'UVA',               icon: '🧾' },
   { href: '/dauerauftraege', label: 'Daueraufträge',     icon: '🔄' },
@@ -37,6 +38,7 @@ const superadminBaseItems = [
   { href: '/dashboard',      label: 'Dashboard',         icon: '📊' },
   { href: '/buchungen',      label: 'Buchungsübersicht', icon: '📋' },
   { href: '/buchungen/neu',  label: 'Buchung erfassen',  icon: '➕' },
+  { href: '/buchungen/kategorien', label: 'Kategorien',  icon: '🏷️' },
   { href: '/import',         label: 'Bank-Import',       icon: '🏦' },
   { href: '/uva',            label: 'UVA',               icon: '🧾' },
   { href: '/dauerauftraege', label: 'Daueraufträge',     icon: '🔄' },

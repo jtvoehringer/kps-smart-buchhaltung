@@ -3,6 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import {
+  Receipt, Calculator, ArrowUpCircle, ArrowDownCircle, BatteryCharging,
+  Check, X, Paperclip, FileText, Image as ImageIcon,
+} from 'lucide-react';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
 
@@ -168,9 +172,10 @@ export default function BuchungForm({
     <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-5">
 
       {/* Modus-Hinweis */}
-      <div className={`text-xs px-3 py-2 rounded-lg font-medium ${isBrutto ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'}`}>
-        {isBrutto ? '🧾 Brutto-Modus: Rechnungsbetrag eingeben' : '📥 Netto-Modus: Nettobetrag eingeben'}
-        <span className="ml-2 font-normal opacity-70">· in Einstellungen änderbar</span>
+      <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg font-medium ${isBrutto ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'}`}>
+        {isBrutto ? <Receipt size={16} strokeWidth={2} className="shrink-0" /> : <Calculator size={16} strokeWidth={2} className="shrink-0" />}
+        <span>{isBrutto ? 'Brutto-Modus: Rechnungsbetrag eingeben' : 'Netto-Modus: Nettobetrag eingeben'}</span>
+        <span className="font-normal opacity-70">· in Einstellungen änderbar</span>
       </div>
 
       {/* Typ */}
@@ -182,13 +187,14 @@ export default function BuchungForm({
               key={t}
               type="button"
               onClick={() => setType(t)}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${
+              className={`flex items-center justify-center gap-1.5 flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${
                 type === t
-                  ? t === 'income' ? 'bg-[#00897B] text-white border-[#00897B]' : 'bg-[#C62828] text-white border-[#C62828]'
-                  : t === 'income' ? 'bg-white text-gray-600 border-gray-200 hover:border-[#00897B]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#C62828]'
+                  ? t === 'income' ? 'bg-income text-white border-income' : 'bg-expense text-white border-expense'
+                  : t === 'income' ? 'bg-white text-gray-600 border-gray-200 hover:border-income' : 'bg-white text-gray-600 border-gray-200 hover:border-expense'
               }`}
             >
-              {t === 'income' ? '↑ Einnahme' : '↓ Ausgabe'}
+              {t === 'income' ? <ArrowUpCircle size={16} strokeWidth={2} /> : <ArrowDownCircle size={16} strokeWidth={2} />}
+              {t === 'income' ? 'Einnahme' : 'Ausgabe'}
             </button>
           ))}
         </div>
@@ -237,7 +243,7 @@ export default function BuchungForm({
       </div>
 
       {vatAmt > 0 && !isEAuto && (
-        <p className="text-xs text-gray-500">
+        <p className="text-sm text-gray-500">
           USt-Betrag: <span className="font-medium">€ {displayVat}</span>
           {isBrutto && <span className="ml-3">Netto: <span className="font-medium">€ {displayNet}</span></span>}
         </p>
@@ -249,10 +255,10 @@ export default function BuchungForm({
           className={`flex items-center gap-2.5 text-sm font-medium px-4 py-2.5 rounded-xl border-2 transition-all w-full ${
             isEAuto ? 'bg-blue-50 border-blue-400 text-blue-800' : 'bg-white border-gray-200 text-gray-500 hover:border-blue-300 hover:text-blue-700'
           }`}>
-          <span className="text-lg">🔋</span>
+          <BatteryCharging size={18} strokeWidth={1.75} className="shrink-0" />
           <span className="flex-1 text-left">Elektroauto-Anschaffung (Vorsteuer-Sonderregelung)</span>
-          <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs ${isEAuto ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-300'}`}>
-            {isEAuto ? '✓' : ''}
+          <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isEAuto ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-300'}`}>
+            {isEAuto && <Check size={12} strokeWidth={3} />}
           </span>
         </button>
       )}
@@ -283,13 +289,19 @@ export default function BuchungForm({
             </div>
           </div>
           <div className="border-t border-blue-200 pt-3 space-y-1.5">
-            <div className="flex justify-between text-sm">
-              <span className="text-green-700 font-medium">✓ Abzugsfähige Vorsteuer</span>
+            <div className="flex justify-between items-center text-sm">
+              <span className="inline-flex items-center gap-1.5 text-green-700 font-medium">
+                <Check size={14} strokeWidth={2.5} />
+                Abzugsfähige Vorsteuer
+              </span>
               <span className="font-bold text-green-700">{eur(eAutoVstAbzugsfaehig)}</span>
             </div>
             {eAutoUeberschreitung && (
-              <div className="flex justify-between text-sm">
-                <span className="text-amber-700">✗ Nicht abzugsfähige VSt (Luxuslimit)</span>
+              <div className="flex justify-between items-center text-sm">
+                <span className="inline-flex items-center gap-1.5 text-amber-700">
+                  <X size={14} strokeWidth={2.5} />
+                  Nicht abzugsfähige VSt (Luxuslimit)
+                </span>
                 <span className="font-semibold text-amber-700">{eur(eAutoVstNichtAbzugsfaehig)}</span>
               </div>
             )}
@@ -320,13 +332,15 @@ export default function BuchungForm({
       {/* Belege (optional) */}
       <div className="border border-gray-200 rounded-xl p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-700">
-            📎 Beleg anhängen
-            <span className="ml-1.5 text-xs text-gray-400 font-normal">(optional · PDF, JPG, PNG · max. {MAX_SIZE_MB} MB)</span>
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-700">
+            <Paperclip size={15} strokeWidth={2} className="text-gray-400" />
+            Beleg anhängen
+            <span className="ml-1 text-xs text-gray-400 font-normal">(optional · PDF, JPG, PNG · max. {MAX_SIZE_MB} MB)</span>
           </span>
           <button type="button" onClick={() => fileInputRef.current?.click()}
-            className="text-xs text-[#35609E] hover:text-[#4F90E8] font-medium border border-[#35609E] hover:border-[#4F90E8] px-3 py-1 rounded-lg transition-colors">
-            + Datei wählen
+            className="inline-flex items-center gap-1 text-xs text-[#35609E] hover:text-[#4F90E8] font-medium border border-[#35609E] hover:border-[#4F90E8] px-3 py-1 rounded-lg transition-colors">
+            <Paperclip size={12} strokeWidth={2} />
+            Datei wählen
           </button>
           <input ref={fileInputRef} type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp"
             onChange={e => addFiles(e.target.files)} className="hidden" />
@@ -336,11 +350,15 @@ export default function BuchungForm({
           <ul className="space-y-1.5">
             {selectedFiles.map((f, idx) => (
               <li key={idx} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 text-sm">
-                <span>{f.name.endsWith('.pdf') ? '📄' : '🖼️'}</span>
+                {f.name.toLowerCase().endsWith('.pdf')
+                  ? <FileText size={16} strokeWidth={1.75} className="text-gray-400 shrink-0" />
+                  : <ImageIcon size={16} strokeWidth={1.75} className="text-gray-400 shrink-0" />}
                 <span className="flex-1 truncate text-gray-700">{f.name}</span>
                 <span className="text-xs text-gray-400 flex-shrink-0">{(f.size / 1024).toFixed(0)} KB</span>
                 <button type="button" onClick={() => removeFile(idx)}
-                  className="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0">✕</button>
+                  className="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0">
+                  <X size={14} strokeWidth={2} />
+                </button>
               </li>
             ))}
           </ul>
@@ -358,13 +376,17 @@ export default function BuchungForm({
           Abbrechen
         </button>
         <button type="submit" disabled={loading}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
-            type === 'income' ? 'bg-[#00897B] hover:bg-[#00796B]' : 'bg-[#C62828] hover:bg-[#B71C1C]'
+          className={`flex items-center justify-center gap-1.5 flex-1 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
+            type === 'income' ? 'bg-income hover:bg-income-dark' : 'bg-expense hover:bg-expense-dark'
           }`}>
-          {loading
-            ? (selectedFiles.length > 0 ? 'Speichern & Hochladen…' : 'Speichern…')
-            : type === 'income' ? '↑ Einnahme speichern' : '↓ Ausgabe speichern'
-          }
+          {loading ? (
+            selectedFiles.length > 0 ? 'Speichern & Hochladen…' : 'Speichern…'
+          ) : (
+            <>
+              {type === 'income' ? <ArrowUpCircle size={16} strokeWidth={2} /> : <ArrowDownCircle size={16} strokeWidth={2} />}
+              {type === 'income' ? 'Einnahme speichern' : 'Ausgabe speichern'}
+            </>
+          )}
         </button>
       </div>
     </form>

@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import BuchungslisteClient from './BuchungslisteClient';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
+import { ClipboardList, Plus, Tags } from 'lucide-react';
 
 export default async function BuchungslistePage({
   searchParams,
@@ -59,15 +60,28 @@ export default async function BuchungslistePage({
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#35609E]">Buchungen</h1>
-          <p className="text-gray-500 text-sm">{client.company_name}</p>
+          <h1 className="text-2xl font-bold text-[#35609E] flex items-center gap-2">
+            <ClipboardList size={24} strokeWidth={1.75} className="text-accent-dark" />
+            Buchungen
+          </h1>
+          <p className="text-gray-500 text-sm mt-0.5">{client.company_name}</p>
         </div>
-        <Link
-          href="/buchungen/neu"
-          className="bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
-        >
-          ➕ Neue Buchung
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/buchungen/kategorien"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#35609E] transition-colors"
+          >
+            <Tags size={16} strokeWidth={2} />
+            Kategorien
+          </Link>
+          <Link
+            href="/buchungen/neu"
+            className="inline-flex items-center gap-1.5 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+          >
+            <Plus size={16} strokeWidth={2} />
+            Neue Buchung
+          </Link>
+        </div>
       </div>
       <BuchungslisteClient
         transactions={transactions ?? []}
