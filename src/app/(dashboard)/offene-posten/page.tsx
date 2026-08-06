@@ -1,8 +1,8 @@
-// Offene Posten (Ausgangsrechnungen) – /offene-posten
+// Offene Posten (Ein- und Ausgangsrechnungen) – /offene-posten
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
-import { Wallet, Info } from 'lucide-react';
+import { Wallet } from 'lucide-react';
 import OffenePostenClient from './OffenePostenClient';
 
 export default async function OffenePostenPage() {
@@ -21,25 +21,42 @@ export default async function OffenePostenPage() {
 
   const hasInvoicing = (client.modules_enabled ?? []).includes('invoicing');
 
-  const [{ data: invoices }, { data: categories }] = hasInvoicing
-    ? await Promise.all([
-        supabase
-          .from('invoices')
-          .select(`
-            id, invoice_number, invoice_date, due_date, status,
-            total_net, total_vat, total_gross,
-            customers ( id, name, company_name )
-          `)
-          .eq('client_id', client.id)
-          .eq('status', 'open')
-          .order('due_date', { ascending: true }),
-        supabase
-          .from('categories')
-          .select('id, name, type, vat_rate')
-          .order('type')
-          .order('sort_order'),
-      ])
-    : [{ data: [] }, { data: [] }];
+  let outgoingInvoices: {
+    id: string; invoice_number: string; invoice_date: string; due_date: string; status: string;
+    total_net: number; total_vat: number; total_gross: number;
+    customers: { id: string; name: string; company_name: string | null } | null;
+  }[] = [];
+
+  if (hasInvoicing) {
+    const { data } = await supabase
+      .from('invoices')
+      .select(`
+        id, invoice_number, invoice_date, due_date, status,
+        total_net, total_vat, total_gross,
+        customers ( id, name, company_name )
+      `)
+      .eq('client_id', client.id)
+      .eq('status', 'open')
+      .order('due_date', { ascending: true });
+    outgoingInvoices = data ?? [];
+  }
+
+  const { data: incomingInvoices } = await supabase
+    .from('incoming_invoices')
+    .select(`
+      id, vendor_name, invoice_number, invoice_date, due_date, status,
+      amount_net, vat_rate, vat_amount, amount_gross, category_id,
+      beleg_storage_path, beleg_file_name, beleg_mime_type, beleg_file_size
+    `)
+    .eq('client_id', client.id)
+    .eq('status', 'open')
+    .order('due_date', { ascending: true });
+
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('id, name, type, vat_rate')
+    .order('type')
+    .order('sort_order');
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -51,22 +68,14 @@ export default async function OffenePostenPage() {
         <p className="text-gray-500 text-sm mt-0.5">{client.company_name}</p>
       </div>
 
-      {!hasInvoicing ? (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center">
-          <Info size={32} strokeWidth={1.5} className="text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-600 font-medium">Rechnungsmodul ist nicht aktiviert</p>
-          <p className="text-sm text-gray-400 mt-2 max-w-md mx-auto">
-            Offene Ausgangsrechnungen erscheinen hier, sobald das Modul „Rechnungen&quot; für dieses Konto
-            aktiviert ist. Eingangsrechnungen (Lieferantenrechnungen) folgen in einem späteren Ausbauschritt.
-          </p>
-        </div>
-      ) : (
-        <OffenePostenClient
-          invoices={invoices ?? []}
-          categories={(categories ?? []).filter(c => c.type === 'income')}
-          clientId={client.id}
-        />
-      )}
+      <OffenePostenClient
+        clientId={client.id}
+        hasInvoicing={hasInvoicing}
+        outgoingInvoices={outgoingInvoices ?? []}
+        incomingInvoices={incomingInvoices ?? []}
+        incomeCategories={(categories ?? []).filter(c => c.type === 'income')}
+        expenseCategories={(categories ?? []).filter(c => c.type === 'expense')}
+      />
     </div>
   );
 }

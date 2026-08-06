@@ -11,6 +11,7 @@ export type RecurringInterval = 'monthly' | 'quarterly' | 'semi-annual' | 'annua
 export type TenantPlan = 'starter' | 'standard' | 'professional' | 'enterprise';
 export type VatPeriod = 'monthly' | 'quarterly';
 export type InvoiceStatus = 'draft' | 'open' | 'paid' | 'cancelled';
+export type IncomingInvoiceStatus = 'open' | 'paid' | 'cancelled';
 export type ReceiptStatus = 'pending' | 'processing' | 'processed' | 'booked' | 'error';
 
 export type Tenant = {
@@ -223,6 +224,30 @@ export type Invoice = {
   updated_at: string;
   // Joins (optional)
   customers?: Pick<Customer, 'id' | 'name' | 'company_name'> | null;
+};
+
+export type IncomingInvoice = {
+  id: string;
+  client_id: string;
+  category_id: string | null;
+  vendor_name: string;
+  invoice_number: string | null;
+  invoice_date: string;
+  due_date: string;
+  amount_net: number;
+  vat_rate: VatRate;
+  vat_amount: number;
+  amount_gross: number;
+  status: IncomingInvoiceStatus;
+  paid_date: string | null;
+  transaction_id: string | null;
+  beleg_storage_path: string | null;
+  beleg_file_name: string | null;
+  beleg_mime_type: string | null;
+  beleg_file_size: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export type BankImport = {
@@ -503,6 +528,38 @@ export type Database = {
             columns: ['customer_id'];
             isOneToOne: false;
             referencedRelation: 'customers';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incoming_invoices: {
+        Row: IncomingInvoice;
+        Insert: {
+          client_id: string;
+          category_id?: string | null;
+          vendor_name: string;
+          invoice_number?: string | null;
+          invoice_date?: string;
+          due_date: string;
+          amount_net: number;
+          vat_rate?: VatRate;
+          vat_amount?: number;
+          status?: IncomingInvoiceStatus;
+          paid_date?: string | null;
+          transaction_id?: string | null;
+          beleg_storage_path?: string | null;
+          beleg_file_name?: string | null;
+          beleg_mime_type?: string | null;
+          beleg_file_size?: number | null;
+          notes?: string | null;
+        };
+        Update: Partial<IncomingInvoice>;
+        Relationships: [
+          {
+            foreignKeyName: 'incoming_invoices_category_id_fkey';
+            columns: ['category_id'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
             referencedColumns: ['id'];
           },
         ];

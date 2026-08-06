@@ -14,7 +14,7 @@ export default async function BuchungBearbeitenPage({ params }: { params: Promis
   const clientId = await getMyClientId(supabase, user.id);
   const { data: client } = !clientId ? { data: null } : await supabase
     .from('clients')
-    .select('id, booking_mode')
+    .select('id, booking_mode, attachments_enabled')
     .eq('id', clientId)
     .maybeSingle();
 
@@ -37,7 +37,13 @@ export default async function BuchungBearbeitenPage({ params }: { params: Promis
     .order('type')
     .order('sort_order');
 
-  const attachments: { id: string; file_name: string; storage_path: string; uploaded_at: string }[] = [];
+  // Bereits vorhandene Belege dieser Buchung laden, damit sie nachträglich
+  // ergänzt (oder eingesehen/gelöscht) werden können.
+  const { data: attachments } = await supabase
+    .from('attachments')
+    .select('id, file_name, storage_path, uploaded_at')
+    .eq('transaction_id', transaction.id)
+    .order('uploaded_at', { ascending: true });
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -52,8 +58,8 @@ export default async function BuchungBearbeitenPage({ params }: { params: Promis
         transaction={transaction}
         categories={categories ?? []}
         bookingMode={client.booking_mode ?? 'netto'}
-        attachmentsEnabled={false}
-        attachments={attachments}
+        attachmentsEnabled={client.attachments_enabled ?? false}
+        attachments={attachments ?? []}
         clientId={client.id}
       />
     </div>
