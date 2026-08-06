@@ -18,19 +18,29 @@ export default async function UVAPage() {
 
   if (!client) redirect('/dashboard');
 
-  // Alle Buchungen laden – Filterung passiert client-seitig nach Jahr/Quartal
+  // Alle Buchungen laden – Filterung passiert client-seitig nach Jahr/Zeitraum
   const { data: transactions } = await supabase
     .from('transactions')
     .select('id, type, amount_net, vat_rate, vat_amount, booking_date')
     .eq('client_id', client.id)
     .order('booking_date', { ascending: true });
 
+  // Gespeicherte UVA-Meldungen (Entwurf/übermittelt) laden
+  const { data: taxReturns } = await supabase
+    .from('tax_returns')
+    .select('id, period_year, period_month, status, submitted_at')
+    .eq('client_id', client.id)
+    .order('period_year', { ascending: false })
+    .order('period_month', { ascending: false });
+
   return (
     <UVAClient
+      clientId={client.id}
       companyName={client.company_name}
       vatLiable={client.vat_liable ?? true}
       vatPeriod={client.vat_period ?? 'quarterly'}
       transactions={transactions ?? []}
+      taxReturns={taxReturns ?? []}
     />
   );
 }

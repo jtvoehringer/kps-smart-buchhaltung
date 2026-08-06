@@ -1,4 +1,4 @@
-// UVA Druckansicht – /uva/drucken?year=2025&quarter=2
+// UVA Druckansicht – /uva/drucken?year=2025&quarter=2  ODER  ?year=2025&month=3
 // Öffnet sich im neuen Tab, löst automatisch den Druck-Dialog aus
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
@@ -6,7 +6,9 @@ import DruckButtons from './DruckButtons';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
 import { VAT_RATES, calculateUVA } from '@/lib/utils';
 
-const FAELLIGKEITEN: Record<number, string> = {
+const MONATE = ['Jänner', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+const QUARTAL_FAELLIGKEIT: Record<number, string> = {
   1: '15. Mai',
   2: '15. August',
   3: '15. November',
@@ -21,19 +23,19 @@ const QUARTAL_MONATE: Record<number, string> = {
 };
 
 function eur(val: number) {
-  return new Intl.NumberFormat('de-AT', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-  }).format(val);
+  return new Intl.NumberFormat('de-AT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(val);
+}
+
+function formatDateTime(ts: string | null) {
+  return ts ? new Date(ts).toLocaleString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
 }
 
 export default async function UVADruckenPage({
   searchParams,
 }: {
-  searchParams: Promise<{ year?: string; quarter?: string }>;
+  searchParams: Promise<{ year?: string; quarter?: string; month?: string }>;
 }) {
-  const { year: yearParam, quarter: quarterParam } = await searchParams;
+  const { year: yearParam, quarter: quarterParam, month: monthParam } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -41,20 +43,44 @@ export default async function UVADruckenPage({
   const clientId = await getMyClientId(supabase, user.id);
   const { data: client } = !clientId ? { data: null } : await supabase
     .from('clients')
-    .select('id, company_name, vat_liable')
+    .select('id, company_name, vat_liable, vat_period')
     .eq('id', clientId)
     .maybeSingle();
 
   if (!client || !client.vat_liable) redirect('/uva');
 
-  const year    = parseInt(yearParam    ?? String(new Date().getFullYear()));
-  const quarter = parseInt(quarterParam ?? String(Math.ceil((new Date().getMonth() + 1) / 3)));
+  const isQuarterly = (client.vat_period ?? 'quarterly') !== 'monthly';
+  const year = parseInt(yearParam ?? String(new Date().getFullYear()));
 
-  if (isNaN(year) || isNaN(quarter) || quarter < 1 || quarter > 4) redirect('/uva');
+  let periodMonth: number;   // letzter Monat des Zeitraums (Quartalsende bzw. der Monat selbst)
+  let periodStartMonth: number;
+  let periodLabel: string;
+  let monateLabel: string;
+  let faelligkeit: string;
 
-  const qMonths = [quarter * 3 - 2, quarter * 3 - 1, quarter * 3];
-  const dateFrom = `${year}-${String(qMonths[0]).padStart(2, '0')}-01`;
-  const dateTo   = `${year}-${String(qMonths[2]).padStart(2, '0')}-31`;
+  if (isQuarterly) {
+    const quarter = parseInt(quarterParam ?? String(Math.ceil((new Date().getMonth() + 1) / 3)));
+    if (isNaN(year) || isNaN(quarter) || quarter < 1 || quarter > 4) redirect('/uva');
+    periodMonth = quarter * 3;
+    periodStartMonth = quarter * 3 - 2;
+    periodLabel = `Q${quarter} / ${year}`;
+    monateLabel = QUARTAL_MONATE[quarter];
+    faelligkeit = QUARTAL_FAELLIGKEIT[quarter];
+  } else {
+    const month = parseInt(monthParam ?? String(new Date().getMonth() + 1));
+    if (isNaN(year) || isNaN(month) || month < 1 || month > 12) redirect('/uva');
+    periodMonth = month;
+    periodStartMonth = month;
+    periodLabel = `${MONATE[month - 1]} / ${year}`;
+    monateLabel = MONATE[month - 1];
+    let dueMonth = month + 2, dueYear = year;
+    if (dueMonth > 12) { dueMonth -= 12; dueYear += 1; }
+    faelligkeit = `15. ${MONATE[dueMonth - 1]}${dueYear !== year ? ` ${dueYear}` : ''}`;
+  }
+
+  const dateFrom = `${year}-${String(periodStartMonth).padStart(2, '0')}-01`;
+  const lastDay = new Date(year, periodMonth, 0).getDate();
+  const dateTo = `${year}-${String(periodMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
   const { data: transactions } = await supabase
     .from('transactions')
@@ -63,30 +89,34 @@ export default async function UVADruckenPage({
     .gte('booking_date', dateFrom)
     .lte('booking_date', dateTo);
 
+  const { data: taxReturn } = await supabase
+    .from('tax_returns')
+    .select('status, submitted_at')
+    .eq('client_id', client.id)
+    .eq('period_year', year)
+    .eq('period_month', periodMonth)
+    .maybeSingle();
+
   const tx = transactions ?? [];
 
-  // UVA berechnen
   const { ustByRate, vstByRate, totalUSt, totalVSt, zahllast } = calculateUVA(tx);
   const isGutschrift = zahllast < 0;
+  const isSubmitted = taxReturn?.status === 'submitted';
 
-  const today     = new Date().toLocaleDateString('de-AT');
-  const faelligkeit = FAELLIGKEITEN[quarter];
-  const quartalLabel = `Q${quarter} / ${year}`;
-  const monateLabel  = QUARTAL_MONATE[quarter];
+  const today = new Date().toLocaleDateString('de-AT');
 
-  const ustRows = VAT_RATES.map(r => ({
-    label: r === 0
-      ? 'Steuerfreie Umsätze (Kz 000)'
-      : `Steuerpfl. Umsätze ${r}% USt (Kz 0${r < 10 ? '0'+r : r})`,
-    bgl: ustByRate[r].bemessungsgrundlage,
-    steuer: ustByRate[r].steuer,
-    rate: r,
-  }));
+  const ustRows = [
+    { label: 'Steuerfreie Umsätze mit Vorsteuerabzug (Kz 011)', bgl: ustByRate[0].bemessungsgrundlage, steuer: 0, rate: 0 },
+    ...VAT_RATES.filter(r => r !== 0).map(r => ({
+      label: r === 20 ? '20 % Normalsteuersatz (Kz 022)' : r === 10 ? '10 % ermäßigter Steuersatz (Kz 029)' : '13 % ermäßigter Steuersatz (Kz 006)',
+      bgl: ustByRate[r].bemessungsgrundlage,
+      steuer: ustByRate[r].steuer,
+      rate: r,
+    })),
+  ];
 
   const vstRows = VAT_RATES.map(r => ({
-    label: r === 0
-      ? 'Steuerfreie Eingangsleistungen'
-      : `Vorsteuern ${r}% (Kz 060)`,
+    label: r === 0 ? 'Steuerfreie Eingangsleistungen' : `Vorsteuern ${r}% (Kz 060)`,
     bgl: vstByRate[r].bemessungsgrundlage,
     steuer: vstByRate[r].steuer,
     rate: r,
@@ -97,7 +127,7 @@ export default async function UVADruckenPage({
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>UVA {quartalLabel} – {client.company_name}</title>
+        <title>UVA {periodLabel} – {client.company_name}</title>
         <style>{`
           * { box-sizing: border-box; margin: 0; padding: 0; }
           body {
@@ -117,6 +147,9 @@ export default async function UVADruckenPage({
           .header-right { text-align: right; }
           .doc-title { font-size: 18px; font-weight: 800; color: #35609E; }
           .period { font-size: 13px; color: #555; margin-top: 3px; }
+          .status-badge { display: inline-block; margin-top: 6px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; padding: 3px 10px; border-radius: 999px; }
+          .status-badge.submitted { background: #f3f4f6; color: #4b5563; }
+          .status-badge.draft { background: #fef3c7; color: #92400e; }
           .meta-row { display: flex; gap: 24px; margin-bottom: 24px; }
           .meta-card { background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 16px; flex: 1; }
           .meta-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 3px; }
@@ -166,10 +199,8 @@ export default async function UVADruckenPage({
         `}</style>
       </head>
       <body>
-        {/* Drucken / Schließen – Client Component */}
         <DruckButtons />
 
-        {/* Kopfzeile */}
         <div className="header">
           <div className="logo-block">
             <div className="logo">KPS</div>
@@ -180,11 +211,13 @@ export default async function UVADruckenPage({
           </div>
           <div className="header-right">
             <div className="doc-title">UVA – Umsatzsteuervoranmeldung</div>
-            <div className="period">{quartalLabel} · {monateLabel}</div>
+            <div className="period">{periodLabel} · {monateLabel}</div>
+            <div className={`status-badge ${isSubmitted ? 'submitted' : 'draft'}`}>
+              {isSubmitted ? `Übermittelt${formatDateTime(taxReturn?.submitted_at ?? null) ? ` am ${formatDateTime(taxReturn!.submitted_at)}` : ''}` : 'Entwurf'}
+            </div>
           </div>
         </div>
 
-        {/* Meta-Infos */}
         <div className="meta-row">
           <div className="meta-card">
             <div className="meta-label">Zeitraum</div>
@@ -204,14 +237,13 @@ export default async function UVADruckenPage({
           </div>
         </div>
 
-        {/* Umsatzsteuer-Tabelle */}
         <div className="section">
           <div className="section-header blue">
-            <h3>Umsatzsteuer (Kennzahlen 000–072)</h3>
+            <h3>1. Umsätze (Kz 000)</h3>
             <p>Ausgangsleistungen / Einnahmen</p>
           </div>
           {ustRows.every(r => r.bgl === 0 && r.steuer === 0) ? (
-            <div className="empty-note">Keine Einnahmen in diesem Quartal</div>
+            <div className="empty-note">Keine Einnahmen in diesem Zeitraum</div>
           ) : (
             <table>
               <thead>
@@ -223,7 +255,7 @@ export default async function UVADruckenPage({
               </thead>
               <tbody>
                 {ustRows.filter(r => r.bgl > 0 || r.steuer > 0).map(r => (
-                  <tr key={r.rate}>
+                  <tr key={r.label}>
                     <td>{r.label}</td>
                     <td>{eur(r.bgl)}</td>
                     <td>{r.rate === 0 ? '–' : eur(r.steuer)}</td>
@@ -241,14 +273,13 @@ export default async function UVADruckenPage({
           )}
         </div>
 
-        {/* Vorsteuer-Tabelle */}
         <div className="section">
           <div className="section-header teal">
-            <h3>Vorsteuer (Kennzahl 060)</h3>
+            <h3>2. Vorsteuer (Kz 060)</h3>
             <p>Eingangsleistungen / Ausgaben</p>
           </div>
           {vstRows.every(r => r.bgl === 0 && r.steuer === 0) ? (
-            <div className="empty-note">Keine Ausgaben in diesem Quartal</div>
+            <div className="empty-note">Keine Ausgaben in diesem Zeitraum</div>
           ) : (
             <table>
               <thead>
@@ -260,7 +291,7 @@ export default async function UVADruckenPage({
               </thead>
               <tbody>
                 {vstRows.filter(r => r.bgl > 0 || r.steuer > 0).map(r => (
-                  <tr key={r.rate}>
+                  <tr key={r.label}>
                     <td>{r.label}</td>
                     <td>{eur(r.bgl)}</td>
                     <td>{r.rate === 0 ? '–' : eur(r.steuer)}</td>
@@ -278,9 +309,8 @@ export default async function UVADruckenPage({
           )}
         </div>
 
-        {/* Ergebnis */}
         <div className={`result-box ${isGutschrift ? 'gutschrift' : 'zahllast'}`}>
-          <div className="result-title">Ergebnis {quartalLabel}</div>
+          <div className="result-title">Ergebnis {periodLabel} (Kz 095)</div>
           <div className="result-row">
             <div className="result-item">
               <div className="label">Umsatzsteuer</div>
@@ -299,7 +329,6 @@ export default async function UVADruckenPage({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="footer">
           <div className="footer-disclaimer">
             Diese Berechnung dient als Orientierungshilfe und ersetzt nicht die offizielle UVA-Meldung.

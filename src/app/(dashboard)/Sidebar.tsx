@@ -6,9 +6,8 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import {
-  ClipboardList, Plus, Tags, Landmark, Receipt, RefreshCw,
-  FileText, User, ScanSearch, LayoutDashboard, Settings,
-  Building2, Users, Upload, LogOut, X, Menu,
+  ClipboardList, Receipt, Wallet, Landmark, FileText, User, ScanSearch,
+  LayoutDashboard, Settings, Building2, Users, Upload, LogOut, X, Menu,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -18,53 +17,63 @@ type Props = {
   modulesEnabled: string[];
 };
 
-type NavItem = { href: string; label: string; icon: LucideIcon };
-
-// Basis-Items für Klienten (immer sichtbar)
-const klientBaseItems: NavItem[] = [
-  { href: '/buchungen',      label: 'Buchungsübersicht', icon: ClipboardList },
-  { href: '/buchungen/neu',  label: 'Buchung erfassen',  icon: Plus },
-  { href: '/buchungen/kategorien', label: 'Kategorien',  icon: Tags },
-  { href: '/import',         label: 'Bank-Import',       icon: Landmark },
-  { href: '/uva',            label: 'UVA',               icon: Receipt },
-  { href: '/dauerauftraege', label: 'Daueraufträge',     icon: RefreshCw },
-];
-
-// Nur sichtbar wenn Modul 'invoicing' aktiv
-const invoicingItems: NavItem[] = [
-  { href: '/rechnungen',     label: 'Rechnungen',        icon: FileText },
-  { href: '/kunden',         label: 'Kunden',            icon: User },
-];
-
-// Nur sichtbar wenn Modul 'ocr' aktiv
-const ocrItems: NavItem[] = [
-  { href: '/belege',         label: 'Belege (OCR)',      icon: ScanSearch },
-];
-
-// Superadmin-Basis (immer sichtbar)
-const superadminBaseItems: NavItem[] = [
-  { href: '/dashboard',      label: 'Dashboard',         icon: LayoutDashboard },
-  { href: '/buchungen',      label: 'Buchungsübersicht', icon: ClipboardList },
-  { href: '/buchungen/neu',  label: 'Buchung erfassen',  icon: Plus },
-  { href: '/buchungen/kategorien', label: 'Kategorien',  icon: Tags },
-  { href: '/import',         label: 'Bank-Import',       icon: Landmark },
-  { href: '/uva',            label: 'UVA',               icon: Receipt },
-  { href: '/dauerauftraege', label: 'Daueraufträge',     icon: RefreshCw },
-];
-
-const superadminTailItems: NavItem[] = [
-  { href: '/einstellungen',  label: 'Einstellungen',     icon: Settings },
-];
-
-const kanzleiItems: NavItem[] = [
-  { href: '/kanzlei',             label: 'Kanzlei-Übersicht', icon: Building2 },
-  { href: '/kanzlei/benutzer',    label: 'Benutzer',           icon: Users },
-  { href: '/kanzlei/bmd-export',  label: 'BMD-Export',         icon: Upload },
-];
+type SubItem = { href: string; label: string };
+type NavEntry =
+  | { kind: 'link'; href: string; label: string; icon: LucideIcon }
+  | { kind: 'group'; href: string; label: string; icon: LucideIcon; children: SubItem[] };
 
 // IC&P Corporate Design – Grau/Blau
 const NAV_BG     = '#3F454C'; // Grau dunkel
 const NAV_ACCENT = '#4F90E8'; // Blau (aktive Elemente)
+
+function buildNav(role: string, hasInvoicing: boolean, hasOcr: boolean): NavEntry[] {
+  const buchungenGroup: NavEntry = {
+    kind: 'group',
+    href: '/buchungen',
+    label: 'Buchungen',
+    icon: ClipboardList,
+    children: [
+      { href: '/buchungen/kategorien', label: 'Kategorien' },
+      { href: '/dauerauftraege',       label: 'Daueraufträge' },
+      ...(hasOcr ? [{ href: '/belege', label: 'Belege (OCR)' }] : []),
+    ],
+  };
+
+  const middle: NavEntry[] = [
+    { kind: 'link', href: '/uva',            label: 'UVA-Meldung',   icon: Receipt },
+    { kind: 'link', href: '/offene-posten',  label: 'Offene Posten', icon: Wallet },
+    { kind: 'link', href: '/import',         label: 'Bank-Import',   icon: Landmark },
+  ];
+
+  const invoicing: NavEntry[] = hasInvoicing
+    ? [
+        { kind: 'link', href: '/rechnungen', label: 'Rechnungen', icon: FileText },
+        { kind: 'link', href: '/kunden',     label: 'Kunden',     icon: User },
+      ]
+    : [];
+
+  if (role === 'superadmin') {
+    return [
+      { kind: 'link', href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      buchungenGroup,
+      ...middle,
+      ...invoicing,
+      { kind: 'link', href: '/einstellungen', label: 'Einstellungen', icon: Settings },
+    ];
+  }
+
+  if (role === 'klient') {
+    return [buchungenGroup, ...middle, ...invoicing];
+  }
+
+  return [];
+}
+
+const kanzleiItems: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: '/kanzlei',             label: 'Kanzlei-Übersicht', icon: Building2 },
+  { href: '/kanzlei/benutzer',    label: 'Benutzer',           icon: Users },
+  { href: '/kanzlei/bmd-export',  label: 'BMD-Export',         icon: Upload },
+];
 
 export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
   const pathname = usePathname();
@@ -92,21 +101,7 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
     role === 'kanzlei'    ? 'Kanzlei'       :
     'Klient';
 
-  // Nav-Items je Rolle zusammenbauen
-  const mainItems = role === 'superadmin'
-    ? [
-        ...superadminBaseItems,
-        ...(hasInvoicing ? invoicingItems : []),
-        ...(hasOcr       ? ocrItems       : []),
-        ...superadminTailItems,
-      ]
-    : role === 'klient'
-    ? [
-        ...klientBaseItems,
-        ...(hasInvoicing ? invoicingItems : []),
-        ...(hasOcr       ? ocrItems       : []),
-      ]
-    : [];
+  const mainItems = buildNav(role, hasInvoicing, hasOcr);
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -129,15 +124,39 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {/* Klient- und Superadmin-Items */}
-        {mainItems.map(item => (
-          <NavLink
-            key={item.href}
-            {...item}
-            active={isActive(item.href)}
-            onClick={() => setMobileOpen(false)}
-          />
-        ))}
+        {mainItems.map(item =>
+          item.kind === 'group' ? (
+            <div key={item.href}>
+              <NavLink
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                active={isActive(item.href)}
+                onClick={() => setMobileOpen(false)}
+              />
+              <div className="mt-0.5 space-y-0.5">
+                {item.children.map(child => (
+                  <NavSubLink
+                    key={child.href}
+                    href={child.href}
+                    label={child.label}
+                    active={isActive(child.href)}
+                    onClick={() => setMobileOpen(false)}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <NavLink
+              key={item.href}
+              href={item.href}
+              label={item.label}
+              icon={item.icon}
+              active={isActive(item.href)}
+              onClick={() => setMobileOpen(false)}
+            />
+          )
+        )}
 
         {/* Kanzlei-Bereich (admin, kanzlei, superadmin) */}
         {['admin', 'kanzlei', 'superadmin'].includes(role) && (
@@ -244,6 +263,28 @@ function NavLink({
     >
       <Icon size={18} strokeWidth={1.75} className="flex-shrink-0" />
       <span className="flex-1">{label}</span>
+    </Link>
+  );
+}
+
+// Eingerückter Unterpunkt (z. B. Kategorien / Daueraufträge unter „Buchungen")
+function NavSubLink({
+  href, label, active, onClick,
+}: {
+  href: string; label: string; active: boolean; onClick: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={`flex items-center gap-2.5 pl-[3.15rem] pr-3 py-2 rounded-lg text-[13px] transition-colors ${
+        active
+          ? 'bg-white/10 text-white font-medium'
+          : 'text-white/55 hover:text-white/85 hover:bg-white/5'
+      }`}
+    >
+      <span className="w-1 h-1 rounded-full bg-current opacity-70 flex-shrink-0" />
+      <span>{label}</span>
     </Link>
   );
 }
