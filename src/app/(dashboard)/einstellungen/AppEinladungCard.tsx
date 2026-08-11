@@ -20,7 +20,7 @@ export default function AppEinladungCard({ defaultEmail }: { defaultEmail: strin
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Fehler beim Versand');
-      setMsg(`✅ Installationslink wurde an ${data.sentTo} gesendet.`);
+      setMsg(`✅ Installationslink wurde an ${data.sentTo} gesendet. Falls nichts ankommt: bitte auch im Spam-/Werbeordner nachsehen.`);
     } catch (e: unknown) {
       setMsg(`❌ ${e instanceof Error ? e.message : 'Fehler beim Versand'}`);
     }
@@ -37,6 +37,9 @@ export default function AppEinladungCard({ defaultEmail }: { defaultEmail: strin
         KPS Smart Buchhaltung lässt sich auf dem Smartphone oder Tablet als App installieren – ideal, um
         Belege direkt unterwegs zu fotografieren. Schick dir (oder einem Mitarbeiter/Klienten) den
         Installationslink samt Kurzanleitung per E-Mail.
+      </p>
+      <p className="text-xs text-gray-400">
+        Hinweis: Die E-Mail landet manchmal im Spam-/Werbeordner – bitte dort nachsehen, falls sie nicht ankommt.
       </p>
       <div className="flex flex-col sm:flex-row gap-3">
         <input

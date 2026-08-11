@@ -53,7 +53,10 @@ export async function POST(req: NextRequest) {
     }, { status: 500 });
   }
 
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://kps-smart-buchhaltung.vercel.app').replace(/\/$/, '');
+  // Herkunft aus dem tatsächlichen Request ableiten statt eine Domain zu raten –
+  // funktioniert dadurch automatisch korrekt, egal ob Vercel-Standarddomain,
+  // eigene Domain oder Preview-Deployment (behebt Vercel "DEPLOYMENT_NOT_FOUND").
+  const appUrl = req.nextUrl.origin;
   const belegeUrl = `${appUrl}/belege`;
 
   const { data: clientData } = await admin

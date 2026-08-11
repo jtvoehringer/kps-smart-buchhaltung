@@ -27,7 +27,8 @@ export default function BuchungForm({
   const router   = useRouter();
   const supabase = createClient();
   const isBrutto = bookingMode === 'brutto';
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef   = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -365,17 +366,25 @@ export default function BuchungForm({
 
       {/* Belege (optional) */}
       <div className="border border-gray-200 rounded-xl p-4 space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <span className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-700">
             <Paperclip size={15} strokeWidth={2} className="text-gray-400" />
             Beleg anhängen
             <span className="ml-1 text-xs text-gray-400 font-normal">(optional · PDF, JPG, PNG · max. {MAX_SIZE_MB} MB)</span>
           </span>
-          <button type="button" onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center gap-1 text-xs text-[#35609E] hover:text-[#4F90E8] font-medium border border-[#35609E] hover:border-[#4F90E8] px-3 py-1 rounded-lg transition-colors">
-            <Paperclip size={12} strokeWidth={2} />
-            Datei wählen
-          </button>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => cameraInputRef.current?.click()}
+              className="inline-flex items-center gap-1 text-xs text-white font-medium bg-[#35609E] hover:bg-[#4F90E8] px-3 py-1 rounded-lg transition-colors">
+              📷 Foto aufnehmen
+            </button>
+            <button type="button" onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center gap-1 text-xs text-[#35609E] hover:text-[#4F90E8] font-medium border border-[#35609E] hover:border-[#4F90E8] px-3 py-1 rounded-lg transition-colors">
+              <Paperclip size={12} strokeWidth={2} />
+              Datei wählen
+            </button>
+          </div>
+          <input ref={cameraInputRef} type="file" accept="image/*" capture="environment"
+            onChange={e => addFiles(e.target.files)} className="hidden" />
           <input ref={fileInputRef} type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp"
             onChange={e => addFiles(e.target.files)} className="hidden" />
         </div>

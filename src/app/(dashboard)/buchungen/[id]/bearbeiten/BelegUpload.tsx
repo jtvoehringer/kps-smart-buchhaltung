@@ -27,7 +27,8 @@ function fileIcon(name: string): string {
 
 export default function BelegUpload({ transactionId, clientId, initialAttachments }: Props) {
   const supabase   = createClient();
-  const fileInput  = useRef<HTMLInputElement>(null);
+  const fileInput   = useRef<HTMLInputElement>(null);
+  const cameraInput = useRef<HTMLInputElement>(null);
 
   const [attachments, setAttachments] = useState<Attachment[]>(initialAttachments);
   const [uploading, setUploading]     = useState(false);
@@ -164,6 +165,17 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
           ))}
         </ul>
       )}
+
+      {/* Kamera-Direktaufnahme */}
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={() => cameraInput.current?.click()}
+          className="inline-flex items-center gap-1 text-xs text-white font-medium bg-[#35609E] hover:bg-[#4F90E8] px-3 py-1.5 rounded-lg transition-colors">
+          📷 Foto aufnehmen
+        </button>
+        <span className="text-xs text-gray-400">oder Datei unten hochladen</span>
+      </div>
+      <input ref={cameraInput} type="file" accept="image/*" capture="environment"
+        onChange={e => handleFiles(e.target.files)} className="hidden" />
 
       {/* Upload-Bereich */}
       <div
