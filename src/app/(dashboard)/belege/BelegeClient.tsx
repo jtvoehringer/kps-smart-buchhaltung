@@ -75,6 +75,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
   const router                      = useRouter();
   const supabase                    = createClient();
   const fileInputRef                = useRef<HTMLInputElement>(null);
+  const cameraInputRef              = useRef<HTMLInputElement>(null);
 
   const [receipts, setReceipts]     = useState<Receipt[]>(initialReceipts);
   const [uploading, setUploading]   = useState(false);
@@ -253,8 +254,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
         onDragOver={e => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className={`cursor-pointer rounded-xl border-2 border-dashed transition-all p-8 text-center ${
+        className={`rounded-xl border-2 border-dashed transition-all p-8 text-center ${
           dragOver
             ? 'border-[#35609E] bg-[#35609E]/5'
             : 'border-gray-300 hover:border-[#35609E]/50 hover:bg-gray-50'
@@ -268,6 +268,16 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
           className="hidden"
           onChange={e => handleFiles(e.target.files)}
         />
+        {/* Direkter Kamera-Zugriff am Smartphone: capture="environment" öffnet auf
+            iOS/Android sofort die Rückkamera statt einer generischen Dateiauswahl. */}
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={e => handleFiles(e.target.files)}
+        />
         {uploading ? (
           <div className="text-[#35609E] font-medium">
             <div className="text-3xl mb-2 animate-spin">⏳</div>
@@ -276,8 +286,24 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
         ) : (
           <>
             <div className="text-4xl mb-3">📎</div>
-            <p className="font-semibold text-gray-700">Beleg hier ablegen oder klicken</p>
-            <p className="text-xs text-gray-400 mt-1">JPG · PNG · WEBP · PDF · max. 10 MB</p>
+            <p className="font-semibold text-gray-700">Beleg hier ablegen</p>
+            <p className="text-xs text-gray-400 mt-1 mb-4">JPG · PNG · WEBP · PDF · max. 10 MB</p>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current?.click()}
+                className="inline-flex items-center gap-2 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+              >
+                📷 Foto aufnehmen
+              </button>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-gray-300 text-gray-600 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+              >
+                📁 Datei wählen
+              </button>
+            </div>
           </>
         )}
       </div>
