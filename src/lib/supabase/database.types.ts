@@ -87,7 +87,14 @@ export type ClientBranding = {
   /** Migration 022: Suffix mit Platzhaltern {JJ} / {JJJJ}, z.B. "/{JJ}" -> RE-001/26 */
   invoice_suffix: string;
   payment_days: number;
+  /** @deprecated Migration 027 – ersetzt durch die drei Spalten unten */
   invoice_footer: string | null;
+  /** Freitext linke Fußzeilenspalte (Migration 027) */
+  invoice_footer_left: string | null;
+  /** Freitext mittlere Fußzeilenspalte (Migration 027) */
+  invoice_footer_center: string | null;
+  /** Freitext rechte Fußzeilenspalte (Migration 027) */
+  invoice_footer_right: string | null;
   updated_at: string;
 };
 
@@ -460,6 +467,9 @@ export type Database = {
           invoice_suffix?: string;
           payment_days?: number;
           invoice_footer?: string | null;
+          invoice_footer_left?: string | null;
+          invoice_footer_center?: string | null;
+          invoice_footer_right?: string | null;
         };
         Update: Partial<ClientBranding>;
         Relationships: [];

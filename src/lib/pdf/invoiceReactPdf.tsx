@@ -2,6 +2,7 @@
 // Nutzt @react-pdf/renderer statt eines Headless-Browsers – läuft ohne
 // zusätzliche Binärdateien in Vercel Serverless Functions.
 import { Document, Page, Text, View, Image, StyleSheet, renderToBuffer } from '@react-pdf/renderer';
+import { zahlungskondition } from '@/lib/utils';
 import type { Invoice, InvoiceItem, Customer, ClientBranding } from '@/lib/supabase/database.types';
 
 function fmt(n: number) {
@@ -46,7 +47,10 @@ const styles = StyleSheet.create({
   paymentH: { fontSize: 8.5, fontWeight: 700, color: '#444', textTransform: 'uppercase', marginBottom: 4 },
   paymentP: { fontSize: 9, color: '#555', marginTop: 2 },
   footer: { position: 'absolute', bottom: 30, left: 40, right: 40, fontSize: 7.5, color: '#aaa',
-            textAlign: 'center', borderTopWidth: 1, borderTopColor: '#eeeeee', paddingTop: 8 },
+            borderTopWidth: 1, borderTopColor: '#eeeeee', paddingTop: 8 },
+  footerRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 16 },
+  footerCol: { flex: 1, lineHeight: 1.4 },
+  footerStrong: { fontWeight: 700, color: '#888' },
 });
 
 export type InvoicePdfProps = {
@@ -63,7 +67,6 @@ export type InvoicePdfProps = {
 export function InvoiceDocument({ invoice, customer, branding, senderCompanyName, senderUid }: InvoicePdfProps) {
   const color = branding?.brand_color || '#35609E';
   const items = invoice.items ?? [];
-  const paymentDays = branding?.payment_days ?? 14;
 
   return (
     <Document>
@@ -73,16 +76,14 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
             {branding?.logo_url ? (
               // eslint-disable-next-line jsx-a11y/alt-text
               <Image src={branding.logo_url} style={{ width: 120, height: 50, objectFit: 'contain', marginBottom: 6 }} />
-            ) : (
-              <Text style={styles.senderCompany}>{senderCompanyName}</Text>
-            )}
+            ) : null}
+            {/* Firmenwortlaut immer, auch neben dem Logo (§ 11 Abs. 1 Z 1 UStG) */}
+            <Text style={styles.senderCompany}>{senderCompanyName}</Text>
             {branding?.company_street && <Text style={styles.senderDetail}>{branding.company_street}</Text>}
             {(branding?.company_zip || branding?.company_city) && (
               <Text style={styles.senderDetail}>{[branding?.company_zip, branding?.company_city].filter(Boolean).join(' ')}</Text>
             )}
-            {branding?.company_phone && <Text style={styles.senderDetail}>Tel: {branding.company_phone}</Text>}
-            {branding?.company_email && <Text style={styles.senderDetail}>{branding.company_email}</Text>}
-            {senderUid && <Text style={[styles.senderDetail, { marginTop: 4 }]}>UID: {senderUid}</Text>}
+            {/* Kontakt, Bank und UID stehen in der Fußzeile */}
           </View>
           <View style={styles.metaBlock}>
             <Text style={[styles.title, { color }]}>RECHNUNG</Text>
@@ -158,7 +159,7 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
 
         <View style={styles.payment}>
           <Text style={styles.paymentH}>Zahlungskonditionen</Text>
-          <Text style={styles.paymentP}>Innerhalb von {paymentDays} Tagen netto</Text>
+          <Text style={styles.paymentP}>{zahlungskondition(invoice.invoice_date, invoice.due_date)}</Text>
           {branding?.iban && (
             <>
               <Text style={styles.paymentP}>
@@ -169,8 +170,36 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
           )}
         </View>
 
-        {(invoice.footer_override || branding?.invoice_footer) && (
-          <Text style={styles.footer}>{invoice.footer_override ?? branding?.invoice_footer}</Text>
+        {/* Fußzeile dreispaltig: Firma/Rechtliches · Kontakt · Bank & UID */}
+        {invoice.footer_override ? (
+          <Text style={styles.footer}>{invoice.footer_override}</Text>
+        ) : (
+          <View style={styles.footer}>
+            <View style={styles.footerRow}>
+              <View style={styles.footerCol}>
+                <Text style={styles.footerStrong}>{senderCompanyName}</Text>
+                {branding?.company_street && <Text>{branding.company_street}</Text>}
+                {(branding?.company_zip || branding?.company_city) && (
+                  <Text>{[branding?.company_zip, branding?.company_city].filter(Boolean).join(' ')}</Text>
+                )}
+                {branding?.invoice_footer_left && <Text>{branding.invoice_footer_left}</Text>}
+              </View>
+              <View style={styles.footerCol}>
+                {branding?.company_phone   && <Text>Tel: {branding.company_phone}</Text>}
+                {branding?.company_email   && <Text>{branding.company_email}</Text>}
+                {branding?.company_website && <Text>{branding.company_website}</Text>}
+                {branding?.invoice_footer_center && <Text>{branding.invoice_footer_center}</Text>}
+              </View>
+              <View style={styles.footerCol}>
+                {branding?.iban && <Text>IBAN: {branding.iban}</Text>}
+                {(branding?.bic || branding?.bank_name) && (
+                  <Text>{[branding?.bic, branding?.bank_name].filter(Boolean).join(' · ')}</Text>
+                )}
+                {senderUid && <Text>UID: {senderUid}</Text>}
+                {branding?.invoice_footer_right && <Text>{branding.invoice_footer_right}</Text>}
+              </View>
+            </View>
+          </View>
         )}
       </Page>
     </Document>

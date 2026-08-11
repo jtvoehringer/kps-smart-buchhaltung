@@ -39,6 +39,9 @@ type BrandingData = {
   invoice_suffix: string;
   payment_days: number;
   invoice_footer: string | null;
+  invoice_footer_left: string | null;
+  invoice_footer_center: string | null;
+  invoice_footer_right: string | null;
 } | null;
 
 // Grenzen § 6 Abs. 1 Z 27 UStG (seit 1.1.2025)
@@ -89,6 +92,9 @@ export default function EinstellungenForm({
   const [invoiceSuffix,   setInvoiceSuffix]   = useState(branding?.invoice_suffix   ?? '');
   const [paymentDays,     setPaymentDays]     = useState(branding?.payment_days     ?? 14);
   const [invoiceFooter,   setInvoiceFooter]   = useState(branding?.invoice_footer   ?? '');
+  const [footerLeft,      setFooterLeft]      = useState(branding?.invoice_footer_left   ?? '');
+  const [footerCenter,    setFooterCenter]    = useState(branding?.invoice_footer_center ?? '');
+  const [footerRight,     setFooterRight]     = useState(branding?.invoice_footer_right  ?? '');
   const [logoUrl,         setLogoUrl]         = useState(branding?.logo_url         ?? '');
   const [logoUploading,   setLogoUploading]   = useState(false);
 
@@ -185,7 +191,10 @@ export default function EinstellungenForm({
       invoice_nr_digits: invoiceNrDigits,
       invoice_suffix:    invoiceSuffix,
       payment_days:      paymentDays,
-      invoice_footer:    invoiceFooter   || null,
+      invoice_footer:        invoiceFooter || null,
+      invoice_footer_left:   footerLeft    || null,
+      invoice_footer_center: footerCenter  || null,
+      invoice_footer_right:  footerRight   || null,
       ...(logoUrl ? { logo_url: logoUrl } : {}),
     };
 
@@ -486,23 +495,44 @@ export default function EinstellungenForm({
         <h2 className="font-semibold text-gray-800 mb-1">Bankverbindung</h2>
         <p className="text-sm text-gray-500 mb-4">Wird im Zahlungshinweis auf der Rechnung angezeigt</p>
         <div className="space-y-3">
-          <input
-            type="text" placeholder="IBAN (AT…)"
-            value={iban} onChange={e => setIban(e.target.value)}
-            className={inputCls}
-          />
-          <div className="flex gap-3">
+          {/* Sichtbare Beschriftungen statt bloßer Platzhalter: die
+              verschwinden beim Ausfüllen, und Passwortmanager tragen
+              dann gern den Kontoinhaber ins Bankfeld ein. */}
+          <div>
+            <label htmlFor="bank-iban" className="text-xs font-medium text-gray-500 block mb-1">IBAN</label>
             <input
-              type="text" placeholder="BIC"
-              value={bic} onChange={e => setBic(e.target.value)}
-              className="w-40 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
-            />
-            <input
-              type="text" placeholder="Bankname"
-              value={bankName} onChange={e => setBankName(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+              id="bank-iban" type="text" placeholder="AT.. .... .... .... ...."
+              autoComplete="off" data-1p-ignore data-lpignore="true"
+              value={iban} onChange={e => setIban(e.target.value)}
+              className={inputCls}
             />
           </div>
+          <div className="flex gap-3">
+            <div className="w-44">
+              <label htmlFor="bank-bic" className="text-xs font-medium text-gray-500 block mb-1">BIC (optional)</label>
+              <input
+                id="bank-bic" type="text" placeholder="z.B. GIBAATWWXXX"
+                autoComplete="off" data-1p-ignore data-lpignore="true"
+                value={bic} onChange={e => setBic(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+              />
+            </div>
+            <div className="flex-1">
+              <label htmlFor="bank-name" className="text-xs font-medium text-gray-500 block mb-1">
+                Name des Kreditinstituts (optional)
+              </label>
+              <input
+                id="bank-name" type="text" placeholder="z.B. Erste Bank – nicht der Kontoinhaber"
+                autoComplete="off" data-1p-ignore data-lpignore="true"
+                value={bankName} onChange={e => setBankName(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-gray-400">
+            Diese drei Angaben erscheinen in der rechten Fußzeilenspalte der Rechnung.
+            Der Kontoinhaber gehört nicht hierher – er ergibt sich aus dem Firmenwortlaut.
+          </p>
         </div>
       </div>
 
@@ -574,14 +604,67 @@ export default function EinstellungenForm({
       {/* Fußzeile */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
         <h2 className="font-semibold text-gray-800 mb-1">Rechnungsfußzeile</h2>
-        <p className="text-sm text-gray-500 mb-3">Freitext – z.B. Steuerberater-Hinweis, Gewerbeschein-Nr., Gerichtsstand</p>
-        <textarea
-          rows={3}
-          placeholder="z.B. Gerichtsstand Wien · Steuerberater: KPS Steuerberatung GmbH"
-          value={invoiceFooter}
-          onChange={e => setInvoiceFooter(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] resize-none"
-        />
+        <p className="text-sm text-gray-500 mb-4">
+          Die Fußzeile ist dreispaltig. Firmenwortlaut, Adresse, Kontaktdaten, Bankverbindung
+          und UID werden automatisch aus den Feldern oben eingesetzt – hier ergänzen Sie nur,
+          was zusätzlich in der jeweiligen Spalte stehen soll.
+        </p>
+
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label htmlFor="fz-links" className="text-xs font-medium text-gray-500 block mb-1">Links</label>
+            <textarea id="fz-links" rows={3}
+              placeholder="z.B. FN 415469i · HG Wr. Neustadt"
+              value={footerLeft} onChange={e => setFooterLeft(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] resize-none" />
+            <p className="text-xs text-gray-400 mt-1">Unter Firma und Adresse</p>
+          </div>
+          <div>
+            <label htmlFor="fz-mitte" className="text-xs font-medium text-gray-500 block mb-1">Mitte</label>
+            <textarea id="fz-mitte" rows={3}
+              placeholder="z.B. Gerichtsstand Wiener Neustadt"
+              value={footerCenter} onChange={e => setFooterCenter(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] resize-none" />
+            <p className="text-xs text-gray-400 mt-1">Unter Telefon, E-Mail und Web</p>
+          </div>
+          <div>
+            <label htmlFor="fz-rechts" className="text-xs font-medium text-gray-500 block mb-1">Rechts</label>
+            <textarea id="fz-rechts" rows={3}
+              placeholder="z.B. Eigentumsvorbehalt bis zur vollständigen Bezahlung"
+              value={footerRight} onChange={e => setFooterRight(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] resize-none" />
+            <p className="text-xs text-gray-400 mt-1">Unter Bankverbindung und UID</p>
+          </div>
+        </div>
+
+        {/* Vorschau – so steht es auf der Rechnung */}
+        <p className="text-xs font-medium text-gray-500 mt-5 mb-2">So sieht die Fußzeile auf der Rechnung aus</p>
+        <div className="border-t border-gray-200 pt-3 grid grid-cols-3 gap-4 text-[11px] text-gray-400 leading-relaxed bg-gray-50 rounded-lg px-4 pb-3">
+          <div>
+            <p className="font-semibold text-gray-500">{client.company_name || 'Firmenwortlaut'}</p>
+            {companyStreet && <p>{companyStreet}</p>}
+            {(companyZip || companyCity) && <p>{[companyZip, companyCity].filter(Boolean).join(' ')}</p>}
+            {footerLeft && <p className="whitespace-pre-line">{footerLeft}</p>}
+          </div>
+          <div>
+            {companyPhone   && <p>Tel: {companyPhone}</p>}
+            {companyEmail   && <p>{companyEmail}</p>}
+            {companyWebsite && <p>{companyWebsite}</p>}
+            {footerCenter && <p className="whitespace-pre-line">{footerCenter}</p>}
+          </div>
+          <div>
+            {iban && <p>IBAN: {iban}</p>}
+            {(bic || bankName) && <p>{[bic, bankName].filter(Boolean).join(' · ')}</p>}
+            {uidNumber && <p>UID: {uidNumber}</p>}
+            {footerRight && <p className="whitespace-pre-line">{footerRight}</p>}
+          </div>
+        </div>
+        {!uidNumber && (
+          <p className="text-xs text-amber-600 mt-2">
+            Ihre UID fehlt noch. Sie ist auf Rechnungen ab 10.000 € brutto Pflichtangabe
+            (§ 11 Abs. 1 Z 2 UStG) und wird oben unter „Stammdaten" hinterlegt.
+          </p>
+        )}
       </div>
 
       <AppEinladungCard defaultEmail={userEmail} />

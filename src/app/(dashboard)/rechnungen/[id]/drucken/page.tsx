@@ -2,6 +2,8 @@
 // Kein KPS-Branding – nur das Design des Klienten
 export const dynamic = 'force-dynamic';
 
+import { zahlungskondition } from '@/lib/utils';
+
 import { Fragment } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -53,7 +55,6 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
     country: string; uid_number: string | null; email: string | null;
   } | null;
 
-  const paymentDays = branding?.payment_days ?? 14;
 
   function fmt(n: number) {
     return new Intl.NumberFormat('de-AT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
@@ -133,7 +134,18 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
           .payment h3 { font-size: 9pt; font-weight: 700; color: #444; text-transform: uppercase;
                         letter-spacing: 0.5px; margin-bottom: 6px; }
           .payment p { font-size: 9.5pt; color: #555; line-height: 1.7; }
-          .footer { margin-top: auto; padding-top: 14px; border-top: 1px solid #eee;
+          .footer-cols {
+      display: flex;
+      gap: 24px;
+      justify-content: space-between;
+    }
+    .footer-col {
+      flex: 1;
+      min-width: 0;
+      line-height: 1.5;
+    }
+    .footer-col strong { display: block; }
+    .footer { margin-top: auto; padding-top: 14px; border-top: 1px solid #eee;
                     font-size: 8pt; color: #aaa; text-align: center; }
           .paid-stamp { display: inline-block; border: 3px solid #16a34a; color: #16a34a;
                         font-weight: 800; font-size: 14pt; padding: 6px 18px; transform: rotate(-3deg);
@@ -149,12 +161,14 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
           {/* Kopfzeile */}
           <div className="header">
             <div className="sender">
-              {branding?.logo_url ? (
+              {branding?.logo_url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={branding.logo_url} alt="Logo" style={{ height: '52px', objectFit: 'contain', marginBottom: '8px' }} />
-              ) : (
-                <div className="company">{clientData?.company_name ?? ''}</div>
               )}
+              {/* Der Firmenwortlaut wird IMMER gedruckt, auch neben dem Logo.
+                  § 11 Abs. 1 Z 1 UStG verlangt den Namen des leistenden
+                  Unternehmers – ein Logo genügt dafür nicht zwingend. */}
+              <div className="company">{clientData?.company_name ?? ''}</div>
               {branding?.company_street && <div className="detail">{branding.company_street}</div>}
               {(branding?.company_zip || branding?.company_city) && (
                 <div className="detail">
@@ -163,10 +177,8 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
                     ? `, ${branding.company_country}` : ''}
                 </div>
               )}
-              {branding?.company_phone && <div className="detail">Tel: {branding.company_phone}</div>}
-              {branding?.company_email && <div className="detail">{branding.company_email}</div>}
-              {branding?.company_website && <div className="detail">{branding.company_website}</div>}
-              {clientData?.uid_number && <div className="detail" style={{ marginTop: '4px' }}>UID: {clientData.uid_number}</div>}
+              {/* Telefon, E-Mail, Web und UID stehen jetzt in der Fußzeile –
+                  dort, wo sie auf einer Geschäftsrechnung üblicherweise stehen. */}
             </div>
             <div className="invoice-meta">
               <h1 className="invoice-title">RECHNUNG</h1>
@@ -271,7 +283,7 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
           {/* Zahlungshinweis */}
           <div className="payment">
             <h3>Zahlungskonditionen</h3>
-            <p>Innerhalb von {paymentDays} Tagen netto</p>
+            <p>{zahlungskondition(invoice.invoice_date, invoice.due_date)}</p>
             {branding?.iban && (
               <>
                 <p style={{ marginTop: '6px' }}>
@@ -293,12 +305,39 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
             </div>
           )}
 
-          {/* Fußzeile */}
-          {(invoice.footer_override || branding?.invoice_footer) && (
-            <div className="footer">
-              {invoice.footer_override ?? branding?.invoice_footer}
-            </div>
-          )}
+          {/* Fußzeile – drei Spalten: Firma/Rechtliches · Kontakt · Bank & UID */}
+          <div className="footer">
+            {invoice.footer_override ? (
+              <div>{invoice.footer_override}</div>
+            ) : (
+              <div className="footer-cols">
+                <div className="footer-col">
+                  <strong>{clientData?.company_name ?? ''}</strong>
+                  {branding?.company_street && <div>{branding.company_street}</div>}
+                  {(branding?.company_zip || branding?.company_city) && (
+                    <div>{[branding?.company_zip, branding?.company_city].filter(Boolean).join(' ')}</div>
+                  )}
+                  {branding?.invoice_footer_left && <div>{branding.invoice_footer_left}</div>}
+                </div>
+
+                <div className="footer-col">
+                  {branding?.company_phone   && <div>Tel: {branding.company_phone}</div>}
+                  {branding?.company_email   && <div>{branding.company_email}</div>}
+                  {branding?.company_website && <div>{branding.company_website}</div>}
+                  {branding?.invoice_footer_center && <div>{branding.invoice_footer_center}</div>}
+                </div>
+
+                <div className="footer-col">
+                  {branding?.iban && <div>IBAN: {branding.iban}</div>}
+                  {(branding?.bic || branding?.bank_name) && (
+                    <div>{[branding?.bic, branding?.bank_name].filter(Boolean).join(' · ')}</div>
+                  )}
+                  {clientData?.uid_number && <div>UID: {clientData.uid_number}</div>}
+                  {branding?.invoice_footer_right && <div>{branding.invoice_footer_right}</div>}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </body>
     </html>

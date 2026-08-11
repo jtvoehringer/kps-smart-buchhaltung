@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calcVat, calculateUVA, type UVATransaction } from './utils';
+import { calcVat, calculateUVA, zahlungszielTage, zahlungskondition, type UVATransaction } from './utils';
 
 describe('calcVat', () => {
   it('rechnet die Normalfälle', () => {
@@ -104,5 +104,41 @@ describe('calculateUVA', () => {
     ]);
     expect(r.ustByRate[20].bemessungsgrundlage).toBe(600);
     expect(r.ustByRate[20].steuer).toBe(120);
+  });
+});
+
+describe('zahlungszielTage / zahlungskondition', () => {
+  it('rechnet die Tagesdifferenz', () => {
+    expect(zahlungszielTage('2026-08-11', '2026-08-25')).toBe(14);
+    expect(zahlungszielTage('2026-08-11', '2026-09-10')).toBe(30);
+  });
+
+  it('erkennt "zahlbar bei Erhalt"', () => {
+    // Genau der Fall aus der Praxis: Kunde mit Zahlungsziel 0. Auf der
+    // Rechnung stand trotzdem "Innerhalb von 14 Tagen netto", weil der
+    // Text aus den globalen Einstellungen kam statt aus der Rechnung.
+    expect(zahlungszielTage('2026-08-11', '2026-08-11')).toBe(0);
+    expect(zahlungskondition('2026-08-11', '2026-08-11')).toBe('Zahlbar bei Erhalt');
+  });
+
+  it('formuliert das Zahlungsziel als Satz', () => {
+    expect(zahlungskondition('2026-08-11', '2026-08-25')).toBe('Innerhalb von 14 Tagen netto');
+    expect(zahlungskondition('2026-08-11', '2026-08-12')).toBe('Innerhalb von 1 Tagen netto');
+  });
+
+  it('rechnet über Monats- und Jahresgrenzen', () => {
+    expect(zahlungszielTage('2026-12-20', '2027-01-03')).toBe(14);
+    expect(zahlungszielTage('2026-02-20', '2026-03-06')).toBe(14);
+  });
+
+  it('bleibt bei Sommerzeitwechseln exakt', () => {
+    // Ohne UTC-Verankerung wäre hier 13 oder 15 herausgekommen
+    expect(zahlungszielTage('2026-03-25', '2026-04-08')).toBe(14);
+    expect(zahlungszielTage('2026-10-20', '2026-11-03')).toBe(14);
+  });
+
+  it('verträgt ungültige Daten', () => {
+    expect(zahlungszielTage('', '')).toBe(0);
+    expect(zahlungszielTage('quatsch', '2026-08-25')).toBe(0);
   });
 });

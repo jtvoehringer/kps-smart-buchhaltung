@@ -24,7 +24,7 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
 
   if (!membership?.client_id) redirect('/dashboard');
 
-  const [{ data: invoice }, { data: branding }, { data: incomeCategories }] = await Promise.all([
+  const [{ data: invoice }, { data: branding }, { data: mandant }, { data: incomeCategories }] = await Promise.all([
     admin.from('invoices')
       .select(`*, customers(id,name,contact_person,street,zip,city,country,uid_number,email)`)
       .eq('id', id)
@@ -32,6 +32,9 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
       .maybeSingle(),
     admin.from('client_branding').select('*')
       .eq('client_id', membership.client_id).maybeSingle(),
+    // Firmenwortlaut und eigene UID für Kopf und Fußzeile
+    admin.from('clients').select('company_name, uid_number')
+      .eq('id', membership.client_id).maybeSingle(),
     // Bewusst über den RLS-gebundenen Client: "categories" hat keine
     // client_id, sondern tenant_id. Der Admin-Client würde die
     // Kategorien aller Kanzleien liefern.
@@ -58,6 +61,8 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
         invoice={invoice}
         branding={branding ?? null}
         incomeCategories={incomeCategories ?? []}
+        senderCompanyName={mandant?.company_name ?? ''}
+        senderUid={mandant?.uid_number ?? null}
       />
     </div>
   );

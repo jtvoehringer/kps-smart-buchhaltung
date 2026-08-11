@@ -4,7 +4,7 @@ import { useState, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, zahlungskondition } from '@/lib/utils';
 
 type InvoiceItem = {
   description: string;
@@ -51,6 +51,8 @@ type Branding = {
   company_country: string; company_phone: string | null; company_email: string | null;
   company_website: string | null; iban: string | null; bic: string | null;
   bank_name: string | null; invoice_footer: string | null;
+  invoice_footer_left: string | null; invoice_footer_center: string | null;
+  invoice_footer_right: string | null;
 } | null;
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
@@ -73,9 +75,10 @@ function heuteLokal() {
 }
 
 export default function RechnungDetailClient({
-  invoice, branding, incomeCategories,
+  invoice, branding, incomeCategories, senderCompanyName, senderUid,
 }: {
   invoice: Invoice; branding: Branding; incomeCategories: Category[];
+  senderCompanyName: string; senderUid: string | null;
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -300,8 +303,7 @@ export default function RechnungDetailClient({
             {(branding?.company_zip || branding?.company_city) && (
               <p className="text-xs text-gray-500">{[branding.company_zip, branding.company_city].filter(Boolean).join(' ')}</p>
             )}
-            {branding?.company_email && <p className="text-xs text-gray-500">{branding.company_email}</p>}
-            {branding?.company_phone && <p className="text-xs text-gray-500">{branding.company_phone}</p>}
+            {/* Kontakt, Bank und UID stehen in der Fußzeile */}
           </div>
           <div className="text-right">
             <h2 className="text-2xl font-bold mb-1" style={{ color: branding?.brand_color ?? '#35609E' }}>
@@ -409,7 +411,7 @@ export default function RechnungDetailClient({
         {/* Zahlungshinweis */}
         <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-gray-500">
           <p className="font-medium text-gray-700 mb-1">Zahlungskonditionen</p>
-          <p>Innerhalb von {branding?.payment_days ?? 14} Tagen netto</p>
+          <p>{zahlungskondition(invoice.invoice_date, invoice.due_date)}</p>
           {branding?.iban && (
             <>
               <p className="mt-1">IBAN: {branding.iban}{branding.bic ? ` · BIC: ${branding.bic}` : ''}{branding.bank_name ? ` · ${branding.bank_name}` : ''}</p>
@@ -427,6 +429,32 @@ export default function RechnungDetailClient({
             BEZAHLT am {new Date(invoice.paid_date).toLocaleDateString('de-AT')}
           </div>
         )}
+
+        {/* Fußzeile – dieselbe Dreiteilung wie im Druck und im PDF */}
+        <div className="mt-8 pt-4 border-t border-gray-100 grid grid-cols-3 gap-6 text-[11px] text-gray-400 leading-relaxed">
+          <div>
+            <p className="font-semibold text-gray-500">{senderCompanyName}</p>
+            {branding?.company_street && <p>{branding.company_street}</p>}
+            {(branding?.company_zip || branding?.company_city) && (
+              <p>{[branding.company_zip, branding.company_city].filter(Boolean).join(' ')}</p>
+            )}
+            {branding?.invoice_footer_left && <p>{branding.invoice_footer_left}</p>}
+          </div>
+          <div>
+            {branding?.company_phone   && <p>Tel: {branding.company_phone}</p>}
+            {branding?.company_email   && <p>{branding.company_email}</p>}
+            {branding?.company_website && <p>{branding.company_website}</p>}
+            {branding?.invoice_footer_center && <p>{branding.invoice_footer_center}</p>}
+          </div>
+          <div>
+            {branding?.iban && <p>IBAN: {branding.iban}</p>}
+            {(branding?.bic || branding?.bank_name) && (
+              <p>{[branding.bic, branding.bank_name].filter(Boolean).join(' · ')}</p>
+            )}
+            {senderUid && <p>UID: {senderUid}</p>}
+            {branding?.invoice_footer_right && <p>{branding.invoice_footer_right}</p>}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -41,6 +41,28 @@ export function calcVat(amountNet: number, vatRate: number): number {
   return (vorzeichen * ustCent) / 100;
 }
 
+/**
+ * Zahlungsziel in Tagen aus der Rechnung selbst ableiten.
+ *
+ * Vorher wurde auf der Rechnung "Innerhalb von {branding.payment_days}
+ * Tagen netto" gedruckt – also der globale Standardwert – während das
+ * Fälligkeitsdatum längst aus dem Kundenstamm kam. Bei einem Kunden mit
+ * "zahlbar bei Erhalt" stand dann Fälligkeit = Rechnungsdatum und
+ * darunter trotzdem "Innerhalb von 14 Tagen netto".
+ */
+export function zahlungszielTage(invoiceDate: string, dueDate: string): number {
+  const von = Date.parse(`${invoiceDate}T00:00:00Z`);
+  const bis = Date.parse(`${dueDate}T00:00:00Z`);
+  if (!Number.isFinite(von) || !Number.isFinite(bis)) return 0;
+  return Math.max(0, Math.round((bis - von) / 86400000));
+}
+
+/** Zahlungskondition als Satz, passend zum tatsächlichen Fälligkeitsdatum. */
+export function zahlungskondition(invoiceDate: string, dueDate: string): string {
+  const tage = zahlungszielTage(invoiceDate, dueDate);
+  return tage === 0 ? 'Zahlbar bei Erhalt' : `Innerhalb von ${tage} Tagen netto`;
+}
+
 /** CSS-Klassen zusammenführen (Tailwind-kompatibel) */
 export function cn(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(' ');
