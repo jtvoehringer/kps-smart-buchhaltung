@@ -38,7 +38,6 @@ type BrandingData = {
   invoice_nr_digits: number;
   invoice_suffix: string;
   payment_days: number;
-  invoice_footer: string | null;
   invoice_footer_left: string | null;
   invoice_footer_center: string | null;
   invoice_footer_right: string | null;
@@ -92,7 +91,6 @@ export default function EinstellungenForm({
   const [invoiceNrDigits, setInvoiceNrDigits] = useState(branding?.invoice_nr_digits ?? 3);
   const [invoiceSuffix,   setInvoiceSuffix]   = useState(branding?.invoice_suffix   ?? '');
   const [paymentDays,     setPaymentDays]     = useState(branding?.payment_days     ?? 14);
-  const [invoiceFooter,   setInvoiceFooter]   = useState(branding?.invoice_footer   ?? '');
   const [footerLeft,      setFooterLeft]      = useState(branding?.invoice_footer_left   ?? '');
   const [footerCenter,    setFooterCenter]    = useState(branding?.invoice_footer_center ?? '');
   const [footerRight,     setFooterRight]     = useState(branding?.invoice_footer_right  ?? '');
@@ -193,7 +191,6 @@ export default function EinstellungenForm({
       invoice_nr_digits: invoiceNrDigits,
       invoice_suffix:    invoiceSuffix,
       payment_days:      paymentDays,
-      invoice_footer:        invoiceFooter || null,
       invoice_footer_left:   footerLeft    || null,
       invoice_footer_center: footerCenter  || null,
       invoice_footer_right:  footerRight   || null,

@@ -50,7 +50,7 @@ type Branding = {
   company_street: string | null; company_zip: string | null; company_city: string | null;
   company_country: string; company_phone: string | null; company_email: string | null;
   company_website: string | null; iban: string | null; bic: string | null;
-  bank_name: string | null; invoice_footer: string | null;
+  bank_name: string | null;
   invoice_footer_left: string | null; invoice_footer_center: string | null;
   invoice_footer_right: string | null; show_sender_in_header: boolean;
 } | null;

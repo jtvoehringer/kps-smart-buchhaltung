@@ -88,7 +88,6 @@ export type ClientBranding = {
   invoice_suffix: string;
   payment_days: number;
   /** @deprecated Migration 027 – ersetzt durch die drei Spalten unten */
-  invoice_footer: string | null;
   /** Freitext linke Fußzeilenspalte (Migration 027) */
   invoice_footer_left: string | null;
   /** Freitext mittlere Fußzeilenspalte (Migration 027) */
@@ -482,7 +481,6 @@ export type Database = {
           invoice_nr_digits?: number;
           invoice_suffix?: string;
           payment_days?: number;
-          invoice_footer?: string | null;
           invoice_footer_left?: string | null;
           invoice_footer_center?: string | null;
           invoice_footer_right?: string | null;
