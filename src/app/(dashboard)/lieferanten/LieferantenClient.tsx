@@ -92,10 +92,12 @@ export default function LieferantenClient({
               {filtered.map(s => (
                 <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50/50">
                   <td className="px-4 py-3">
-                    <div className="font-medium text-gray-800">{s.name}</div>
-                    {s.company_name && (
-                      <div className="text-xs text-gray-400">{s.company_name}</div>
-                    )}
+                    <Link href={`/lieferanten/${s.id}`} className="group block">
+                      <div className="font-medium text-gray-800 group-hover:text-[#35609E] transition-colors">{s.name}</div>
+                      {s.company_name && (
+                        <div className="text-xs text-gray-400">{s.company_name}</div>
+                      )}
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-gray-500">
                     {[s.street, `${s.zip ?? ''} ${s.city ?? ''}`.trim()].filter(Boolean).join(', ') || '—'}

@@ -2,6 +2,7 @@
 
 import { useState, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import {
@@ -27,6 +28,7 @@ type OutgoingInvoice = {
 type IncomingInvoice = {
   id: string;
   vendor_name: string;
+  supplier_id: string | null;
   invoice_number: string | null;
   invoice_date: string;
   due_date: string;
@@ -248,7 +250,13 @@ export default function OffenePostenClient({
                       <Fragment key={inv.id}>
                         <tr className="border-t border-gray-50 hover:bg-gray-50/50">
                           <td className="px-4 py-3 font-mono text-[#35609E] font-medium">{inv.invoice_number}</td>
-                          <td className="px-4 py-3 text-gray-700">{inv.customers?.company_name ?? inv.customers?.name ?? '—'}</td>
+                          <td className="px-4 py-3 text-gray-700">
+                            {inv.customers ? (
+                              <Link href={`/kunden/${inv.customers.id}`} className="hover:text-[#35609E] transition-colors">
+                                {inv.customers.company_name ?? inv.customers.name}
+                              </Link>
+                            ) : '—'}
+                          </td>
                           <td className="px-4 py-3">
                             <span className={`inline-flex items-center gap-1.5 ${overdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
                               {overdue && <AlertTriangle size={13} strokeWidth={2} />}
@@ -353,10 +361,17 @@ export default function OffenePostenClient({
                       <Fragment key={inv.id}>
                         <tr className="border-t border-gray-50 hover:bg-gray-50/50">
                           <td className="px-4 py-3 text-gray-700">
-                            <span className="inline-flex items-center gap-1.5">
-                              {inv.vendor_name}
-                              {inv.beleg_storage_path && <Paperclip size={12} strokeWidth={2} className="text-gray-300" />}
-                            </span>
+                            {inv.supplier_id ? (
+                              <Link href={`/lieferanten/${inv.supplier_id}`} className="inline-flex items-center gap-1.5 hover:text-[#35609E] transition-colors">
+                                {inv.vendor_name}
+                                {inv.beleg_storage_path && <Paperclip size={12} strokeWidth={2} className="text-gray-300" />}
+                              </Link>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5">
+                                {inv.vendor_name}
+                                {inv.beleg_storage_path && <Paperclip size={12} strokeWidth={2} className="text-gray-300" />}
+                              </span>
+                            )}
                           </td>
                           <td className="px-4 py-3 font-mono text-gray-500">{inv.invoice_number ?? '—'}</td>
                           <td className="px-4 py-3">

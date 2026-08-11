@@ -42,7 +42,7 @@ export default async function OffenePostenPage() {
     .from('incoming_invoices')
     .select(`
       id, vendor_name, invoice_number, invoice_date, due_date, status,
-      amount_net, vat_rate, vat_amount, amount_gross, category_id,
+      amount_net, vat_rate, vat_amount, amount_gross, category_id, supplier_id,
       beleg_storage_path, beleg_file_name, beleg_mime_type, beleg_file_size
     `)
     .eq('client_id', client.id)

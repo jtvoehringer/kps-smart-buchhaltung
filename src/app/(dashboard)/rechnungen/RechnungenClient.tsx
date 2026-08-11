@@ -135,11 +135,17 @@ export default function RechnungenClient({
                       {inv.invoice_number || <span className="text-gray-300 italic">Entwurf</span>}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-800">
-                        {inv.customers?.company_name ?? inv.customers?.name ?? '—'}
-                      </div>
-                      {inv.customers?.company_name && (
-                        <div className="text-xs text-gray-400">{inv.customers.name}</div>
+                      {inv.customers ? (
+                        <Link href={`/kunden/${inv.customers.id}`} className="group block">
+                          <div className="font-medium text-gray-800 group-hover:text-[#35609E] transition-colors">
+                            {inv.customers.company_name ?? inv.customers.name}
+                          </div>
+                          {inv.customers.company_name && (
+                            <div className="text-xs text-gray-400">{inv.customers.name}</div>
+                          )}
+                        </Link>
+                      ) : (
+                        <div className="font-medium text-gray-400">—</div>
                       )}
                     </td>
                     <td className="px-4 py-3 text-gray-500">

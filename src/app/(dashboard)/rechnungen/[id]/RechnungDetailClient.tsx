@@ -285,7 +285,11 @@ export default function RechnungDetailClient({
 
         {/* Rechnungsempfänger */}
         {invoice.customers && (
-          <div className="mb-8 p-4 bg-gray-50 rounded-lg inline-block min-w-[220px]">
+          <Link
+            href={`/kunden/${invoice.customers.id}`}
+            className="mb-8 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg inline-block min-w-[220px] transition-colors"
+            title="Zu den Kundendaten"
+          >
             {invoice.customers.company_name && (
               <p className="font-semibold text-gray-800">{invoice.customers.company_name}</p>
             )}
@@ -296,7 +300,7 @@ export default function RechnungDetailClient({
                 {[invoice.customers.zip, invoice.customers.city].filter(Boolean).join(' ')}
               </p>
             )}
-          </div>
+          </Link>
         )}
 
         {/* Positionen */}
