@@ -66,6 +66,7 @@ export type InvoicePdfProps = {
 
 export function InvoiceDocument({ invoice, customer, branding, senderCompanyName, senderUid }: InvoicePdfProps) {
   const color = branding?.brand_color || '#35609E';
+  const absenderImKopf = !branding?.logo_url || branding?.show_sender_in_header !== false;
   const items = invoice.items ?? [];
 
   return (
@@ -77,13 +78,17 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
               // eslint-disable-next-line jsx-a11y/alt-text
               <Image src={branding.logo_url} style={{ width: 120, height: 50, objectFit: 'contain', marginBottom: 6 }} />
             ) : null}
-            {/* Firmenwortlaut immer, auch neben dem Logo (§ 11 Abs. 1 Z 1 UStG) */}
-            <Text style={styles.senderCompany}>{senderCompanyName}</Text>
-            {branding?.company_street && <Text style={styles.senderDetail}>{branding.company_street}</Text>}
-            {(branding?.company_zip || branding?.company_city) && (
-              <Text style={styles.senderDetail}>{[branding?.company_zip, branding?.company_city].filter(Boolean).join(' ')}</Text>
+            {/* Absenderzeilen abschaltbar (Migration 028); ohne Logo immer an.
+                Der Firmenwortlaut steht in jedem Fall in der Fußzeile. */}
+            {absenderImKopf && (
+              <>
+                <Text style={styles.senderCompany}>{senderCompanyName}</Text>
+                {branding?.company_street && <Text style={styles.senderDetail}>{branding.company_street}</Text>}
+                {(branding?.company_zip || branding?.company_city) && (
+                  <Text style={styles.senderDetail}>{[branding?.company_zip, branding?.company_city].filter(Boolean).join(' ')}</Text>
+                )}
+              </>
             )}
-            {/* Kontakt, Bank und UID stehen in der Fußzeile */}
           </View>
           <View style={styles.metaBlock}>
             <Text style={[styles.title, { color }]}>RECHNUNG</Text>

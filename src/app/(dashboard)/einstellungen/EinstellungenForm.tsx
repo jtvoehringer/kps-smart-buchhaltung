@@ -42,6 +42,7 @@ type BrandingData = {
   invoice_footer_left: string | null;
   invoice_footer_center: string | null;
   invoice_footer_right: string | null;
+  show_sender_in_header: boolean;
 } | null;
 
 // Grenzen § 6 Abs. 1 Z 27 UStG (seit 1.1.2025)
@@ -96,6 +97,7 @@ export default function EinstellungenForm({
   const [footerCenter,    setFooterCenter]    = useState(branding?.invoice_footer_center ?? '');
   const [footerRight,     setFooterRight]     = useState(branding?.invoice_footer_right  ?? '');
   const [logoUrl,         setLogoUrl]         = useState(branding?.logo_url         ?? '');
+  const [showSenderInHeader, setShowSenderInHeader] = useState(branding?.show_sender_in_header !== false);
   const [logoUploading,   setLogoUploading]   = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -195,6 +197,7 @@ export default function EinstellungenForm({
       invoice_footer_left:   footerLeft    || null,
       invoice_footer_center: footerCenter  || null,
       invoice_footer_right:  footerRight   || null,
+      show_sender_in_header: showSenderInHeader,
       ...(logoUrl ? { logo_url: logoUrl } : {}),
     };
 
@@ -446,7 +449,10 @@ export default function EinstellungenForm({
       {/* Firmenadresse */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
         <h2 className="font-semibold text-gray-800 mb-1">Firmenadresse</h2>
-        <p className="text-sm text-gray-500 mb-4">Erscheint im Rechnungskopf</p>
+        <p className="text-sm text-gray-500 mb-4">
+          Erscheint in der linken Fußzeilenspalte der Rechnung – und, je nach Einstellung unten,
+          zusätzlich im Rechnungskopf.
+        </p>
         <div className="space-y-3">
           <input
             type="text" placeholder="Straße und Hausnummer"

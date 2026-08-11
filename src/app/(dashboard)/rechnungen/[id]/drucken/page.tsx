@@ -72,6 +72,10 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
     return acc;
   }, {});
 
+  // Ohne Logo bleibt der Absender immer sichtbar – sonst wäre der
+  // Rechnungskopf leer.
+  const absenderImKopf = !branding?.logo_url || branding?.show_sender_in_header !== false;
+
   return (
     <html lang="de">
       <head>
@@ -165,20 +169,23 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={branding.logo_url} alt="Logo" style={{ height: '52px', objectFit: 'contain', marginBottom: '8px' }} />
               )}
-              {/* Der Firmenwortlaut wird IMMER gedruckt, auch neben dem Logo.
-                  § 11 Abs. 1 Z 1 UStG verlangt den Namen des leistenden
-                  Unternehmers – ein Logo genügt dafür nicht zwingend. */}
-              <div className="company">{clientData?.company_name ?? ''}</div>
-              {branding?.company_street && <div className="detail">{branding.company_street}</div>}
-              {(branding?.company_zip || branding?.company_city) && (
-                <div className="detail">
-                  {[branding?.company_zip, branding?.company_city].filter(Boolean).join(' ')}
-                  {branding?.company_country && branding.company_country !== 'Österreich'
-                    ? `, ${branding.company_country}` : ''}
-                </div>
+              {/* Absenderzeilen sind abschaltbar (Migration 028). Ohne Logo
+                  werden sie trotzdem gezeigt, sonst bliebe der Kopf leer.
+                  Der Firmenwortlaut steht in jedem Fall in der Fußzeile –
+                  § 11 Abs. 1 Z 1 UStG ist damit erfüllt. */}
+              {absenderImKopf && (
+                <>
+                  <div className="company">{clientData?.company_name ?? ''}</div>
+                  {branding?.company_street && <div className="detail">{branding.company_street}</div>}
+                  {(branding?.company_zip || branding?.company_city) && (
+                    <div className="detail">
+                      {[branding?.company_zip, branding?.company_city].filter(Boolean).join(' ')}
+                      {branding?.company_country && branding.company_country !== 'Österreich'
+                        ? `, ${branding.company_country}` : ''}
+                    </div>
+                  )}
+                </>
               )}
-              {/* Telefon, E-Mail, Web und UID stehen jetzt in der Fußzeile –
-                  dort, wo sie auf einer Geschäftsrechnung üblicherweise stehen. */}
             </div>
             <div className="invoice-meta">
               <h1 className="invoice-title">RECHNUNG</h1>

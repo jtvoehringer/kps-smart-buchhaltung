@@ -1,8 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Pencil, Ban, X, ArrowRight, Loader2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import { formatCurrency } from '@/lib/utils';
+import { meldeFehler } from '@/lib/fehler';
 
 type Invoice = {
   id: string;
@@ -38,6 +42,47 @@ export default function RechnungenClient({
   invoices: Invoice[];
   clientId: string;
 }) {
+  const router = useRouter();
+  const supabase = createClient();
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [aktionsFehler, setAktionsFehler] = useState('');
+
+  async function handleStorno(inv: Invoice) {
+    if (!confirm(
+      `Rechnung ${inv.invoice_number || '(Entwurf)'} über ${formatCurrency(Number(inv.total_gross))} wirklich stornieren?`
+    )) return;
+    setBusyId(inv.id);
+    setAktionsFehler('');
+    const { error } = await supabase.from('invoices')
+      .update({ status: 'cancelled' })
+      .eq('id', inv.id)
+      .eq('client_id', clientId);
+    setBusyId(null);
+    if (meldeFehler('Rechnung stornieren', error, setAktionsFehler)) return;
+    router.refresh();
+  }
+
+  async function handleLoeschen(inv: Invoice) {
+    // Bewusst nur für Entwürfe. Eine finalisierte Rechnung hat eine
+    // vergebene Nummer; sie zu löschen risse eine Lücke in den
+    // fortlaufenden Nummernkreis (§ 11 Abs. 1 Z 2 UStG). Für alles
+    // Vergebene gibt es das Storno.
+    if (inv.status !== 'draft') return;
+    if (!confirm(
+      `Diesen Entwurf über ${formatCurrency(Number(inv.total_gross))} endgültig löschen? `
+      + 'Das lässt sich nicht rückgängig machen.'
+    )) return;
+    setBusyId(inv.id);
+    setAktionsFehler('');
+    const { error } = await supabase.from('invoices')
+      .delete()
+      .eq('id', inv.id)
+      .eq('client_id', clientId)
+      .eq('status', 'draft');
+    setBusyId(null);
+    if (meldeFehler('Entwurf löschen', error, setAktionsFehler)) return;
+    router.refresh();
+  }
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
   const today = new Date();
@@ -70,6 +115,11 @@ export default function RechnungenClient({
 
   return (
     <div className="space-y-4">
+      {aktionsFehler && (
+        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
+          {aktionsFehler}
+        </p>
+      )}
       {/* Kennzahlen-Kacheln */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
@@ -172,13 +222,49 @@ export default function RechnungenClient({
                         {STATUS_LABEL[inv.status]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <Link
-                        href={`/rechnungen/${inv.id}`}
-                        className="text-sm text-gray-400 hover:text-[#35609E] transition-colors"
-                      >
-                        →
-                      </Link>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {busyId === inv.id ? (
+                          <Loader2 size={15} strokeWidth={2} className="animate-spin text-gray-300" />
+                        ) : (
+                          <>
+                            {inv.status === 'draft' && (
+                              <Link
+                                href={`/rechnungen/${inv.id}/bearbeiten`}
+                                title="Entwurf bearbeiten"
+                                className="p-1 text-gray-300 hover:text-[#35609E] transition-colors"
+                              >
+                                <Pencil size={15} strokeWidth={2} />
+                              </Link>
+                            )}
+                            {(inv.status === 'draft' || inv.status === 'open') && (
+                              <button
+                                onClick={() => handleStorno(inv)}
+                                title="Rechnung stornieren"
+                                className="p-1 text-gray-300 hover:text-amber-600 transition-colors"
+                              >
+                                <Ban size={15} strokeWidth={2} />
+                              </button>
+                            )}
+                            {inv.status === 'draft' && (
+                              <button
+                                onClick={() => handleLoeschen(inv)}
+                                title="Entwurf löschen"
+                                className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                              >
+                                <X size={16} strokeWidth={2} />
+                              </button>
+                            )}
+                            <Link
+                              href={`/rechnungen/${inv.id}`}
+                              title="Rechnung öffnen"
+                              className="p-1 text-gray-300 hover:text-[#35609E] transition-colors"
+                            >
+                              <ArrowRight size={15} strokeWidth={2} />
+                            </Link>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

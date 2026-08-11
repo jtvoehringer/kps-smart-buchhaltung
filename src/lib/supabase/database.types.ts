@@ -95,6 +95,8 @@ export type ClientBranding = {
   invoice_footer_center: string | null;
   /** Freitext rechte Fußzeilenspalte (Migration 027) */
   invoice_footer_right: string | null;
+  /** Firmenname und Adresse im Rechnungskopf zeigen (Migration 028) */
+  show_sender_in_header: boolean;
   updated_at: string;
 };
 
@@ -470,6 +472,7 @@ export type Database = {
           invoice_footer_left?: string | null;
           invoice_footer_center?: string | null;
           invoice_footer_right?: string | null;
+          show_sender_in_header?: boolean;
         };
         Update: Partial<ClientBranding>;
         Relationships: [];

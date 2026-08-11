@@ -52,7 +52,7 @@ type Branding = {
   company_website: string | null; iban: string | null; bic: string | null;
   bank_name: string | null; invoice_footer: string | null;
   invoice_footer_left: string | null; invoice_footer_center: string | null;
-  invoice_footer_right: string | null;
+  invoice_footer_right: string | null; show_sender_in_header: boolean;
 } | null;
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
@@ -82,6 +82,7 @@ export default function RechnungDetailClient({
 }) {
   const router = useRouter();
   const supabase = createClient();
+  const absenderImKopf = !branding?.logo_url || branding?.show_sender_in_header !== false;
   const [loading, setLoading]   = useState(false);
   const [paidDate, setPaidDate] = useState(heuteLokal());
   const [showPay, setShowPay]   = useState(false);
@@ -299,9 +300,13 @@ export default function RechnungDetailClient({
                 {/* Firmenname aus Branding-Adresse fehlt – wird im PDF-Druck via /drucken angezeigt */}
               </div>
             )}
-            {branding?.company_street && <p className="text-xs text-gray-500">{branding.company_street}</p>}
-            {(branding?.company_zip || branding?.company_city) && (
-              <p className="text-xs text-gray-500">{[branding.company_zip, branding.company_city].filter(Boolean).join(' ')}</p>
+            {absenderImKopf && (
+              <>
+                {branding?.company_street && <p className="text-xs text-gray-500">{branding.company_street}</p>}
+                {(branding?.company_zip || branding?.company_city) && (
+                  <p className="text-xs text-gray-500">{[branding.company_zip, branding.company_city].filter(Boolean).join(' ')}</p>
+                )}
+              </>
             )}
             {/* Kontakt, Bank und UID stehen in der Fußzeile */}
           </div>
