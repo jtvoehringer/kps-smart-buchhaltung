@@ -1,25 +1,48 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { parseCamt053, type ParsedBankEntry } from '@/lib/parsers/camt053';
 import { parseBankCsv } from '@/lib/parsers/bankcsv';
 import { formatCurrency } from '@/lib/utils';
+import { Link2, Unlink } from 'lucide-react';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
+type AccountOpt = { id: string; name: string; iban: string | null };
+type LearningRule = { counterpart_pattern: string; category_id: string | null; is_private: boolean; hit_count: number };
+type OpenInvoice = {
+  id: string; invoice_number: string; customer_name: string;
+  amount_gross: number; amount_net: number; vat_amount: number;
+};
+type OpenIncomingInvoice = {
+  id: string; vendor_name: string; invoice_number: string | null;
+  amount_gross: number; amount_net: number; vat_rate: number; vat_amount: number; category_id: string | null;
+};
+
+type Match =
+  | { kind: 'invoice'; invoice: OpenInvoice }
+  | { kind: 'incoming'; invoice: OpenIncomingInvoice }
+  | null;
 
 type ImportRow = ParsedBankEntry & {
   selected:    boolean;
   categoryId:  string;
   isDuplicate: boolean;
+  isPrivate:   boolean;
+  match:       Match;
+  linked:      boolean; // Vorschlag übernehmen (Offenen Posten als bezahlt verknüpfen) statt normal zu buchen
 };
 
 type Props = {
-  clientId:      string;
-  userId:        string;
-  categories:    Category[];
-  knownBankRefs: string[];
+  clientId:              string;
+  userId:                string;
+  categories:            Category[];
+  knownBankRefs:         string[];
+  accounts:              AccountOpt[];
+  learningRules:         LearningRule[];
+  openInvoices:          OpenInvoice[];
+  openIncomingInvoices:  OpenIncomingInvoice[];
 };
 
 // ── Keyword-basierte Kategorie-Vorschläge ─────────────────────
@@ -47,15 +70,63 @@ function suggestCategory(desc: string, counterpart: string, type: 'income' | 'ex
       }
     }
   }
-  // Fallback: erste passende Kategorie
   return categories.find(c => c.type === type)?.id ?? '';
 }
 
-export default function ImportClient({ clientId, userId, categories, knownBankRefs }: Props) {
+// Normalisiert Gegenpartei-/Freitext für Vergleiche: lowercase, Sonderzeichen raus, Whitespace zusammengefasst.
+function normalize(s: string): string {
+  return s.toLowerCase().replace(/[^a-z0-9äöüß ]/gi, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function amountsMatch(a: number, b: number): boolean {
+  return Math.abs(Math.abs(a) - Math.abs(b)) < 0.01;
+}
+
+function findMatch(
+  row: { amount: number; type: 'income' | 'expense'; description: string; counterpart: string },
+  openInvoices: OpenInvoice[],
+  openIncomingInvoices: OpenIncomingInvoice[]
+): Match {
+  const haystack = normalize(`${row.description} ${row.counterpart}`);
+  const counterpartNorm = normalize(row.counterpart);
+
+  if (row.type === 'income') {
+    const candidates = openInvoices.filter(inv => amountsMatch(row.amount, Number(inv.amount_gross)));
+    for (const inv of candidates) {
+      const numNorm = normalize(inv.invoice_number).replace(/ /g, '');
+      const hitByNumber = numNorm.length >= 3 && haystack.replace(/ /g, '').includes(numNorm);
+      const custNorm = normalize(inv.customer_name);
+      const hitByName = custNorm.length >= 3 && (counterpartNorm.includes(custNorm) || custNorm.includes(counterpartNorm));
+      if (hitByNumber || hitByName) return { kind: 'invoice', invoice: inv };
+    }
+    if (candidates.length === 1) return { kind: 'invoice', invoice: candidates[0] };
+  } else {
+    const candidates = openIncomingInvoices.filter(inv => amountsMatch(row.amount, Number(inv.amount_gross)));
+    for (const inv of candidates) {
+      const numNorm = inv.invoice_number ? normalize(inv.invoice_number).replace(/ /g, '') : '';
+      const hitByNumber = numNorm.length >= 3 && haystack.replace(/ /g, '').includes(numNorm);
+      const vendNorm = normalize(inv.vendor_name);
+      const hitByName = vendNorm.length >= 3 && (counterpartNorm.includes(vendNorm) || vendNorm.includes(counterpartNorm));
+      if (hitByNumber || hitByName) return { kind: 'incoming', invoice: inv };
+    }
+    if (candidates.length === 1) return { kind: 'incoming', invoice: candidates[0] };
+  }
+  return null;
+}
+
+export default function ImportClient({
+  clientId, userId, categories, knownBankRefs, accounts, learningRules, openInvoices, openIncomingInvoices,
+}: Props) {
   const router = useRouter();
   const supabase = createClient();
   const fileInput = useRef<HTMLInputElement>(null);
   const knownSet = new Set(knownBankRefs);
+
+  const ruleMap = useMemo(() => {
+    const m = new Map<string, LearningRule>();
+    for (const r of learningRules) m.set(r.counterpart_pattern, r);
+    return m;
+  }, [learningRules]);
 
   const [rows,      setRows]      = useState<ImportRow[]>([]);
   const [parseErrs, setParseErrs] = useState<string[]>([]);
@@ -63,6 +134,7 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
   const [iban,      setIban]      = useState('');
   const [fileName,  setFileName]  = useState('');
   const [fileType,  setFileType]  = useState<'camt053'|'csv'|''>('');
+  const [accountId, setAccountId] = useState('');
   const [importing, setImporting] = useState(false);
   const [importMsg, setImportMsg] = useState('');
   const [dragOver,  setDragOver]  = useState(false);
@@ -101,19 +173,33 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
     setIban(detectedIban);
     setFileType(type);
 
-    const importRows: ImportRow[] = entries.map(e => ({
-      ...e,
-      isDuplicate: knownSet.has(e.bankRef),
-      selected:    !knownSet.has(e.bankRef),
-      categoryId:  suggestCategory(e.description, e.counterpart, e.type, categories),
-    }));
+    const importRows: ImportRow[] = entries.map(e => {
+      const rule = ruleMap.get(normalize(e.counterpart));
+      const match = findMatch(e, openInvoices, openIncomingInvoices);
+      return {
+        ...e,
+        isDuplicate: knownSet.has(e.bankRef),
+        selected:    !knownSet.has(e.bankRef),
+        categoryId:  rule?.category_id || suggestCategory(e.description, e.counterpart, e.type, categories),
+        isPrivate:   rule?.is_private ?? false,
+        match,
+        linked:      match !== null,
+      };
+    });
     setRows(importRows);
+
+    // Konto vorbelegen, falls IBAN auf ein bekanntes Konto passt
+    if (detectedIban) {
+      const found = accounts.find(a => a.iban === detectedIban);
+      if (found) setAccountId(found.id);
+    }
   }
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault(); setDragOver(false);
     const file = e.dataTransfer.files[0];
     if (file) processFile(file);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function toggleRow(idx: number) {
@@ -125,10 +211,16 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
   function setCat(idx: number, catId: string) {
     setRows(prev => prev.map((r, i) => i === idx ? { ...r, categoryId: catId } : r));
   }
+  function togglePrivate(idx: number) {
+    setRows(prev => prev.map((r, i) => i === idx ? { ...r, isPrivate: !r.isPrivate } : r));
+  }
+  function toggleLinked(idx: number) {
+    setRows(prev => prev.map((r, i) => i === idx ? { ...r, linked: !r.linked } : r));
+  }
 
   // ── Import durchführen ───────────────────────────────────────
   async function handleImport() {
-    const toImport = rows.filter(r => r.selected && !r.isDuplicate && r.categoryId);
+    const toImport = rows.filter(r => r.selected && !r.isDuplicate && (r.linked && r.match ? true : !!r.categoryId));
     if (toImport.length === 0) {
       setImportMsg('Keine importierbaren Buchungen – bitte Kategorien zuweisen.');
       return;
@@ -136,55 +228,124 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
 
     setImporting(true); setImportMsg('');
 
-    // Transaktionen vorbereiten (mit import_source + bank_ref falls Migration 008 gelaufen)
-    const buildRow = (r: ImportRow, withExtras: boolean) => {
-      const cat    = categories.find(c => c.id === r.categoryId)!;
-      const amtNet = parseFloat((r.amount / (1 + cat.vat_rate / 100)).toFixed(2));
-      const vatAmt = parseFloat((r.amount - amtNet).toFixed(2));
-      const base = {
-        client_id:   clientId,
-        category_id: r.categoryId,
-        type:        r.type,
-        amount_net:  amtNet,
-        vat_rate:    cat.vat_rate as 0 | 10 | 13 | 20,
-        vat_amount:  vatAmt,
-        booking_date: r.date,
-        description: [r.counterpart, r.description].filter(Boolean).join(' – ').slice(0, 500) || null,
-      };
-      return withExtras
-        ? { ...base, import_source: fileType || 'csv', bank_ref: r.bankRef }
-        : base;
-    };
+    let withExtras = true; // versuche zuerst mit import_source + bank_ref + account_id + is_private
+    let imported = 0;
+    const learned = new Map<string, { categoryId: string; isPrivate: boolean }>();
 
-    const CHUNK = 50;
-    let imported  = 0;
-    let withExtras = true;  // versuche zuerst mit import_source + bank_ref
+    for (const r of toImport) {
+      const useMatch = r.linked && r.match;
 
-    for (let i = 0; i < toImport.length; i += CHUNK) {
-      const chunk = toImport.slice(i, i + CHUNK).map(r => buildRow(r, withExtras));
+      let base: Record<string, unknown>;
+      if (useMatch && r.match!.kind === 'invoice') {
+        const inv = r.match!.invoice as OpenInvoice;
+        const vatRate = Number(inv.amount_net) > 0
+          ? ([0, 10, 13, 20] as const).reduce((best, rate) =>
+              Math.abs(rate - (Number(inv.vat_amount) / Number(inv.amount_net)) * 100) <
+              Math.abs(best - (Number(inv.vat_amount) / Number(inv.amount_net)) * 100) ? rate : best, 20)
+          : 20;
+        base = {
+          client_id:   clientId,
+          category_id: r.categoryId || categories.find(c => c.type === 'income')?.id,
+          type:        'income',
+          amount_net:  Number(inv.amount_net),
+          vat_rate:    vatRate,
+          vat_amount:  Number(inv.vat_amount),
+          booking_date: r.date,
+          description: `Zahlungseingang ${inv.invoice_number}`,
+        };
+      } else if (useMatch && r.match!.kind === 'incoming') {
+        const inv = r.match!.invoice as OpenIncomingInvoice;
+        base = {
+          client_id:   clientId,
+          category_id: inv.category_id || r.categoryId,
+          type:        'expense',
+          amount_net:  Number(inv.amount_net),
+          vat_rate:    inv.vat_rate,
+          vat_amount:  Number(inv.vat_amount),
+          booking_date: r.date,
+          description: `Zahlungsausgang ${inv.vendor_name}${inv.invoice_number ? ` – ${inv.invoice_number}` : ''}`,
+        };
+      } else {
+        const cat    = categories.find(c => c.id === r.categoryId);
+        const vatRate = cat?.vat_rate ?? 0;
+        const amtNet = parseFloat((r.amount / (1 + vatRate / 100)).toFixed(2));
+        const vatAmt = parseFloat((r.amount - amtNet).toFixed(2));
+        base = {
+          client_id:   clientId,
+          category_id: r.categoryId,
+          type:        r.type,
+          amount_net:  amtNet,
+          vat_rate:    vatRate,
+          vat_amount:  vatAmt,
+          booking_date: r.date,
+          description: [r.counterpart, r.description].filter(Boolean).join(' – ').slice(0, 500) || null,
+        };
+      }
 
-      const { error, data } = await supabase
+      const extras = withExtras
+        ? { import_source: fileType || 'csv', bank_ref: r.bankRef, account_id: accountId || null, is_private: r.isPrivate, is_reconciled: false }
+        : {};
+
+      const { data: newTx, error } = await supabase
         .from('transactions')
-        .insert(chunk)
-        .select('id');
+        .insert({ ...base, ...extras })
+        .select('id')
+        .single();
 
       if (error) {
-        // Spalten fehlen (Migration 008 noch nicht gelaufen) → ohne Extras nochmal
-        if (withExtras && (error.message.includes('import_source') || error.message.includes('bank_ref'))) {
+        if (withExtras && /import_source|bank_ref|account_id|is_private|is_reconciled/.test(error.message)) {
+          // Migration 008/016 evtl. noch nicht gelaufen → ohne Extras nochmal
           withExtras = false;
-          i -= CHUNK;  // Chunk nochmal versuchen
-          continue;
+          const { data: retryTx, error: retryErr } = await supabase
+            .from('transactions').insert(base).select('id').single();
+          if (retryErr || !retryTx) {
+            setImportMsg(`❌ Fehler beim Import: ${retryErr?.message ?? error.message}`);
+            setImporting(false);
+            return;
+          }
+          imported += 1;
+          await linkIfMatched(r, retryTx.id);
+        } else {
+          setImportMsg(`❌ Fehler beim Import: ${error.message}`);
+          setImporting(false);
+          return;
         }
-        setImportMsg(`❌ Fehler beim Import: ${error.message}`);
-        setImporting(false);
-        return;
+      } else if (newTx) {
+        imported += 1;
+        await linkIfMatched(r, newTx.id);
       }
-      imported += data?.length ?? 0;
+
+      // Lernregel merken (letzter Stand je Gegenpartei gewinnt)
+      const key = normalize(r.counterpart);
+      if (key) learned.set(key, { categoryId: r.categoryId, isPrivate: r.isPrivate });
     }
 
-    // Import-History (optional – schlägt still fehl wenn bank_imports noch nicht existiert)
-    // Hinweis: Supabase-Query-Builder sind nur "thenable" (kein echtes Promise
-    // mit .catch), daher zweiarmiges .then(onFulfilled, onRejected) statt .catch().
+    async function linkIfMatched(r: ImportRow, txId: string) {
+      if (!(r.linked && r.match)) return;
+      if (r.match.kind === 'invoice') {
+        await supabase.from('invoices')
+          .update({ status: 'paid', paid_date: r.date, transaction_id: txId })
+          .eq('id', r.match.invoice.id);
+      } else {
+        await supabase.from('incoming_invoices')
+          .update({ status: 'paid', paid_date: r.date, transaction_id: txId })
+          .eq('id', r.match.invoice.id);
+      }
+    }
+
+    // Lernregeln aktualisieren (best effort – schlägt still fehl wenn Migration 016 noch nicht gelaufen)
+    for (const [pattern, val] of learned) {
+      const existing = ruleMap.get(pattern);
+      await supabase.from('bank_learning_rules').upsert({
+        client_id:           clientId,
+        counterpart_pattern: pattern,
+        category_id:         val.categoryId || null,
+        is_private:          val.isPrivate,
+        hit_count:           (existing?.hit_count ?? 0) + 1,
+      }, { onConflict: 'client_id,counterpart_pattern' }).then(() => {}, () => {});
+    }
+
+    // Import-History
     await supabase.from('bank_imports').insert({
       client_id:   clientId,
       imported_by: userId,
@@ -193,22 +354,22 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
       iban:        iban || null,
       tx_total:    rows.length,
       tx_imported: imported,
+      account_id:  accountId || null,
     }).then(() => {}, () => {});
 
-    setImportMsg(`✅ ${imported} Buchung${imported !== 1 ? 'en' : ''} importiert.${!withExtras ? ' (Tipp: Migration 008 ausführen für Duplikat-Schutz)' : ''}`);
+    setImportMsg(`✅ ${imported} Buchung${imported !== 1 ? 'en' : ''} importiert.${!withExtras ? ' (Tipp: Migrationen ausführen für Duplikat-Schutz, Konto- und Privat-Kennzeichnung)' : ''}`);
     setImporting(false);
 
-    // Zeilen als importiert markieren
     setRows(prev => prev.map(r =>
       r.selected ? { ...r, isDuplicate: true, selected: false } : r
     ));
 
-    // Buchungsliste im Hintergrund aktualisieren
     router.refresh();
   }
 
   const selectedCount  = rows.filter(r => r.selected && !r.isDuplicate).length;
   const dupCount       = rows.filter(r => r.isDuplicate).length;
+  const matchCount     = rows.filter(r => r.selected && !r.isDuplicate && r.linked && r.match).length;
   const incomeRows     = rows.filter(r => r.type === 'income');
   const expenseRows    = rows.filter(r => r.type === 'expense');
   const catsByType     = (type: string) => categories.filter(c => c.type === type);
@@ -261,14 +422,30 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
               <p className="text-sm text-gray-500">
                 {rows.length} Zeilen · {incomeRows.length} Einnahmen · {expenseRows.length} Ausgaben
                 {dupCount > 0 && <span className="ml-2 text-amber-600">{dupCount} bereits importiert</span>}
+                {matchCount > 0 && <span className="ml-2 text-[#35609E]">{matchCount} mit Offenen Posten verknüpft</span>}
               </p>
             </div>
-            <button
-              onClick={() => { setRows([]); setFileName(''); setImportMsg(''); }}
-              className="text-xs text-gray-400 hover:text-gray-600 underline"
-            >
-              Andere Datei wählen
-            </button>
+            <div className="flex items-center gap-3">
+              {accounts.length > 0 && (
+                <div>
+                  <label className="text-xs font-medium text-gray-500 block mb-1">Konto</label>
+                  <select
+                    value={accountId}
+                    onChange={e => setAccountId(e.target.value)}
+                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#35609E]"
+                  >
+                    <option value="">– kein Konto –</option>
+                    {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  </select>
+                </div>
+              )}
+              <button
+                onClick={() => { setRows([]); setFileName(''); setImportMsg(''); }}
+                className="text-xs text-gray-400 hover:text-gray-600 underline"
+              >
+                Andere Datei wählen
+              </button>
+            </div>
           </div>
 
           {/* ── Status-Meldung (oben, immer sichtbar) ── */}
@@ -320,7 +497,8 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
                     <th className="text-left px-3 py-2">Datum</th>
                     <th className="text-left px-3 py-2">Beschreibung / Gegenpartei</th>
                     <th className="text-right px-3 py-2">Betrag</th>
-                    <th className="text-left px-3 py-2 min-w-[200px]">Kategorie</th>
+                    <th className="text-left px-3 py-2 min-w-[220px]">Kategorie / Verknüpfung</th>
+                    <th className="text-center px-3 py-2">Privat</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -364,26 +542,66 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
                         {row.type === 'income' ? '+' : '−'}{formatCurrency(row.amount)}
                       </td>
                       <td className="px-3 py-2">
+                        {!row.isDuplicate && row.match && row.linked ? (
+                          <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1.5">
+                            <Link2 size={13} strokeWidth={2} className="text-[#35609E] flex-shrink-0" />
+                            <span className="text-xs text-[#35609E] font-medium truncate flex-1">
+                              {row.match.kind === 'invoice'
+                                ? `${row.match.invoice.invoice_number} · ${row.match.invoice.customer_name}`
+                                : `${row.match.invoice.vendor_name}${row.match.invoice.invoice_number ? ` · ${row.match.invoice.invoice_number}` : ''}`}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => toggleLinked(idx)}
+                              title="Verknüpfung lösen und normal buchen"
+                              className="text-blue-300 hover:text-blue-600 flex-shrink-0"
+                            >
+                              <Unlink size={13} strokeWidth={2} />
+                            </button>
+                          </div>
+                        ) : !row.isDuplicate ? (
+                          <div className="flex items-center gap-1.5">
+                            <select
+                              value={row.categoryId}
+                              onChange={e => setCat(idx, e.target.value)}
+                              className={`w-full border rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#35609E] ${
+                                !row.categoryId ? 'border-amber-300 bg-amber-50' : 'border-gray-200'
+                              }`}
+                            >
+                              <option value="">– Kategorie wählen –</option>
+                              <optgroup label="Einnahmen">
+                                {catsByType('income').map(c => (
+                                  <option key={c.id} value={c.id}>{c.name} ({c.vat_rate}%)</option>
+                                ))}
+                              </optgroup>
+                              <optgroup label="Ausgaben">
+                                {catsByType('expense').map(c => (
+                                  <option key={c.id} value={c.id}>{c.name} ({c.vat_rate}%)</option>
+                                ))}
+                              </optgroup>
+                            </select>
+                            {row.match && (
+                              <button
+                                type="button"
+                                onClick={() => toggleLinked(idx)}
+                                title="Vorgeschlagene Verknüpfung wieder übernehmen"
+                                className="text-gray-300 hover:text-[#35609E] flex-shrink-0"
+                              >
+                                <Link2 size={13} strokeWidth={2} />
+                              </button>
+                            )}
+                          </div>
+                        ) : null}
+                      </td>
+                      <td className="px-3 py-2 text-center">
                         {!row.isDuplicate && (
-                          <select
-                            value={row.categoryId}
-                            onChange={e => setCat(idx, e.target.value)}
-                            className={`w-full border rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#35609E] ${
-                              !row.categoryId ? 'border-amber-300 bg-amber-50' : 'border-gray-200'
-                            }`}
-                          >
-                            <option value="">– Kategorie wählen –</option>
-                            <optgroup label="Einnahmen">
-                              {catsByType('income').map(c => (
-                                <option key={c.id} value={c.id}>{c.name} ({c.vat_rate}%)</option>
-                              ))}
-                            </optgroup>
-                            <optgroup label="Ausgaben">
-                              {catsByType('expense').map(c => (
-                                <option key={c.id} value={c.id}>{c.name} ({c.vat_rate}%)</option>
-                              ))}
-                            </optgroup>
-                          </select>
+                          <input
+                            type="checkbox"
+                            checked={row.isPrivate}
+                            onChange={() => togglePrivate(idx)}
+                            title="Als Privatumsatz kennzeichnen (z.B. Privatentnahme/-einlage)"
+                            className="w-4 h-4 accent-gray-500"
+                          />
                         )}
                       </td>
                     </tr>
@@ -395,7 +613,7 @@ export default function ImportClient({ clientId, userId, categories, knownBankRe
 
           {/* ── Import-Button ── */}
           {(() => {
-            const noCat    = rows.filter(r => r.selected && !r.isDuplicate && !r.categoryId).length;
+            const noCat    = rows.filter(r => r.selected && !r.isDuplicate && !(r.linked && r.match) && !r.categoryId).length;
             const importable = selectedCount - noCat;
             return (
               <div className="flex items-center gap-4 flex-wrap">

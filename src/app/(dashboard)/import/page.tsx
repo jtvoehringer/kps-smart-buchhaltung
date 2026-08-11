@@ -30,12 +30,63 @@ export default async function ImportPage() {
     (existingRefs ?? []).map(r => r.bank_ref as string).filter(Boolean)
   );
 
+  // Konten (für Kontozuordnung des Imports)
+  const { data: accounts } = await supabase
+    .from('accounts')
+    .select('id, name, iban')
+    .eq('client_id', clientId)
+    .eq('is_active', true)
+    .order('name');
+
+  // Gelernte Zuordnungen (Privat/Kategorie je Gegenpartei) aus früheren Abstimmungen
+  const { data: learningRules } = await supabase
+    .from('bank_learning_rules')
+    .select('counterpart_pattern, category_id, is_private, hit_count')
+    .eq('client_id', clientId);
+
+  // Offene Ausgangsrechnungen (für Abgleich mit Zahlungseingängen)
+  const { data: invoicesRaw } = await supabase
+    .from('invoices')
+    .select('id, invoice_number, total_net, total_vat, total_gross, customers(name, company_name)')
+    .eq('client_id', clientId)
+    .eq('status', 'open');
+
+  const openInvoices = (invoicesRaw ?? []).map(inv => {
+    const cust = Array.isArray(inv.customers) ? inv.customers[0] : inv.customers;
+    return {
+      id: inv.id,
+      invoice_number: inv.invoice_number,
+      customer_name: cust?.company_name || cust?.name || '',
+      amount_gross: Number(inv.total_gross),
+      amount_net: Number(inv.total_net),
+      vat_amount: Number(inv.total_vat),
+    };
+  });
+
+  // Offene Eingangsrechnungen (für Abgleich mit Zahlungsausgängen)
+  const { data: incomingRaw } = await supabase
+    .from('incoming_invoices')
+    .select('id, vendor_name, invoice_number, amount_net, vat_rate, vat_amount, amount_gross, category_id')
+    .eq('client_id', clientId)
+    .eq('status', 'open');
+
+  const openIncomingInvoices = (incomingRaw ?? []).map(inv => ({
+    id: inv.id,
+    vendor_name: inv.vendor_name,
+    invoice_number: inv.invoice_number,
+    amount_gross: Number(inv.amount_gross),
+    amount_net: Number(inv.amount_net),
+    vat_rate: Number(inv.vat_rate),
+    vat_amount: Number(inv.vat_amount),
+    category_id: inv.category_id,
+  }));
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#35609E]">Bankdaten importieren</h1>
         <p className="text-gray-500 text-sm">
-          CAMT.053 (XML) oder Bank-CSV — Buchungen werden automatisch auf Duplikate geprüft
+          CAMT.053 (XML) oder Bank-CSV — Buchungen werden automatisch auf Duplikate geprüft und mit offenen Rechnungen abgeglichen
         </p>
       </div>
       <ImportClient
@@ -43,6 +94,10 @@ export default async function ImportPage() {
         userId={user.id}
         categories={categories ?? []}
         knownBankRefs={Array.from(knownBankRefs)}
+        accounts={accounts ?? []}
+        learningRules={learningRules ?? []}
+        openInvoices={openInvoices}
+        openIncomingInvoices={openIncomingInvoices}
       />
     </div>
   );

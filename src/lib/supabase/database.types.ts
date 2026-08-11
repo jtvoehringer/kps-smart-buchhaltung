@@ -1,6 +1,6 @@
 // ============================================================
 // TypeScript-Typen für alle Datenbanktabellen
-// Entspricht dem aktuellen Schema inkl. aller Migrationen 001–011
+// Entspricht dem aktuellen Schema inkl. aller Migrationen 001–016
 // ============================================================
 
 export type VatRate = 0 | 10 | 13 | 20;
@@ -14,6 +14,7 @@ export type UstStatus = 'kleinunternehmer' | 'regelbesteuerung';
 export type InvoiceStatus = 'draft' | 'open' | 'paid' | 'cancelled';
 export type IncomingInvoiceStatus = 'open' | 'paid' | 'cancelled';
 export type ReceiptStatus = 'pending' | 'processing' | 'processed' | 'booked' | 'error';
+export type AccountType = 'kontokorrent' | 'kreditkarte' | 'kreditkonto';
 
 export type Tenant = {
   id: string;
@@ -116,6 +117,9 @@ export type Transaction = {
   import_source: string | null;
   import_batch_id: string | null;
   bank_ref: string | null;         // Migration 008: AcctSvcrRef aus CAMT.053-Import
+  account_id: string | null;       // Migration 016
+  is_private: boolean;             // Migration 016
+  is_reconciled: boolean;          // Migration 016
   created_at: string;
   updated_at: string;
   // Joins (optional)
@@ -284,6 +288,7 @@ export type BankImport = {
   iban: string | null;
   tx_total: number;
   tx_imported: number;
+  account_id: string | null;   // Migration 016
   imported_at: string;
 };
 
@@ -302,6 +307,39 @@ export type Receipt = {
   uploaded_by: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type Account = {
+  id: string;
+  client_id: string;
+  name: string;
+  type: AccountType;
+  iban: string | null;
+  note: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type BankLearningRule = {
+  id: string;
+  client_id: string;
+  counterpart_pattern: string;
+  category_id: string | null;
+  is_private: boolean;
+  hit_count: number;
+  updated_at: string;
+};
+
+export type MonthClosure = {
+  id: string;
+  client_id: string;
+  period_year: number;
+  period_month: number;
+  closed_at: string;
+  closed_by: string | null;
+  reopened_at: string | null;
+  reopened_by: string | null;
 };
 
 // ============================================================
@@ -436,6 +474,9 @@ export type Database = {
           import_source?: string | null;
           import_batch_id?: string | null;
           bank_ref?: string | null;
+          account_id?: string | null;
+          is_private?: boolean;
+          is_reconciled?: boolean;
         };
         Update: Partial<Transaction>;
         Relationships: [
@@ -649,8 +690,45 @@ export type Database = {
           iban?: string | null;
           tx_total?: number;
           tx_imported?: number;
+          account_id?: string | null;
         };
         Update: Partial<BankImport>;
+        Relationships: [];
+      };
+      accounts: {
+        Row: Account;
+        Insert: {
+          client_id: string;
+          name: string;
+          type?: AccountType;
+          iban?: string | null;
+          note?: string | null;
+          is_active?: boolean;
+        };
+        Update: Partial<Account>;
+        Relationships: [];
+      };
+      bank_learning_rules: {
+        Row: BankLearningRule;
+        Insert: {
+          client_id: string;
+          counterpart_pattern: string;
+          category_id?: string | null;
+          is_private?: boolean;
+          hit_count?: number;
+        };
+        Update: Partial<BankLearningRule>;
+        Relationships: [];
+      };
+      month_closures: {
+        Row: MonthClosure;
+        Insert: {
+          client_id: string;
+          period_year: number;
+          period_month: number;
+          closed_by?: string | null;
+        };
+        Update: Partial<MonthClosure>;
         Relationships: [];
       };
     };
@@ -667,6 +745,14 @@ export type Database = {
       uva_uebermitteln: {
         Args: { p_tax_return_id: string };
         Returns: TaxReturn;
+      };
+      monat_abschliessen: {
+        Args: { p_client_id: string; p_year: number; p_month: number };
+        Returns: MonthClosure;
+      };
+      monat_oeffnen: {
+        Args: { p_client_id: string; p_year: number; p_month: number };
+        Returns: MonthClosure;
       };
     };
   };

@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 import {
   ClipboardList, Receipt, Wallet, Landmark, FileText, User, Truck,
   LayoutDashboard, Settings, Building2, Users, Upload, LogOut, X, Menu,
+  CreditCard, CalendarCheck,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -42,15 +43,17 @@ function buildNav(role: string): NavEntry[] {
   };
 
   // Reihenfolge: Buchungen → UVA → Rechnungen → Kunden → Lieferanten →
-  // Offene Posten → Bank-Import (Rechnungen bewusst vor Offenen Posten,
-  // Lieferanten unterhalb Kunden).
+  // Offene Posten → Bank-Import → Konten → Monatsabschluss (Rechnungen
+  // bewusst vor Offenen Posten, Lieferanten unterhalb Kunden).
   const rest: NavEntry[] = [
-    { kind: 'link', href: '/uva',            label: 'UVA-Meldung',   icon: Receipt },
-    { kind: 'link', href: '/rechnungen',     label: 'Rechnungen',    icon: FileText },
-    { kind: 'link', href: '/kunden',         label: 'Kunden',        icon: User },
-    { kind: 'link', href: '/lieferanten',    label: 'Lieferanten',   icon: Truck },
-    { kind: 'link', href: '/offene-posten',  label: 'Offene Posten', icon: Wallet },
-    { kind: 'link', href: '/import',         label: 'Bank-Import',   icon: Landmark },
+    { kind: 'link', href: '/uva',             label: 'UVA-Meldung',    icon: Receipt },
+    { kind: 'link', href: '/rechnungen',      label: 'Rechnungen',     icon: FileText },
+    { kind: 'link', href: '/kunden',          label: 'Kunden',         icon: User },
+    { kind: 'link', href: '/lieferanten',     label: 'Lieferanten',    icon: Truck },
+    { kind: 'link', href: '/offene-posten',   label: 'Offene Posten',  icon: Wallet },
+    { kind: 'link', href: '/import',          label: 'Bank-Import',    icon: Landmark },
+    { kind: 'link', href: '/konten',          label: 'Konten',         icon: CreditCard },
+    { kind: 'link', href: '/monatsabschluss', label: 'Monatsabschluss', icon: CalendarCheck },
   ];
 
   if (role === 'superadmin') {
