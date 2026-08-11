@@ -1,8 +1,7 @@
 // Kanzlei-Dashboard – /kanzlei  (nur für Rolle kanzlei / admin / superadmin)
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { formatCurrency } from '@/lib/utils';
-import Link from 'next/link';
+import MandantenTable from './MandantenTable';
 
 export default async function KanzleiPage() {
   const supabase = await createClient();
@@ -80,6 +79,24 @@ export default async function KanzleiPage() {
   const activeCount    = (clients ?? []).filter(c => c.is_active).length;
   const totalBookings  = Array.from(statsMap.values()).reduce((s, v) => s + v.count, 0);
 
+  const rows = (clients ?? []).map(c => {
+    const stats       = statsMap.get(c.id) ?? { income: 0, expense: 0, count: 0 };
+    const memberCount = memberCountMap.get(c.id) ?? 0;
+    const tenantName  = tenantMap.get(c.tenant_id) ?? '—';
+    return {
+      id:            c.id,
+      company_name:  c.company_name,
+      uid_number:    c.uid_number,
+      vat_period:    c.vat_period,
+      is_active:     c.is_active,
+      tenantName,
+      income:        stats.income,
+      expense:       stats.expense,
+      count:         stats.count,
+      memberCount,
+    };
+  });
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="mb-6">
@@ -108,91 +125,7 @@ export default async function KanzleiPage() {
       </div>
 
       {/* Mandantentabelle */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-800">Mandanten</h2>
-          <Link
-            href="/kanzlei/mandant-neu"
-            className="bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
-          >
-            ➕ Neuer Mandant
-          </Link>
-        </div>
-
-        {(clients ?? []).length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <div className="text-4xl mb-3">👥</div>
-            <p className="text-sm">Noch keine Mandanten angelegt</p>
-            <p className="text-xs mt-2">
-              <Link href="/kanzlei/mandant-neu" className="text-[#35609E] hover:underline">
-                Ersten Mandanten anlegen →
-              </Link>
-            </p>
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
-                <th className="text-left px-6 py-3">Mandant</th>
-                {isSuperadmin && <th className="text-left px-4 py-3">Tenant</th>}
-                <th className="text-left px-4 py-3">UVA</th>
-                <th className="text-right px-4 py-3">Einnahmen</th>
-                <th className="text-right px-4 py-3">Ausgaben</th>
-                <th className="text-right px-4 py-3">Buchungen</th>
-                <th className="text-center px-4 py-3">Benutzer</th>
-                <th className="text-center px-4 py-3">Status</th>
-                <th className="text-center px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {(clients ?? []).map(c => {
-                const stats       = statsMap.get(c.id) ?? { income: 0, expense: 0, count: 0 };
-                const memberCount = memberCountMap.get(c.id) ?? 0;
-                const tenantName  = tenantMap.get(c.tenant_id) ?? '—';
-                return (
-                  <tr key={c.id} className="border-t border-gray-50 hover:bg-gray-50/50">
-                    <td className="px-6 py-3">
-                      <div className="font-medium text-gray-800">{c.company_name}</div>
-                      {c.uid_number && <div className="text-xs text-gray-400">{c.uid_number}</div>}
-                    </td>
-                    {isSuperadmin && (
-                      <td className="px-4 py-3 text-xs text-gray-400">{tenantName}</td>
-                    )}
-                    <td className="px-4 py-3 text-gray-500">
-                      {c.vat_period === 'monthly' ? 'Monatlich' : 'Vierteljährlich'}
-                    </td>
-                    <td className="px-4 py-3 text-right text-[#00897B]">
-                      {stats.income > 0 ? formatCurrency(stats.income) : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-right text-[#C62828]">
-                      {stats.expense > 0 ? formatCurrency(stats.expense) : '—'}
-                    </td>
-                    <td className="px-4 py-3 text-right text-gray-600">{stats.count}</td>
-                    <td className="px-4 py-3 text-center text-gray-500">
-                      <span className="inline-flex items-center gap-1">👤 {memberCount}</span>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        c.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                      }`}>
-                        {c.is_active ? 'Aktiv' : 'Inaktiv'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <Link
-                        href={`/kanzlei/mandant/${c.id}`}
-                        className="text-xs text-[#35609E] hover:text-[#4F90E8] font-medium hover:underline"
-                      >
-                        Bearbeiten
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <MandantenTable rows={rows} isSuperadmin={isSuperadmin} />
     </div>
   );
 }

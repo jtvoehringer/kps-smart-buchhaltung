@@ -33,9 +33,10 @@ function buildNav(role: string): NavEntry[] {
   const buchungenGroup: NavEntry = {
     kind: 'group',
     href: '/buchungen',
-    label: 'Buchungen',
+    label: 'E&A',
     icon: ClipboardList,
     children: [
+      { href: '/buchungen',            label: 'Buchungen' },
       { href: '/buchungen/kategorien', label: 'Kategorien' },
       { href: '/dauerauftraege',       label: 'Daueraufträge' },
       { href: '/belege',               label: 'Belege (OCR)' },
@@ -127,14 +128,12 @@ export default function Sidebar({ companyName, role }: Props) {
         {mainItems.map(item =>
           item.kind === 'group' ? (
             <div key={item.href}>
-              <NavLink
-                href={item.href}
-                label={item.label}
-                icon={item.icon}
-                active={isActive(item.href)}
-                onClick={() => setMobileOpen(false)}
-              />
-              <div className="mt-0.5 space-y-0.5">
+              <div className="pt-1 pb-1.5 px-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                  {item.label}
+                </span>
+              </div>
+              <div className="space-y-0.5">
                 {item.children.map(child => (
                   <NavSubLink
                     key={child.href}

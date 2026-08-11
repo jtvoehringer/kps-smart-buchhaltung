@@ -550,6 +550,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                           className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
                       </div>
                     </div>
+                  )}
 
                   {/* Reisekosten: Typ, Pflichtangaben, Rechner für Kilometergeld/Diäten */}
                   {isReisekosten && (
