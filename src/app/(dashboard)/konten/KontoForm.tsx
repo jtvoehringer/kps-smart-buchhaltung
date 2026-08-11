@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { parseBetrag } from '@/lib/parsers/betrag';
 
 type AccountType = 'kontokorrent' | 'kreditkarte' | 'kreditkonto';
 
@@ -12,9 +13,14 @@ type AccountInput = {
   type: AccountType;
   iban: string;
   note: string;
+  openingBalance: string;
+  openingDate: string;
 };
 
-const EMPTY: AccountInput = { name: '', type: 'kontokorrent', iban: '', note: '' };
+const EMPTY: AccountInput = {
+  name: '', type: 'kontokorrent', iban: '', note: '',
+  openingBalance: '', openingDate: '',
+};
 
 const TYPE_LABELS: Record<AccountType, string> = {
   kontokorrent: 'Kontokorrent (Girokonto)',
@@ -51,6 +57,8 @@ export default function KontoForm({
       type:      form.type,
       iban:      form.iban.trim() || null,
       note:      form.note.trim() || null,
+      opening_balance: parseBetrag(form.openingBalance) ?? 0,
+      opening_date:    form.openingDate || null,
     };
 
     let err;
@@ -95,6 +103,35 @@ export default function KontoForm({
           <label className="text-xs font-medium text-gray-500 block mb-1">IBAN (optional)</label>
           <input type="text" placeholder="AT00 0000 0000 0000 0000" value={form.iban}
             onChange={e => set('iban', e.target.value)} className={inputCls} />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
+        <div>
+          <h2 className="font-semibold text-gray-800">Eröffnungssaldo</h2>
+          <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+            Der Stand laut Kontoauszug an dem Tag, ab dem Sie hier buchen. Ohne
+            diese Angabe beginnt die Kontoabstimmung bei null und lässt sich nie
+            mit der Bank zur Deckung bringen. Bei Kreditkarten und Kreditkonten
+            ist der Wert üblicherweise negativ.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs font-medium text-gray-500 block mb-1">Stichtag</label>
+            <input type="date" value={form.openingDate}
+              onChange={e => set('openingDate', e.target.value)} className={inputCls} />
+            <p className="text-[11px] text-gray-400 mt-1">
+              Buchungen bis einschließlich dieses Tages gelten als im Saldo enthalten.
+            </p>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-500 block mb-1">Saldo am Stichtag</label>
+            <input type="text" inputMode="decimal" placeholder="z.B. 1.234,56 oder -890,00"
+              value={form.openingBalance}
+              onChange={e => set('openingBalance', e.target.value)} className={inputCls} />
+          </div>
         </div>
       </div>
 

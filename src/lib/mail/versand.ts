@@ -41,11 +41,23 @@ export function htmlEscape(s: string): string {
  * versendeten Mails festnageln will, setzt NEXT_PUBLIC_APP_URL.
  */
 export function appBasisUrl(fallbackOrigin: string): string {
+  const sauber = (u: string) => u.replace(/\/+$/, '');
+  const istLokal = (u: string) => /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/i.test(u);
+
   const konfiguriert = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (konfiguriert && /^https?:\/\//.test(konfiguriert)) {
-    return konfiguriert.replace(/\/+$/, '');
+  if (!konfiguriert || !/^https?:\/\//.test(konfiguriert)) {
+    return sauber(fallbackOrigin);
   }
-  return fallbackOrigin.replace(/\/+$/, '');
+
+  // In der Entwicklungsumgebung steht hier localhost. Landet derselbe
+  // Wert versehentlich in der Produktion, bekämen alle Empfänger einen
+  // Link auf ihren eigenen Rechner. Dann lieber die Herkunft des
+  // Requests nehmen – die stimmt wenigstens.
+  if (istLokal(konfiguriert) && !istLokal(fallbackOrigin)) {
+    return sauber(fallbackOrigin);
+  }
+
+  return sauber(konfiguriert);
 }
 
 export type Versandzweck = 'rechnung' | 'app_einladung';

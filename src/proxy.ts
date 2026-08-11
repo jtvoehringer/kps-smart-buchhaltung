@@ -32,6 +32,8 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   // Nicht eingeloggt & nicht auf einer Auth-Seite → Login
+  // Öffentlich erreichbar – sonst landet man beim Aufruf der
+  // Anmeldeseite in einer Weiterleitungsschleife.
   const publicPaths = ['/login', '/passwort-vergessen', '/passwort-neu'];
   if (!user && !publicPaths.some(p => request.nextUrl.pathname.startsWith(p))) {
     const url = request.nextUrl.clone();
@@ -42,6 +44,23 @@ export async function proxy(request: NextRequest) {
   return supabaseResponse;
 }
 
+// Der Matcher listete bisher vier Bereiche auf: /dashboard, /buchungen,
+// /dauerauftraege und /uva. Alles andere – /rechnungen, /kunden,
+// /lieferanten, /belege, /konten, /einstellungen, /kanzlei, /import,
+// /offene-posten, /monatsabschluss – lief daran vorbei.
+//
+// Der Zugriffsschutz selbst war dadurch nicht offen: das Layout unter
+// (dashboard) leitet ohne Anmeldung nach /login um. Aber dieser Proxy
+// erneuert nebenbei das Supabase-Sitzungstoken. Wer eine Stunde lang
+// nur Rechnungen schrieb, fiel deshalb irgendwann grundlos aus der
+// Anmeldung – wer zwischendurch die Buchungsliste öffnete, nicht.
+//
+// Jetzt greift er überall außer bei statischen Dateien und den
+// API-Routen. Die prüfen selbst und müssen einen 401 zurückgeben,
+// statt eine Weiterleitung auf die Login-Seite zu liefern, mit der
+// ein fetch() nichts anfangen kann.
 export const config = {
-  matcher: ['/dashboard/:path*', '/buchungen/:path*', '/dauerauftraege/:path*', '/uva/:path*'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+  ],
 };

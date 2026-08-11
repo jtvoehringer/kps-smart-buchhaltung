@@ -55,6 +55,19 @@ describe('appBasisUrl', () => {
     expect(appBasisUrl('https://kps.vercel.app/')).toBe('https://kps.vercel.app');
   });
 
+  it('ignoriert eine versehentlich stehengebliebene localhost-Adresse', () => {
+    // .env.local enthält localhost. Landet derselbe Wert in der
+    // Produktion, zeigen alle Einladungslinks auf den Rechner des
+    // Empfängers.
+    process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000';
+    expect(appBasisUrl('https://kps.vercel.app')).toBe('https://kps.vercel.app');
+  });
+
+  it('lässt localhost in der Entwicklung aber gelten', () => {
+    process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000';
+    expect(appBasisUrl('http://localhost:3000')).toBe('http://localhost:3000');
+  });
+
   it('ignoriert eine unbrauchbare Konfiguration', () => {
     process.env.NEXT_PUBLIC_APP_URL = 'buchhaltung.kps.at';
     expect(appBasisUrl('https://kps.vercel.app')).toBe('https://kps.vercel.app');

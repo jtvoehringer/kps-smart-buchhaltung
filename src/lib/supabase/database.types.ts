@@ -357,6 +357,8 @@ export type Account = {
   iban: string | null;
   note: string | null;
   is_active: boolean;
+  opening_balance: number;      // Migration 034
+  opening_date: string | null;  // Migration 034
   created_at: string;
   updated_at: string;
 };
@@ -764,6 +766,8 @@ export type Database = {
           iban?: string | null;
           note?: string | null;
           is_active?: boolean;
+          opening_balance?: number;
+          opening_date?: string | null;
         };
         Update: Partial<Account>;
         Relationships: [];

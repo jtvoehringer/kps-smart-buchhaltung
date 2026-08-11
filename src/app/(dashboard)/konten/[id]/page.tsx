@@ -38,6 +38,10 @@ export default async function KontoBearbeitenPage({ params }: { params: Promise<
     type: account.type,
     iban: account.iban ?? '',
     note: account.note ?? '',
+    openingBalance: account.opening_balance == null
+      ? ''
+      : Number(account.opening_balance).toFixed(2).replace('.', ','),
+    openingDate: account.opening_date ?? '',
   };
 
   return (

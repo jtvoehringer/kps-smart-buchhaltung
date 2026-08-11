@@ -33,12 +33,21 @@ export default async function KontoabstimmungPage({ params }: { params: Promise<
 
   if (!account) notFound();
 
-  const { data: transactions } = await admin
+  // Buchungen bis einschließlich des Stichtags stecken bereits im
+  // Eröffnungssaldo und dürfen im Saldenlauf nicht noch einmal zählen.
+  let abfrage = admin
     .from('transactions')
-    .select('id, booking_date, description, type, amount_gross, is_private, is_reconciled, category:categories(name)')
+    .select('id, booking_date, created_at, description, type, amount_gross, is_private, is_reconciled, beleg_jahr, beleg_nr, category:categories(name)')
     .eq('client_id', membership.client_id)
-    .eq('account_id', id)
-    .order('booking_date', { ascending: false });
+    .eq('account_id', id);
+
+  if (account.opening_date) {
+    abfrage = abfrage.gt('booking_date', account.opening_date);
+  }
+
+  const { data: transactions } = await abfrage
+    .order('booking_date', { ascending: false })
+    .order('created_at',   { ascending: false });
 
   const rows = (transactions ?? []).map(t => ({
     ...t,
@@ -57,7 +66,13 @@ export default async function KontoabstimmungPage({ params }: { params: Promise<
           Kontoabstimmung – {account.name}
         </h1>
       </div>
-      <AbstimmungClient accountName={account.name} rows={rows} />
+      <AbstimmungClient
+        accountId={account.id}
+        accountName={account.name}
+        rows={rows}
+        openingBalance={Number(account.opening_balance ?? 0)}
+        openingDate={account.opening_date ?? null}
+      />
     </div>
   );
 }
