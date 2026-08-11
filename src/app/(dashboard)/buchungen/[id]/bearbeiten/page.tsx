@@ -23,7 +23,7 @@ export default async function BuchungBearbeitenPage({ params }: { params: Promis
   // Buchung laden – nur wenn sie dem Mandanten gehört
   const { data: transaction } = await supabase
     .from('transactions')
-    .select('id, type, amount_net, vat_rate, vat_amount, booking_date, description, is_locked, category_id')
+    .select('id, type, amount_net, vat_rate, vat_amount, booking_date, description, is_locked, category_id, is_eauto, bewirtung_anlass, bewirtung_teilnehmer, reise_typ, reise_ziel, reise_zweck, reise_von, reise_bis, reise_km, reise_stunden')
     .eq('id', id)
     .eq('client_id', client.id)
     .maybeSingle();

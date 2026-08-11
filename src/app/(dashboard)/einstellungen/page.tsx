@@ -83,6 +83,8 @@ export default async function EinstellungenPage() {
       .from('transactions')
       .select('amount_gross')
       .eq('client_id', client.id)
+      // Privatumsätze zählen steuerlich nicht mit (F-5)
+      .eq('is_private', false)
       .eq('type', 'income')
       .gte('booking_date', yearStart);
     currentYearRevenue = (incomeRows ?? []).reduce(

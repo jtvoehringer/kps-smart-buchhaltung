@@ -57,6 +57,8 @@ export default async function DashboardPage() {
       .from('transactions')
       .select('booking_date, type, amount_net, vat_amount, amount_gross')
       .eq('client_id', client.id)
+      // Privatumsätze zählen steuerlich nicht mit (F-5)
+      .eq('is_private', false)
       .order('booking_date', { ascending: true }),
     supabase
       .from('invoices')

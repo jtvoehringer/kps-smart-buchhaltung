@@ -1,0 +1,35 @@
+name: CI
+
+# Läuft bei jedem Push und jedem Pull Request auf main.
+# Zweck: verhindern, dass eine Änderung an der Steuerlogik still
+# durchgeht. next build kompiliert nur – ein Vorzeichenfehler in
+# calculateUVA oder ein falscher Diätensatz fällt dabei nicht auf.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # npm ci setzt eine committete package-lock.json voraus.
+      # Die liegt derzeit nicht im Repo – sobald sie eingecheckt ist,
+      # hier auf "npm ci" umstellen (reproduzierbare Builds).
+      - name: Abhängigkeiten installieren
+        run: npm install --no-audit --no-fund
+
+      - name: Typen prüfen
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test

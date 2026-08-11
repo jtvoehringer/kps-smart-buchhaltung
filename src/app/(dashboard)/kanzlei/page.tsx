@@ -55,6 +55,8 @@ export default async function KanzleiPage() {
       ? supabase
           .from('transactions')
           .select('client_id, type, amount_gross')
+          // Privatumsätze zählen steuerlich nicht mit (F-5)
+          .eq('is_private', false)
           .in('client_id', clientIds)
           .gte('booking_date', `${currentYear}-01-01`)
           .lte('booking_date', `${currentYear}-12-31`)

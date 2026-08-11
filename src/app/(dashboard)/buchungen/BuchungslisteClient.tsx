@@ -20,6 +20,8 @@ type Transaction = {
   booking_date: string;
   description: string | null;
   is_locked: boolean;
+  is_private: boolean;
+  is_eauto: boolean;
   categories: { name: string } | null;
 };
 
@@ -187,8 +189,26 @@ export default function BuchungslisteClient({
                     <td className="px-4 py-3 text-gray-700">
                       {t.categories?.name ?? '—'}
                     </td>
-                    <td className="px-4 py-3 text-gray-500 max-w-xs truncate">
-                      {t.description ?? '—'}
+                    <td className="px-4 py-3 text-gray-500 max-w-xs">
+                      <div className="flex items-center gap-1.5">
+                        {t.is_private && (
+                          <span
+                            className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600 flex-shrink-0"
+                            title="Privat – zählt nicht in UVA, Dashboard und BMD-Export"
+                          >
+                            Privat
+                          </span>
+                        )}
+                        {t.is_eauto && (
+                          <span
+                            className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 flex-shrink-0"
+                            title="E-Auto – Vorsteuer auf die Angemessenheitsgrenze gedeckelt"
+                          >
+                            E-Auto
+                          </span>
+                        )}
+                        <span className="truncate">{t.description ?? '—'}</span>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-right text-gray-700">
                       {formatCurrency(Number(t.amount_net))}
@@ -250,6 +270,13 @@ export default function BuchungslisteClient({
                 Saldo: {formatCurrency(Math.abs(totalIncome - totalExpense))}
               </span>
             </div>
+
+            {filtered.some(t => t.is_private) && (
+              <p className="px-4 py-2 text-xs text-gray-400 border-t border-gray-100">
+                Die Summen oben enthalten auch als <strong>Privat</strong> gekennzeichnete Buchungen.
+                In UVA, Dashboard und BMD-Export bleiben diese unberücksichtigt.
+              </p>
+            )}
           </>
         )}
       </div>

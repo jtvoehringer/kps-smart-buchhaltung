@@ -4,22 +4,20 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import {
+  berechneKilometergeld, berechneDiaeten, berechneEAutoVorsteuer,
+  vorgeschlagenerSteuersatz, istPauschale, reiseSaetzeFuer,
+} from '@/lib/steuer';
+import {
   Receipt, Calculator, ArrowUpCircle, ArrowDownCircle, BatteryCharging,
   Check, X, Paperclip, FileText, Image as ImageIcon,
 } from 'lucide-react';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
 
-const EAUTO_HOECHSTGRENZE = 40000;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 const MAX_SIZE_MB = 10;
 const BEWIRTUNG_KATEGORIE_NAME = 'Bewirtungsspesen (Geschäftsessen)';
 const REISEKOSTEN_KATEGORIE_NAME = 'Reisekosten';
-const KM_SATZ = 0.50;              // amtliches Kilometergeld PKW (Stand 2025/2026)
-const DIAETEN_TAGSSATZ = 30;       // Taggeld voll (ab 11 Std.)
-const DIAETEN_STUNDENSATZ = 2.5;   // 1/12 des Taggelds je angefangener Stunde (3–11 Std.)
-const DIAETEN_MIN_STUNDEN = 3;     // unter 3 Std. kein Taggeld
-const DIAETEN_VOLL_STUNDEN = 11;   // ab 11 Std. voller Tagessatz
 
 export default function BuchungForm({
   clientId,
@@ -64,14 +62,11 @@ export default function BuchungForm({
   const filteredCategories = categories.filter(c => c.type === type);
   const isBewirtung = categories.find(c => c.id === categoryId)?.name === BEWIRTUNG_KATEGORIE_NAME;
   const isReisekosten = categories.find(c => c.id === categoryId)?.name === REISEKOSTEN_KATEGORIE_NAME;
-  const kmBetrag = reiseTyp === 'kilometergeld' ? Math.round((parseFloat(reiseKm) || 0) * KM_SATZ * 100) / 100 : 0;
-  const diaetenBetrag = (() => {
-    if (reiseTyp !== 'diaeten') return 0;
-    const std = parseFloat(reiseStunden) || 0;
-    if (std < DIAETEN_MIN_STUNDEN) return 0;
-    if (std >= DIAETEN_VOLL_STUNDEN) return DIAETEN_TAGSSATZ;
-    return Math.round(Math.ceil(std) * DIAETEN_STUNDENSATZ * 100) / 100;
-  })();
+  // Sätze richten sich nach dem Buchungsdatum – eine nachgetragene
+  // Buchung aus dem Vorjahr rechnet mit den damals gültigen Werten.
+  const saetze = reiseSaetzeFuer(bookingDate);
+  const kmBetrag      = reiseTyp === 'kilometergeld' ? berechneKilometergeld(parseFloat(reiseKm), bookingDate) : 0;
+  const diaetenBetrag = reiseTyp === 'diaeten'       ? berechneDiaeten(parseFloat(reiseStunden), bookingDate)  : 0;
 
   useEffect(() => {
     const cat = categories.find(c => c.id === categoryId);
@@ -87,12 +82,14 @@ export default function BuchungForm({
   useEffect(() => { if (isEAuto) setVatRate(20); }, [isEAuto]);
 
   useEffect(() => {
-    if (!isReisekosten) return;
+    if (!isReisekosten || !reiseTyp) return;
+    // Steuersatz je Reisekostenart vorbelegen. Vorher wurde der
+    // 0-%-Satz der Kategorie übernommen – dadurch ging bei einer
+    // Hotelrechnung die Vorsteuer verloren.
+    setVatRate(vorgeschlagenerSteuersatz(reiseTyp));
     if (reiseTyp === 'kilometergeld') {
-      setVatRate(0);
       setAmount(kmBetrag > 0 ? kmBetrag.toFixed(2) : '');
     } else if (reiseTyp === 'diaeten') {
-      setVatRate(0);
       setAmount(diaetenBetrag > 0 ? diaetenBetrag.toFixed(2) : '');
     }
   }, [isReisekosten, reiseTyp, kmBetrag, diaetenBetrag]);
@@ -102,12 +99,13 @@ export default function BuchungForm({
   const grossNum = isBrutto ? inputNum : inputNum * (1 + vatRate / 100);
   const vatAmt   = grossNum - netNum;
 
-  const eAutoAbzugsfaehigNetto    = Math.min(netNum, EAUTO_HOECHSTGRENZE);
-  const eAutoVstGesamt            = Math.round(netNum * 0.20 * 100) / 100;
-  const eAutoVstAbzugsfaehig      = Math.round(eAutoAbzugsfaehigNetto * 0.20 * 100) / 100;
-  const eAutoVstNichtAbzugsfaehig = Math.max(0, Math.round((eAutoVstGesamt - eAutoVstAbzugsfaehig) * 100) / 100);
-  const eAutoUeberschreitung      = netNum > EAUTO_HOECHSTGRENZE;
-  const vatAmtSaved               = isEAuto ? eAutoVstAbzugsfaehig : vatAmt;
+  // Die Angemessenheitsgrenze ist ein BRUTTOwert inkl. USt und NoVA.
+  const eAuto = berechneEAutoVorsteuer(grossNum, vatRate, bookingDate);
+  const eAutoUeberschreitung = eAuto.stufe !== 'voll';
+  const vatAmtSaved  = isEAuto ? eAuto.vstAbzugsfaehig  : vatAmt;
+  // Die nicht abzugsfähige Vorsteuer gehört zu den Anschaffungskosten
+  // (AfA-Basis) und darf nicht verschwinden.
+  const netAmtSaved  = isEAuto ? eAuto.aktivierungsNetto : netNum;
 
   const displayNet   = netNum   > 0 ? netNum.toFixed(2)   : '—';
   const displayGross = grossNum > 0 ? grossNum.toFixed(2) : '—';
@@ -159,18 +157,18 @@ export default function BuchungForm({
         setError('Bitte die gefahrenen Kilometer angeben.');
         return;
       }
-      if (reiseTyp === 'diaeten' && (!reiseStunden || parseFloat(reiseStunden) < DIAETEN_MIN_STUNDEN)) {
-        setError('Für Diäten sind mindestens 3 Stunden Reisedauer erforderlich.');
+      if (reiseTyp === 'diaeten' && (!reiseStunden || parseFloat(reiseStunden) <= saetze.taggeldMindestStunden)) {
+        setError(`Für Diäten ist eine Reisedauer von mehr als ${saetze.taggeldMindestStunden} Stunden erforderlich.`);
         return;
       }
     }
     setLoading(true);
     setError('');
 
-    const descFinal = isEAuto
-      ? [description, `[E-Auto: VSt abzugsfähig ${eur(eAutoVstAbzugsfaehig)} von ${eur(eAutoVstGesamt)} gesamt]`]
-          .filter(Boolean).join(' ')
-      : (description || null);
+    // Die E-Auto-Kennzeichnung steht jetzt in transactions.is_eauto
+    // und nicht mehr als Freitext in der Beschreibung – sonst geht
+    // sie beim Bearbeiten verloren.
+    const descFinal = description || null;
 
     // Buchung anlegen – mit ID zurückholen für Beleguploads
     const { data: newTx, error: insertError } = await supabase
@@ -179,7 +177,7 @@ export default function BuchungForm({
         client_id:    clientId,
         category_id:  categoryId,
         type,
-        amount_net:   Math.round(netNum      * 100) / 100,
+        amount_net:   Math.round(netAmtSaved * 100) / 100,
         // amount_gross NICHT mitschicken: ist in der DB eine GENERATED ALWAYS-Spalte
         // (amount_net + vat_amount), Postgres berechnet sie automatisch.
         vat_rate:     vatRate as 0 | 10 | 13 | 20,
@@ -195,6 +193,7 @@ export default function BuchungForm({
         reise_bis:     isReisekosten ? reiseBis : null,
         reise_km:      isReisekosten && reiseTyp === 'kilometergeld' ? parseFloat(reiseKm) : null,
         reise_stunden: isReisekosten && reiseTyp === 'diaeten' ? parseFloat(reiseStunden) : null,
+        is_eauto:      isEAuto,
       })
       .select('id')
       .single();
@@ -396,7 +395,7 @@ export default function BuchungForm({
                 onChange={e => setReiseKm(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
               <p className="text-xs text-gray-500">
-                Amtliches Kilometergeld PKW: {eur(KM_SATZ)}/km · Betrag: <strong>{eur(kmBetrag)}</strong> · keine Vorsteuer (Pauschale)
+                Amtliches Kilometergeld PKW: {eur(saetze.kmSatz)}/km · Betrag: <strong>{eur(kmBetrag)}</strong> · keine Vorsteuer (Pauschale)
               </p>
             </div>
           )}
@@ -404,20 +403,26 @@ export default function BuchungForm({
           {reiseTyp === 'diaeten' && (
             <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
               <label className="block text-xs font-medium text-amber-900 mb-1">Reisedauer in Stunden *</label>
-              <input type="number" required min="0.5" step="0.5" placeholder="z.B. 9,5" value={reiseStunden}
+              <input type="number" required min="0.5" step="0.5" placeholder="z.B. 9,5 – bei Mehrtagesreisen 58" value={reiseStunden}
                 onChange={e => setReiseStunden(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
               <p className="text-xs text-gray-500">
-                Unter 3 Std. kein Taggeld · 3–11 Std.: {eur(DIAETEN_STUNDENSATZ)} je angefangener Stunde ·
-                ab 11 Std. voller Satz {eur(DIAETEN_TAGSSATZ)} · Betrag: <strong>{eur(diaetenBetrag)}</strong> · keine Vorsteuer (Pauschale)
+                Bis {saetze.taggeldMindestStunden} Std. kein Taggeld · darüber {eur(saetze.taggeld / 12)} je angefangener Stunde ·
+                voller Satz {eur(saetze.taggeld)} ab der 12. angefangenen Stunde ·
+                Betrag: <strong>{eur(diaetenBetrag)}</strong> · keine Vorsteuer (Pauschale)
+              </p>
+              <p className="text-xs text-gray-400">
+                Mehrtagesreisen: Gesamtstunden eintragen. Je vollem 24-Stunden-Zeitraum wird
+                der volle Satz gerechnet, der Rest wieder nach Zwölfteln.
               </p>
             </div>
           )}
 
           {reiseTyp === 'naechtigung' && (
             <p className="text-xs text-amber-700 bg-white rounded-lg border border-amber-300 p-3">
-              Nächtigungspauschale ohne Beleg: {eur(17)}/Nacht (inkl. Frühstück). Liegt eine Hotelrechnung vor,
-              bitte den tatsächlichen Rechnungsbetrag inkl. ausgewiesener USt oben eintragen.
+              Nächtigungspauschale ohne Beleg: {eur(saetze.naechtigung)}/Nacht (inkl. Frühstück) – dann bitte
+              den Steuersatz auf 0 % stellen. Liegt eine Hotelrechnung vor, den tatsächlichen
+              Rechnungsbetrag inkl. ausgewiesener USt eintragen (Beherbergung 10 %).
             </p>
           )}
 
@@ -454,20 +459,20 @@ export default function BuchungForm({
           </div>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="bg-white rounded-lg px-3 py-2">
-              <p className="text-xs text-gray-500">Kaufpreis netto</p>
-              <p className="font-bold text-gray-800">{eur(netNum)}</p>
-            </div>
-            <div className="bg-white rounded-lg px-3 py-2">
-              <p className="text-xs text-gray-500">Anschaffungshöchstgrenze</p>
-              <p className="font-bold text-gray-800">{eur(EAUTO_HOECHSTGRENZE)}</p>
+              <p className="text-xs text-gray-500">Kaufpreis brutto</p>
+              <p className="font-bold text-gray-800">{eur(eAuto.bruttoAnschaffung)}</p>
             </div>
             <div className={`rounded-lg px-3 py-2 ${eAutoUeberschreitung ? 'bg-amber-100' : 'bg-white'}`}>
-              <p className="text-xs text-gray-500">Abzugsfähiger Nettobetrag</p>
-              <p className="font-bold text-gray-800">{eur(eAutoAbzugsfaehigNetto)}</p>
+              <p className="text-xs text-gray-500">Angemessenheitsgrenze (brutto)</p>
+              <p className="font-bold text-gray-800">{eur(eAuto.angemessenheitsgrenzeBrutto)}</p>
             </div>
             <div className="bg-white rounded-lg px-3 py-2">
-              <p className="text-xs text-gray-500">USt gesamt (20 %)</p>
-              <p className="font-semibold text-gray-700">{eur(eAutoVstGesamt)}</p>
+              <p className="text-xs text-gray-500">USt gesamt</p>
+              <p className="font-semibold text-gray-700">{eur(eAuto.vstGesamt)}</p>
+            </div>
+            <div className="bg-white rounded-lg px-3 py-2">
+              <p className="text-xs text-gray-500">Zu aktivieren (AfA-Basis)</p>
+              <p className="font-semibold text-gray-700">{eur(eAuto.aktivierungsNetto)}</p>
             </div>
           </div>
           <div className="border-t border-blue-200 pt-3 space-y-1.5">
@@ -476,7 +481,7 @@ export default function BuchungForm({
                 <Check size={14} strokeWidth={2.5} />
                 Abzugsfähige Vorsteuer
               </span>
-              <span className="font-bold text-green-700">{eur(eAutoVstAbzugsfaehig)}</span>
+              <span className="font-bold text-green-700">{eur(eAuto.vstAbzugsfaehig)}</span>
             </div>
             {eAutoUeberschreitung && (
               <div className="flex justify-between items-center text-sm">
@@ -484,18 +489,24 @@ export default function BuchungForm({
                   <X size={14} strokeWidth={2.5} />
                   Nicht abzugsfähige VSt (Luxuslimit)
                 </span>
-                <span className="font-semibold text-amber-700">{eur(eAutoVstNichtAbzugsfaehig)}</span>
+                <span className="font-semibold text-amber-700">{eur(eAuto.vstNichtAbzugsfaehig)}</span>
               </div>
             )}
           </div>
-          {eAutoUeberschreitung ? (
+          {eAuto.stufe === 'kein_abzug' ? (
+            <p className="text-xs text-amber-800 bg-amber-100 rounded-lg px-3 py-2 leading-relaxed">
+              Über {eur(eAuto.ausschlussgrenzeBrutto)} brutto steht <strong>kein Vorsteuerabzug</strong> zu.
+              Der gesamte Bruttobetrag wird als Anschaffungskosten aktiviert.
+            </p>
+          ) : eAuto.stufe === 'aliquot' ? (
             <p className="text-xs text-blue-700 bg-blue-100 rounded-lg px-3 py-2 leading-relaxed">
-              Der Kaufpreis überschreitet die Anschaffungshöchstgrenze von € 40.000 netto.
-              Gespeichert wird nur die abzugsfähige Vorsteuer von <strong>{eur(eAutoVstAbzugsfaehig)}</strong>.
+              Der Kaufpreis überschreitet die Angemessenheitsgrenze von {eur(eAuto.angemessenheitsgrenzeBrutto)} brutto.
+              Abzugsfähig ist die Vorsteuer nur anteilig: <strong>{eur(eAuto.vstAbzugsfaehig)}</strong>.
+              Die restlichen {eur(eAuto.vstNichtAbzugsfaehig)} erhöhen die Anschaffungskosten.
             </p>
           ) : (
             <p className="text-xs text-blue-700">
-              Kaufpreis innerhalb der Höchstgrenze – volle Vorsteuer von <strong>{eur(eAutoVstAbzugsfaehig)}</strong> abzugsfähig.
+              Kaufpreis innerhalb der Angemessenheitsgrenze – volle Vorsteuer von <strong>{eur(eAuto.vstAbzugsfaehig)}</strong> abzugsfähig.
             </p>
           )}
         </div>

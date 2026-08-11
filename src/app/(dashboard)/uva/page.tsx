@@ -23,6 +23,8 @@ export default async function UVAPage() {
     .from('transactions')
     .select('id, type, amount_net, vat_rate, vat_amount, booking_date')
     .eq('client_id', client.id)
+    // Privatumsätze zählen steuerlich nicht mit (F-5)
+    .eq('is_private', false)
     .order('booking_date', { ascending: true });
 
   // Gespeicherte UVA-Meldungen (Entwurf/übermittelt) laden

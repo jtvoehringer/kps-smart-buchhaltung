@@ -24,17 +24,18 @@ export default async function RechnungBearbeitenPage({ params }: { params: Promi
 
   if (!membership?.client_id) redirect('/dashboard');
 
-  const [{ data: invoice }, { data: customers }, { data: branding }] = await Promise.all([
+  const [{ data: invoice }, { data: customers }, { data: branding }, { data: client }] = await Promise.all([
     admin.from('invoices').select('*')
       .eq('id', id)
       .eq('client_id', membership.client_id)
       .maybeSingle(),
     admin.from('customers')
-      .select('id,name,contact_person,street,zip,city,country,uid_number,email')
+      .select('id,name,contact_person,payment_days,street,zip,city,country,uid_number,email')
       .eq('client_id', membership.client_id).eq('is_active', true).order('name'),
     admin.from('client_branding')
       .select('invoice_prefix,invoice_next_nr,invoice_nr_digits,payment_days')
       .eq('client_id', membership.client_id).maybeSingle(),
+    admin.from('clients').select('booking_mode').eq('id', membership.client_id).maybeSingle(),
   ]);
 
   if (!invoice) notFound();
@@ -55,9 +56,11 @@ export default async function RechnungBearbeitenPage({ params }: { params: Promi
         clientId={membership.client_id}
         customers={customers ?? []}
         branding={branding ?? null}
+        bookingMode={client?.booking_mode ?? 'netto'}
         existing={{
           id:              invoice.id,
           invoice_number:  invoice.invoice_number ?? '',
+          contact_person:  invoice.contact_person ?? '',
           invoice_date:    invoice.invoice_date,
           due_date:        invoice.due_date,
           status:          invoice.status,

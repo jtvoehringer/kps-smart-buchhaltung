@@ -131,6 +131,7 @@ export type Transaction = {
   reise_bis: string | null;             // Migration 018
   reise_km: number | null;              // Migration 018
   reise_stunden: number | null;         // Migration 018
+  is_eauto: boolean;                    // Migration 024
   created_at: string;
   updated_at: string;
   // Joins (optional)
@@ -196,6 +197,8 @@ export type Customer = {
   name: string;
   /** Ansprechpartner, z.B. "Fr. Maria Muster" (Migration 023) */
   contact_person: string | null;
+  /** Zahlungsziel in Tagen, 0 = zahlbar bei Erhalt (Migration 025) */
+  payment_days: number;
   street: string | null;
   zip: string | null;
   city: string | null;
@@ -249,7 +252,8 @@ export type Invoice = {
   id: string;
   client_id: string;
   customer_id: string | null;
-  invoice_number: string;
+  invoice_number: string | null;   // Migration 021: NULL solange Entwurf
+  contact_person: string | null;   // Migration 025: "z.H." je Rechnung
   invoice_date: string;
   due_date: string;
   status: InvoiceStatus;
@@ -502,6 +506,7 @@ export type Database = {
           reise_bis?: string | null;
           reise_km?: number | null;
           reise_stunden?: number | null;
+          is_eauto?: boolean;
         };
         Update: Partial<Transaction>;
         Relationships: [
@@ -583,6 +588,7 @@ export type Database = {
           client_id: string;
           name: string;
           contact_person?: string | null;
+          payment_days?: number;
           street?: string | null;
           zip?: string | null;
           city?: string | null;
@@ -601,7 +607,8 @@ export type Database = {
         Insert: {
           client_id: string;
           customer_id?: string | null;
-          invoice_number: string;
+          invoice_number?: string | null;
+          contact_person?: string | null;
           invoice_date?: string;
           due_date: string;
           status?: InvoiceStatus;

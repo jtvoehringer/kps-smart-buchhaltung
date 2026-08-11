@@ -47,6 +47,8 @@ export default async function MonatsabschlussPage() {
     .from('transactions')
     .select('booking_date, type, amount_gross')
     .eq('client_id', clientId)
+    // Privatumsätze zählen steuerlich nicht mit (F-5)
+    .eq('is_private', false)
     .gte('booking_date', rangeStart);
 
   const { data: closures } = await admin

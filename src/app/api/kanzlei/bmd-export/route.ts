@@ -105,6 +105,8 @@ export async function GET(req: NextRequest) {
   const { data: transactions, error: txError } = await admin
     .from('transactions')
     .select('id, booking_date, description, type, amount_net, vat_amount, amount_gross, vat_rate')
+    // Privatumsätze zählen steuerlich nicht mit (F-5)
+    .eq('is_private', false)
     .eq('client_id', clientId)
     .gte('booking_date', dateFrom)
     .lte('booking_date', dateTo)

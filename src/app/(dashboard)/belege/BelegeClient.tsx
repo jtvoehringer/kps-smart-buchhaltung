@@ -2,6 +2,9 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import {
+  berechneKilometergeld, berechneDiaeten, vorgeschlagenerSteuersatz, reiseSaetzeFuer,
+} from '@/lib/steuer';
 import { useRouter }    from 'next/navigation';
 
 // ── Typen ────────────────────────────────────────────────────────────────────
@@ -64,11 +67,8 @@ function fmt(n: number | null | undefined, digits = 2) {
 
 const BEWIRTUNG_KATEGORIE_NAME = 'Bewirtungsspesen (Geschäftsessen)';
 const REISEKOSTEN_KATEGORIE_NAME = 'Reisekosten';
-const KM_SATZ = 0.50;              // amtliches Kilometergeld PKW (Stand 2025/2026)
-const DIAETEN_TAGSSATZ = 30;       // Taggeld voll (ab 11 Std.)
-const DIAETEN_STUNDENSATZ = 2.5;   // 1/12 des Taggelds je angefangener Stunde (3–11 Std.)
-const DIAETEN_MIN_STUNDEN = 3;     // unter 3 Std. kein Taggeld
-const DIAETEN_VOLL_STUNDEN = 11;   // ab 11 Std. voller Tagessatz
+// Sätze und Rechner kommen aus @/lib/steuer – vorher lagen hier
+// wortgleiche Kopien aus BuchungForm und BuchungBearbeitenForm.
 
 function fileSize(bytes: number | null) {
   if (!bytes) return '';
@@ -229,7 +229,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
         setBookErr('Bitte die gefahrenen Kilometer angeben.');
         return;
       }
-      if (reiseTyp === 'diaeten' && (!reiseStunden || parseFloat(reiseStunden) < DIAETEN_MIN_STUNDEN)) {
+      if (reiseTyp === 'diaeten' && (!reiseStunden || parseFloat(reiseStunden) <= reiseSaetzeFuer(editing.datum).taggeldMindestStunden)) {
         setBookErr('Für Diäten sind mindestens 3 Stunden Reisedauer erforderlich.');
         return;
       }
@@ -607,12 +607,12 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                             onChange={e => {
                               const km = e.target.value;
                               setReiseKm(km);
-                              const betrag = Math.round((parseFloat(km) || 0) * KM_SATZ * 100) / 100;
+                              const betrag = berechneKilometergeld(parseFloat(km), editing.datum);
                               setEditing(p => ({ ...p, betrag_brutto: betrag, mwst_satz: 0, mwst_betrag: 0, betrag_netto: betrag }));
                             }}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
                           <p className="text-xs text-gray-500">
-                            Amtliches Kilometergeld PKW: {KM_SATZ.toFixed(2)} €/km · keine Vorsteuer (Pauschale)
+                            Amtliches Kilometergeld PKW: {reiseSaetzeFuer(editing.datum).kmSatz.toFixed(2)} €/km · keine Vorsteuer (Pauschale)
                           </p>
                         </div>
                       )}
@@ -624,14 +624,15 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                             onChange={e => {
                               const val = e.target.value;
                               setReiseStunden(val);
-                              const std = parseFloat(val) || 0;
-                              const betrag = std < DIAETEN_MIN_STUNDEN ? 0 : std >= DIAETEN_VOLL_STUNDEN ? DIAETEN_TAGSSATZ : Math.round(Math.ceil(std) * DIAETEN_STUNDENSATZ * 100) / 100;
+                              const betrag = berechneDiaeten(parseFloat(val), editing.datum);
                               setEditing(p => ({ ...p, betrag_brutto: betrag, mwst_satz: 0, mwst_betrag: 0, betrag_netto: betrag }));
                             }}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
                           <p className="text-xs text-gray-500">
-                            Unter 3 Std. kein Taggeld · 3–11 Std.: {DIAETEN_STUNDENSATZ.toFixed(2)} € je angefangener Stunde ·
-                            ab 11 Std. voller Satz {DIAETEN_TAGSSATZ.toFixed(2)} € · keine Vorsteuer (Pauschale)
+                            Bis {reiseSaetzeFuer(editing.datum).taggeldMindestStunden} Std. kein Taggeld ·
+                            darüber {(reiseSaetzeFuer(editing.datum).taggeld / 12).toFixed(2)} € je angefangener Stunde ·
+                            voller Satz {reiseSaetzeFuer(editing.datum).taggeld.toFixed(2)} € ab der 12. angefangenen Stunde ·
+                            Mehrtagesreisen: Gesamtstunden eintragen · keine Vorsteuer (Pauschale)
                           </p>
                         </div>
                       )}

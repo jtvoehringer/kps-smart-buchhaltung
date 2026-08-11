@@ -86,6 +86,8 @@ export default async function UVADruckenPage({
     .from('transactions')
     .select('type, amount_net, vat_rate, vat_amount, booking_date')
     .eq('client_id', client.id)
+    // Privatumsätze zählen steuerlich nicht mit (F-5)
+    .eq('is_private', false)
     .gte('booking_date', dateFrom)
     .lte('booking_date', dateTo);
 

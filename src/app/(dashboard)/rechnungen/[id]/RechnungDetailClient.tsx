@@ -32,6 +32,7 @@ type Invoice = {
   total_gross: number;
   paid_date: string | null;
   transaction_id: string | null;
+  contact_person: string | null;
   notes: string | null;
   customer_id: string | null;
   sent_at: string | null;
@@ -329,8 +330,10 @@ export default function RechnungDetailClient({
             title="Zu den Kundendaten"
           >
             <p className="font-semibold text-gray-800">{invoice.customers.name}</p>
-            {invoice.customers.contact_person && (
-              <p className="text-sm text-gray-600">z.H. {invoice.customers.contact_person}</p>
+            {(invoice.contact_person || invoice.customers.contact_person) && (
+              <p className="text-sm text-gray-600">
+                z.H. {invoice.contact_person || invoice.customers.contact_person}
+              </p>
             )}
             {invoice.customers.street && <p className="text-sm text-gray-500">{invoice.customers.street}</p>}
             {(invoice.customers.zip || invoice.customers.city) && (

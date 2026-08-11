@@ -8,6 +8,7 @@ type CustomerInput = {
   id?: string;
   name: string;
   contact_person: string;
+  payment_days: number;
   street: string;
   zip: string;
   city: string;
@@ -19,7 +20,7 @@ type CustomerInput = {
 };
 
 const EMPTY: CustomerInput = {
-  name: '', contact_person: '', street: '', zip: '', city: '',
+  name: '', contact_person: '', payment_days: 14, street: '', zip: '', city: '',
   country: 'Österreich', email: '', phone: '', uid_number: '', notes: '',
 };
 
@@ -36,7 +37,7 @@ export default function KundeForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  function set(field: keyof CustomerInput, value: string) {
+  function set(field: keyof CustomerInput, value: string | number) {
     setForm(f => ({ ...f, [field]: value }));
   }
 
@@ -50,6 +51,7 @@ export default function KundeForm({
       client_id:    clientId,
       name:         form.name.trim(),
       contact_person: form.contact_person.trim() || null,
+      payment_days:   Number(form.payment_days) || 0,
       street:       form.street.trim()        || null,
       zip:          form.zip.trim()           || null,
       city:         form.city.trim()          || null,
@@ -126,7 +128,7 @@ export default function KundeForm({
       </div>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-gray-800">Kontakt</h2>
+        <h2 className="font-semibold text-gray-800">Kontakt &amp; Zahlung</h2>
 
         <div className="flex gap-3">
           <div className="flex-1">
@@ -139,6 +141,21 @@ export default function KundeForm({
             <input type="tel" placeholder="+43 1 234 567" value={form.phone}
               onChange={e => set('phone', e.target.value)} className={inputCls} />
           </div>
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-gray-500 block mb-1">
+            Zahlungsziel in Tagen <span className="text-red-400">*</span>
+          </label>
+          <input type="number" required min={0} max={365} step={1}
+            value={form.payment_days}
+            onChange={e => set('payment_days', e.target.value === '' ? 0 : Number(e.target.value))}
+            className="w-40 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+          <p className="text-xs text-gray-400 mt-1">
+            {Number(form.payment_days) === 0
+              ? 'Zahlbar bei Erhalt – die Rechnung ist ab dem Folgetag überfällig.'
+              : `Fälligkeit = Rechnungsdatum + ${Number(form.payment_days)} Tage. 0 bedeutet zahlbar bei Erhalt.`}
+          </p>
         </div>
       </div>
 

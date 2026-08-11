@@ -9,6 +9,7 @@ type Customer = {
   id: string;
   name: string;
   contact_person: string | null;
+  payment_days: number;
   street: string | null;
   zip: string | null;
   city: string | null;
@@ -37,11 +38,18 @@ type InvoiceItem = {
   berater?: string;
   leistung_von?: string | null;
   leistung_bis?: string | null;
+  // Rohtext der Zahlenfelder. Nur für die Eingabe: erlaubt Komma als
+  // Dezimaltrennzeichen und ein leeres Feld, ohne dass eine 0 stehen
+  // bleibt, hinter die man dann tippt ("033,25"). Wird vor dem
+  // Speichern entfernt.
+  menge_text?: string;
+  preis_text?: string;
 };
 
 type ExistingInvoice = {
   id: string;
   invoice_number: string | null;
+  contact_person?: string | null;
   invoice_date: string;
   due_date: string;
   status: string;
@@ -57,6 +65,7 @@ type ExistingInvoice = {
 type InvoicePayload = {
   client_id: string;
   customer_id: string;
+  contact_person: string | null;
   invoice_date: string;
   due_date: string;
   items: InvoiceItem[];
@@ -68,6 +77,16 @@ type InvoicePayload = {
   invoice_number: string | null;
   status: 'draft' | 'open';
 };
+
+// Gängige Einheiten als Vorschlagsliste. Das Feld bleibt frei
+// beschreibbar – die Liste ist nur eine Abkürzung.
+const EINHEITEN = ['Stk.', 'Std.', 'Tag(e)', 'Pauschale', 'km', 'kg', 'm', 'm²', 'l', 'Monat(e)', 'Jahr(e)'];
+
+/** Akzeptiert "33,25" und "33.25". Leerer Text ergibt 0. */
+function zahl(text: string): number {
+  const n = parseFloat(String(text).replace(',', '.'));
+  return Number.isFinite(n) ? n : 0;
+}
 
 const EMPTY_ITEM: InvoiceItem = {
   description: '', quantity: 1, unit: 'Stk.', unit_price: 0,
@@ -90,20 +109,41 @@ export default function RechnungForm({
   customers,
   branding,
   existing,
+  bookingMode,
 }: {
   clientId: string;
   customers: Customer[];
   branding: Branding | null;
   existing?: ExistingInvoice;
+  /** 'netto' | 'brutto' aus den Einstellungen – steuert die Spalte je Position */
+  bookingMode: string;
 }) {
   const router = useRouter();
   const supabase = createClient();
 
   const paymentDays = branding?.payment_days ?? 14;
 
+  const istNettoModus = bookingMode !== 'brutto';
+
   const [customerId, setCustomerId] = useState(existing?.customer_id ?? '');
   const [invoiceDate, setInvoiceDate] = useState(existing?.invoice_date ?? todayStr());
   const [dueDate, setDueDate] = useState(existing?.due_date ?? addDays(todayStr(), paymentDays));
+  // z.H. – wird aus dem Kundenstamm vorbelegt und kann je Rechnung
+  // abweichen, ohne den Stammsatz zu ändern.
+  const [contactPerson, setContactPerson] = useState(existing?.contact_person ?? '');
+
+  const gewaehlterKunde = customers.find(c => c.id === customerId) ?? null;
+  // Zahlungsziel kommt vom Kunden, nicht mehr global aus den Einstellungen.
+  const zahlungsziel = gewaehlterKunde?.payment_days ?? paymentDays;
+
+  /** Kundenwechsel: z.H. und Fälligkeit aus dem Stammsatz übernehmen. */
+  function kundeWaehlen(id: string) {
+    setCustomerId(id);
+    const k = customers.find(c => c.id === id);
+    if (!k) return;
+    if (!existing) setContactPerson(k.contact_person ?? '');
+    setDueDate(addDays(invoiceDate, k.payment_days ?? paymentDays));
+  }
   const [items, setItems] = useState<InvoiceItem[]>(
     existing?.items?.length ? existing.items : [{ ...EMPTY_ITEM }]
   );
@@ -121,8 +161,8 @@ export default function RechnungForm({
   const totalGross = items.reduce((s, i) => s + i.amount_gross, 0);
 
   function recalcItem(item: InvoiceItem): InvoiceItem {
-    const net   = Math.round(item.quantity * item.unit_price * 100) / 100;
-    const vat   = calcVat(net, item.vat_rate);
+    const net = Math.round(item.quantity * item.unit_price * 100) / 100;
+    const vat = calcVat(net, item.vat_rate);
     return { ...item, amount_net: net, amount_vat: vat, amount_gross: net + vat };
   }
 
@@ -162,9 +202,14 @@ export default function RechnungForm({
     const payload: InvoicePayload = {
       client_id:      clientId,
       customer_id:    customerId,
+      contact_person: contactPerson.trim() || null,
       invoice_date:   invoiceDate,
       due_date:       dueDate,
-      items:          items,
+      // Rohtext der Eingabefelder gehört nicht in die Datenbank
+      items:          items.map(({ menge_text, preis_text, ...rest }) => {
+        void menge_text; void preis_text;
+        return rest;
+      }),
       total_net:      Math.round(totalNet   * 100) / 100,
       total_vat:      Math.round(totalVat   * 100) / 100,
       total_gross:    Math.round(totalGross * 100) / 100,
@@ -249,34 +294,54 @@ export default function RechnungForm({
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <label className="text-xs font-medium text-gray-500 block mb-1">Kunde <span className="text-red-400">*</span></label>
-            <select value={customerId} onChange={e => setCustomerId(e.target.value)} className={inputCls}>
+            <select value={customerId} onChange={e => kundeWaehlen(e.target.value)} className={inputCls}>
               <option value="">— Kunden auswählen —</option>
               {customers.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.contact_person ? `${c.name} (${c.contact_person})` : c.name}
-                </option>
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
+          </div>
+          <div className="col-span-2">
+            <label className="text-xs font-medium text-gray-500 block mb-1">
+              z.H. / Ansprechpartner <span className="text-gray-300">(optional)</span>
+            </label>
+            <input type="text" placeholder="z.B. Hrn. AL Ing. Harald Nirschl"
+              value={contactPerson} onChange={e => setContactPerson(e.target.value)}
+              className={inputCls} />
+            <p className="text-xs text-gray-400 mt-1">
+              Wird beim Kundenwechsel aus dem Kundenstamm übernommen und erscheint auf der
+              Rechnung als „z.H."-Zeile. Änderungen hier gelten nur für diese Rechnung.
+            </p>
           </div>
           <div>
             <label className="text-xs font-medium text-gray-500 block mb-1">Rechnungsdatum</label>
             <input type="date" value={invoiceDate}
               onChange={e => {
                 setInvoiceDate(e.target.value);
-                setDueDate(addDays(e.target.value, paymentDays));
+                setDueDate(addDays(e.target.value, zahlungsziel));
               }}
               className={inputCls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 block mb-1">Zahlungsziel</label>
+            <label className="text-xs font-medium text-gray-500 block mb-1">Fällig am</label>
             <input type="date" value={dueDate}
               onChange={e => setDueDate(e.target.value)}
               className={inputCls} />
+            <p className="text-xs text-gray-400 mt-1">
+              {gewaehlterKunde
+                ? (zahlungsziel === 0
+                    ? 'Zahlbar bei Erhalt (laut Kundenstamm)'
+                    : `${zahlungsziel} Tage laut Kundenstamm`)
+                : 'Zahlungsziel wird beim Kunden hinterlegt'}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Positionen */}
+      <datalist id="einheiten-liste">
+        {EINHEITEN.map(e => <option key={e} value={e} />)}
+      </datalist>
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
         <h2 className="font-semibold text-gray-800 mb-4">Positionen</h2>
         <div className="space-y-3">
@@ -304,20 +369,29 @@ export default function RechnungForm({
               <div className="grid grid-cols-5 gap-2 pl-12">
                 <div>
                   <label className="text-xs text-gray-400 block mb-0.5">Menge</label>
-                  <input type="number" min={0} step="0.01" value={item.quantity}
-                    onChange={e => updateItem(idx, { quantity: parseFloat(e.target.value) || 0 })}
+                  {/* Text statt number: erlaubt Komma und ein leeres Feld.
+                      Bei type=number blieb nach dem Leeren eine 0 stehen,
+                      hinter die weitergetippt wurde ("033,25"). */}
+                  <input
+                    type="text" inputMode="decimal" placeholder="1"
+                    value={item.menge_text ?? String(item.quantity ?? '')}
+                    onChange={e => updateItem(idx, { menge_text: e.target.value, quantity: zahl(e.target.value) })}
+                    onBlur={() => updateItem(idx, { menge_text: undefined })}
                     className={inputCls} />
                 </div>
                 <div>
                   <label className="text-xs text-gray-400 block mb-0.5">Einheit</label>
-                  <input type="text" placeholder="Stk." value={item.unit}
+                  <input type="text" list="einheiten-liste" placeholder="Stk." value={item.unit}
                     onChange={e => updateItem(idx, { unit: e.target.value })}
                     className={inputCls} />
                 </div>
                 <div>
                   <label className="text-xs text-gray-400 block mb-0.5">Einzelpreis (netto)</label>
-                  <input type="number" min={0} step="0.01" value={item.unit_price}
-                    onChange={e => updateItem(idx, { unit_price: parseFloat(e.target.value) || 0 })}
+                  <input
+                    type="text" inputMode="decimal" placeholder="0,00"
+                    value={item.preis_text ?? String(item.unit_price ?? '')}
+                    onChange={e => updateItem(idx, { preis_text: e.target.value, unit_price: zahl(e.target.value) })}
+                    onBlur={() => updateItem(idx, { preis_text: undefined })}
                     className={inputCls} />
                 </div>
                 <div>
@@ -332,9 +406,12 @@ export default function RechnungForm({
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-0.5">Gesamt brutto</label>
+                  {/* Folgt dem Buchungsmodus aus den Einstellungen */}
+                  <label className="text-xs text-gray-400 block mb-0.5">
+                    {istNettoModus ? 'Gesamt netto' : 'Gesamt brutto'}
+                  </label>
                   <div className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-right font-medium text-gray-700">
-                    {formatCurrency(item.amount_gross)}
+                    {formatCurrency(istNettoModus ? item.amount_net : item.amount_gross)}
                   </div>
                 </div>
               </div>
@@ -385,7 +462,10 @@ export default function RechnungForm({
             <span>{formatCurrency(totalGross)}</span>
           </div>
           <div className="pt-2 text-xs text-gray-400">
-            Zahlungskonditionen: Innerhalb von {paymentDays} Tagen netto
+            Zahlungskonditionen: {zahlungsziel === 0
+              ? 'zahlbar bei Erhalt'
+              : `innerhalb von ${zahlungsziel} Tagen netto`}
+            {gewaehlterKunde && <span className="text-gray-300"> · laut Kundenstamm</span>}
           </div>
         </div>
       </div>

@@ -55,6 +55,7 @@ export default async function KundeBearbeitenPage({ params }: { params: Promise<
     id:           customer.id,
     name:         customer.name          ?? '',
     contact_person: customer.contact_person ?? '',
+    payment_days:   customer.payment_days ?? 14,
     street:       customer.street        ?? '',
     zip:          customer.zip           ?? '',
     city:         customer.city          ?? '',
