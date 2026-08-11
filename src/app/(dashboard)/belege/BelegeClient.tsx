@@ -62,6 +62,8 @@ function fmt(n: number | null | undefined, digits = 2) {
   return n.toLocaleString('de-AT', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
+const BEWIRTUNG_KATEGORIE_NAME = 'Bewirtungsspesen (Geschäftsessen)';
+
 function fileSize(bytes: number | null) {
   if (!bytes) return '';
   if (bytes < 1024)        return `${bytes} B`;
@@ -84,6 +86,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
   const [selected, setSelected]     = useState<Receipt | null>(null);
   const [editing, setEditing]       = useState<Partial<OcrData>>({});
   const [categoryId, setCategoryId] = useState('');
+  const [bewirtungAnlass, setBewirtungAnlass]         = useState('');
+  const [bewirtungTeilnehmer, setBewirtungTeilnehmer] = useState('');
   const [booking, setBooking]       = useState(false);
   const [bookErr, setBookErr]       = useState('');
 
@@ -178,14 +182,22 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
     setSelected(r);
     setEditing(r.ocr_data ?? {});
     setCategoryId(suggestCategoryId(r.ocr_data?.typ));
+    setBewirtungAnlass('');
+    setBewirtungTeilnehmer('');
     setBookErr('');
   }
+
+  const isBewirtung = categories.find(c => c.id === categoryId)?.name === BEWIRTUNG_KATEGORIE_NAME;
 
   // ── Als Buchung übernehmen ────────────────────────────────────────────────
 
   async function handleBook() {
     if (!selected) return;
     if (!categoryId) { setBookErr('Bitte eine Kategorie auswählen.'); return; }
+    if (isBewirtung && (!bewirtungAnlass.trim() || !bewirtungTeilnehmer.trim())) {
+      setBookErr('Bei Bewirtungsspesen bitte Anlass und Teilnehmer angeben (Voraussetzung für die steuerliche Abzugsfähigkeit).');
+      return;
+    }
     setBooking(true);
     setBookErr('');
 
@@ -209,6 +221,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
         // amount_gross NICHT mitschicken: ist in der DB eine GENERATED ALWAYS-Spalte
         // (amount_net + vat_amount), Postgres berechnet sie automatisch.
         vat_rate:     Number(d.mwst_satz ?? 20) as 0 | 10 | 13 | 20,
+        bewirtung_anlass:     isBewirtung ? bewirtungAnlass.trim() : null,
+        bewirtung_teilnehmer: isBewirtung ? bewirtungTeilnehmer.trim() : null,
       })
       .select('id')
       .single();
@@ -470,6 +484,30 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                         ))}
                     </select>
                   </div>
+
+
+                  {/* Bewirtungsspesen: Pflichtangaben für steuerliche Abzugsfähigkeit */}
+                  {isBewirtung && (
+                    <div className="col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+                      <p className="text-xs text-amber-800 leading-relaxed">
+                        Bewirtungsspesen sind einkommensteuerlich idR nur zu <strong>50 % abzugsfähig</strong>
+                        (§ 20 EStG), die Vorsteuer bleibt idR zur Gänze abzugsfähig. Voraussetzung ist die
+                        Dokumentation von Anlass und Teilnehmern – beides ist daher hier verpflichtend.
+                      </p>
+                      <div>
+                        <label className="block text-xs font-medium text-amber-900 mb-1">Anlass der Bewirtung *</label>
+                        <input type="text" required placeholder="z.B. Projektbesprechung mit Kunde XY"
+                          value={bewirtungAnlass} onChange={e => setBewirtungAnlass(e.target.value)}
+                          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-amber-900 mb-1">Teilnehmer *</label>
+                        <input type="text" required placeholder="z.B. Max Mustermann (Kunde XY GmbH), Jörgen Voehringer"
+                          value={bewirtungTeilnehmer} onChange={e => setBewirtungTeilnehmer(e.target.value)}
+                          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                      </div>
+                    </div>
+                  )}
 
                   {/* Datum */}
                   <div>

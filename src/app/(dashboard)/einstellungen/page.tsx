@@ -98,7 +98,7 @@ export default async function EinstellungenPage() {
         <h1 className="text-2xl font-bold text-[#35609E]">Einstellungen</h1>
         <p className="text-gray-500 text-sm">Buchführungs-Einstellungen für {client.company_name}</p>
       </div>
-      <EinstellungenForm client={client} branding={branding ?? null} currentYearRevenue={currentYearRevenue} />
+      <EinstellungenForm client={client} branding={branding ?? null} currentYearRevenue={currentYearRevenue} userEmail={user.email ?? ''} />
     </div>
   );
 }

@@ -120,6 +120,8 @@ export type Transaction = {
   account_id: string | null;       // Migration 016
   is_private: boolean;             // Migration 016
   is_reconciled: boolean;          // Migration 016
+  bewirtung_anlass: string | null;      // Migration 017
+  bewirtung_teilnehmer: string | null;  // Migration 017
   created_at: string;
   updated_at: string;
   // Joins (optional)
@@ -477,6 +479,8 @@ export type Database = {
           account_id?: string | null;
           is_private?: boolean;
           is_reconciled?: boolean;
+          bewirtung_anlass?: string | null;
+          bewirtung_teilnehmer?: string | null;
         };
         Update: Partial<Transaction>;
         Relationships: [

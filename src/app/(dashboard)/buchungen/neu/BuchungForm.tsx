@@ -13,6 +13,7 @@ type Category = { id: string; name: string; type: string; vat_rate: number };
 const EAUTO_HOECHSTGRENZE = 40000;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 const MAX_SIZE_MB = 10;
+const BEWIRTUNG_KATEGORIE_NAME = 'Bewirtungsspesen (Geschäftsessen)';
 
 export default function BuchungForm({
   clientId,
@@ -39,12 +40,15 @@ export default function BuchungForm({
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState('');
   const [isEAuto, setIsEAuto]         = useState(false);
+  const [bewirtungAnlass, setBewirtungAnlass]         = useState('');
+  const [bewirtungTeilnehmer, setBewirtungTeilnehmer] = useState('');
 
   // Belegauswahl (optional)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileError, setFileError]         = useState('');
 
   const filteredCategories = categories.filter(c => c.type === type);
+  const isBewirtung = categories.find(c => c.id === categoryId)?.name === BEWIRTUNG_KATEGORIE_NAME;
 
   useEffect(() => {
     const cat = categories.find(c => c.id === categoryId);
@@ -107,6 +111,10 @@ export default function BuchungForm({
       setError('Bitte einen gültigen Betrag eingeben.');
       return;
     }
+    if (isBewirtung && (!bewirtungAnlass.trim() || !bewirtungTeilnehmer.trim())) {
+      setError('Bei Bewirtungsspesen bitte Anlass und Teilnehmer angeben (Voraussetzung für die steuerliche Abzugsfähigkeit).');
+      return;
+    }
     setLoading(true);
     setError('');
 
@@ -129,6 +137,8 @@ export default function BuchungForm({
         vat_amount:   Math.round(vatAmtSaved * 100) / 100,
         booking_date: bookingDate,
         description:  descFinal,
+        bewirtung_anlass:     isBewirtung ? bewirtungAnlass.trim() : null,
+        bewirtung_teilnehmer: isBewirtung ? bewirtungTeilnehmer.trim() : null,
       })
       .select('id')
       .single();
@@ -247,6 +257,30 @@ export default function BuchungForm({
           USt-Betrag: <span className="font-medium">€ {displayVat}</span>
           {isBrutto && <span className="ml-3">Netto: <span className="font-medium">€ {displayNet}</span></span>}
         </p>
+      )}
+
+
+      {/* Bewirtungsspesen: Pflichtangaben für steuerliche Abzugsfähigkeit */}
+      {isBewirtung && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+          <p className="text-xs text-amber-800 leading-relaxed">
+            Bewirtungsspesen sind einkommensteuerlich idR nur zu <strong>50 % abzugsfähig</strong>
+            (§ 20 EStG), die Vorsteuer bleibt idR zur Gänze abzugsfähig. Voraussetzung ist die
+            Dokumentation von Anlass und Teilnehmern – beides ist daher hier verpflichtend.
+          </p>
+          <div>
+            <label className="block text-xs font-medium text-amber-900 mb-1">Anlass der Bewirtung *</label>
+            <input type="text" required={isBewirtung} placeholder="z.B. Projektbesprechung mit Kunde XY"
+              value={bewirtungAnlass} onChange={e => setBewirtungAnlass(e.target.value)}
+              className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-amber-900 mb-1">Teilnehmer *</label>
+            <input type="text" required={isBewirtung} placeholder="z.B. Max Mustermann (Kunde XY GmbH), Jörgen Voehringer"
+              value={bewirtungTeilnehmer} onChange={e => setBewirtungTeilnehmer(e.target.value)}
+              className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+          </div>
+        </div>
       )}
 
       {/* E-Auto Toggle */}

@@ -47,7 +47,7 @@ function buildNav(role: string): NavEntry[] {
   // bewusst vor Offenen Posten, Lieferanten unterhalb Kunden).
   const rest: NavEntry[] = [
     { kind: 'link', href: '/uva',             label: 'UVA-Meldung',    icon: Receipt },
-    { kind: 'link', href: '/rechnungen',      label: 'Rechnungen',     icon: FileText },
+    { kind: 'link', href: '/rechnungen',      label: 'Fakturieren',    icon: FileText },
     { kind: 'link', href: '/kunden',          label: 'Kunden',         icon: User },
     { kind: 'link', href: '/lieferanten',     label: 'Lieferanten',    icon: Truck },
     { kind: 'link', href: '/offene-posten',   label: 'Offene Posten',  icon: Wallet },

@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import AppEinladungCard from './AppEinladungCard';
 
 type UstStatus = 'kleinunternehmer' | 'regelbesteuerung';
 
@@ -47,10 +48,12 @@ export default function EinstellungenForm({
   client,
   branding,
   currentYearRevenue,
+  userEmail,
 }: {
   client: ClientData;
   branding: BrandingData;
   currentYearRevenue: number;
+  userEmail: string;
 }) {
   const supabase = createClient();
   const router = useRouter();
@@ -540,6 +543,8 @@ export default function EinstellungenForm({
           className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] resize-none"
         />
       </div>
+
+      <AppEinladungCard defaultEmail={userEmail} />
 
       {/* Meldungen */}
       {error && (
