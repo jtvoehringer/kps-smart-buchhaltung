@@ -8,7 +8,7 @@ import { formatCurrency, calcVat } from '@/lib/utils';
 type Customer = {
   id: string;
   name: string;
-  company_name: string | null;
+  contact_person: string | null;
   street: string | null;
   zip: string | null;
   city: string | null;
@@ -253,7 +253,7 @@ export default function RechnungForm({
               <option value="">— Kunden auswählen —</option>
               {customers.map(c => (
                 <option key={c.id} value={c.id}>
-                  {c.company_name ? `${c.company_name} (${c.name})` : c.name}
+                  {c.contact_person ? `${c.name} (${c.contact_person})` : c.name}
                 </option>
               ))}
             </select>

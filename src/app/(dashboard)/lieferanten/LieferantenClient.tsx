@@ -9,7 +9,7 @@ import { Truck, Pencil, X } from 'lucide-react';
 type Supplier = {
   id: string;
   name: string;
-  company_name: string | null;
+  contact_person: string | null;
   street: string | null;
   zip: string | null;
   city: string | null;
@@ -35,7 +35,7 @@ export default function LieferantenClient({
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const filtered = suppliers.filter(s =>
-    `${s.name} ${s.company_name ?? ''} ${s.email ?? ''} ${s.city ?? ''}`.toLowerCase()
+    `${s.name} ${s.contact_person ?? ''} ${s.email ?? ''} ${s.city ?? ''}`.toLowerCase()
       .includes(search.toLowerCase())
   );
 
@@ -94,8 +94,8 @@ export default function LieferantenClient({
                   <td className="px-4 py-3">
                     <Link href={`/lieferanten/${s.id}`} className="group block">
                       <div className="font-medium text-gray-800 group-hover:text-[#35609E] transition-colors">{s.name}</div>
-                      {s.company_name && (
-                        <div className="text-xs text-gray-400">{s.company_name}</div>
+                      {s.contact_person && (
+                        <div className="text-xs text-gray-400">{s.contact_person}</div>
                       )}
                     </Link>
                   </td>

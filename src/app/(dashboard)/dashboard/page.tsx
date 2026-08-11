@@ -60,7 +60,7 @@ export default async function DashboardPage() {
       .order('booking_date', { ascending: true }),
     supabase
       .from('invoices')
-      .select('id, invoice_number, due_date, total_gross, customers(id, name, company_name)')
+      .select('id, invoice_number, due_date, total_gross, customers(id, name, contact_person)')
       .eq('client_id', client.id)
       .eq('status', 'open'),
     supabase

@@ -25,7 +25,7 @@ export default async function RechnungenPage() {
     .select(`
       id, invoice_number, invoice_date, due_date, status,
       total_net, total_vat, total_gross, paid_date,
-      customers ( id, name, company_name )
+      customers ( id, name, contact_person )
     `)
     .eq('client_id', membership.client_id)
     .order('invoice_date', { ascending: false });

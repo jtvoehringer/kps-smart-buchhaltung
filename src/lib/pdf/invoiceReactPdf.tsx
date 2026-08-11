@@ -54,7 +54,7 @@ export type InvoicePdfProps = {
     'invoice_number' | 'invoice_date' | 'due_date' | 'total_net' | 'total_vat' | 'total_gross' |
     'notes' | 'footer_override'
   > & { items: InvoiceItem[] };
-  customer: Pick<Customer, 'name' | 'company_name' | 'street' | 'zip' | 'city' | 'uid_number'> | null;
+  customer: Pick<Customer, 'name' | 'contact_person' | 'street' | 'zip' | 'city' | 'uid_number'> | null;
   branding: ClientBranding | null;
   senderCompanyName: string;
   senderUid: string | null;
@@ -99,8 +99,8 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
           <View style={styles.recipientBlock}>
             <Text style={styles.recipientLabel}>Rechnungsempfänger</Text>
             <View style={[styles.recipientBox, { borderLeftColor: color }]}>
-              {customer.company_name && <Text style={styles.rname}>{customer.company_name}</Text>}
               <Text style={styles.rname}>{customer.name}</Text>
+              {customer.contact_person && <Text style={styles.rdetail}>z.H. {customer.contact_person}</Text>}
               {customer.street && <Text style={styles.rdetail}>{customer.street}</Text>}
               {(customer.zip || customer.city) && (
                 <Text style={styles.rdetail}>{[customer.zip, customer.city].filter(Boolean).join(' ')}</Text>

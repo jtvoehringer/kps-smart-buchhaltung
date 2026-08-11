@@ -48,7 +48,7 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
     berater?: string; leistung_von?: string | null; leistung_bis?: string | null;
   }>;
   const c      = invoice.customers as {
-    name: string; company_name: string | null;
+    name: string; contact_person: string | null;
     street: string | null; zip: string | null; city: string | null;
     country: string; uid_number: string | null; email: string | null;
   } | null;
@@ -186,8 +186,8 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
             <div className="recipient-block">
               <div className="recipient-label">Rechnungsempfänger</div>
               <div className="recipient-box">
-                {c.company_name && <div className="rname">{c.company_name}</div>}
-                <div className="rname" style={{ fontWeight: c.company_name ? 400 : 600 }}>{c.name}</div>
+                <div className="rname" style={{ fontWeight: 600 }}>{c.name}</div>
+                {c.contact_person && <div className="rdetail">z.H. {c.contact_person}</div>}
                 {c.street    && <div className="rdetail">{c.street}</div>}
                 {(c.zip || c.city) && <div className="rdetail">{[c.zip, c.city].filter(Boolean).join(' ')}</div>}
               </div>

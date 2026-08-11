@@ -192,8 +192,10 @@ export type Attachment = {
 export type Customer = {
   id: string;
   client_id: string;
+  /** Bezeichnung: Firmenwortlaut oder Vor- und Nachname. Rechnungsempfänger. */
   name: string;
-  company_name: string | null;
+  /** Ansprechpartner, z.B. "Fr. Maria Muster" (Migration 023) */
+  contact_person: string | null;
   street: string | null;
   zip: string | null;
   city: string | null;
@@ -210,8 +212,10 @@ export type Customer = {
 export type Supplier = {
   id: string;
   client_id: string;
+  /** Bezeichnung: Firmenwortlaut oder Vor- und Nachname. */
   name: string;
-  company_name: string | null;
+  /** Ansprechpartner (Migration 023) */
+  contact_person: string | null;
   street: string | null;
   zip: string | null;
   city: string | null;
@@ -262,7 +266,7 @@ export type Invoice = {
   created_at: string;
   updated_at: string;
   // Joins (optional)
-  customers?: Pick<Customer, 'id' | 'name' | 'company_name'> | null;
+  customers?: Pick<Customer, 'id' | 'name' | 'contact_person'> | null;
 };
 
 export type IncomingInvoice = {
@@ -578,7 +582,7 @@ export type Database = {
         Insert: {
           client_id: string;
           name: string;
-          company_name?: string | null;
+          contact_person?: string | null;
           street?: string | null;
           zip?: string | null;
           city?: string | null;
@@ -668,7 +672,7 @@ export type Database = {
         Insert: {
           client_id: string;
           name: string;
-          company_name?: string | null;
+          contact_person?: string | null;
           street?: string | null;
           zip?: string | null;
           city?: string | null;

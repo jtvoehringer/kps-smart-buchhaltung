@@ -20,7 +20,7 @@ type OpenInvoice = {
   invoice_number: string;
   due_date: string;
   total_gross: number;
-  customers: { id: string; name: string; company_name: string | null } | null;
+  customers: { id: string; name: string; contact_person: string | null } | null;
 };
 
 type OpenIncoming = {
@@ -87,7 +87,7 @@ export default function DashboardClient({
         .map(i => ({
           id: i.id,
           kind: 'out' as const,
-          label: i.customers?.company_name || i.customers?.name || i.invoice_number || '—',
+          label: i.customers?.name || i.invoice_number || '—',
           dueDate: i.due_date,
           amount: Number(i.total_gross),
         })),

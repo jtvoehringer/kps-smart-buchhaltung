@@ -11,7 +11,7 @@ import {
 import NeueEingangsrechnungForm from './NeueEingangsrechnungForm';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
-type Supplier = { id: string; name: string; company_name: string | null };
+type Supplier = { id: string; name: string; contact_person: string | null };
 
 type OutgoingInvoice = {
   id: string;
@@ -22,7 +22,7 @@ type OutgoingInvoice = {
   total_net: number;
   total_vat: number;
   total_gross: number;
-  customers: { id: string; name: string; company_name: string | null } | null;
+  customers: { id: string; name: string; contact_person: string | null } | null;
 };
 
 type IncomingInvoice = {
@@ -238,7 +238,7 @@ export default function OffenePostenClient({
                           <td className="px-4 py-3 text-gray-700">
                             {inv.customers ? (
                               <Link href={`/kunden/${inv.customers.id}`} className="hover:text-[#35609E] transition-colors">
-                                {inv.customers.company_name ?? inv.customers.name}
+                                {inv.customers.name}
                               </Link>
                             ) : '—'}
                           </td>

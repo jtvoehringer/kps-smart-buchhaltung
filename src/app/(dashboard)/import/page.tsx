@@ -47,7 +47,7 @@ export default async function ImportPage() {
   // Offene Ausgangsrechnungen (für Abgleich mit Zahlungseingängen)
   const { data: invoicesRaw } = await supabase
     .from('invoices')
-    .select('id, invoice_number, total_net, total_vat, total_gross, customers(name, company_name)')
+    .select('id, invoice_number, total_net, total_vat, total_gross, customers(name)')
     .eq('client_id', clientId)
     .eq('status', 'open');
 
@@ -56,7 +56,7 @@ export default async function ImportPage() {
     return {
       id: inv.id,
       invoice_number: inv.invoice_number,
-      customer_name: cust?.company_name || cust?.name || '',
+      customer_name: cust?.name || '',
       amount_gross: Number(inv.total_gross),
       amount_net: Number(inv.total_net),
       vat_amount: Number(inv.total_vat),

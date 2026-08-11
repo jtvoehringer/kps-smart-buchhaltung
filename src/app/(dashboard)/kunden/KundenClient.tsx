@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 type Customer = {
   id: string;
   name: string;
-  company_name: string | null;
+  contact_person: string | null;
   street: string | null;
   zip: string | null;
   city: string | null;
@@ -33,7 +33,7 @@ export default function KundenClient({
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const filtered = customers.filter(c =>
-    `${c.name} ${c.company_name ?? ''} ${c.email ?? ''} ${c.city ?? ''}`.toLowerCase()
+    `${c.name} ${c.contact_person ?? ''} ${c.email ?? ''} ${c.city ?? ''}`.toLowerCase()
       .includes(search.toLowerCase())
   );
 
@@ -94,8 +94,8 @@ export default function KundenClient({
                   <td className="px-4 py-3">
                     <Link href={`/kunden/${c.id}`} className="group block">
                       <div className="font-medium text-gray-800 group-hover:text-[#35609E] transition-colors">{c.name}</div>
-                      {c.company_name && (
-                        <div className="text-xs text-gray-400">{c.company_name}</div>
+                      {c.contact_person && (
+                        <div className="text-xs text-gray-400">{c.contact_person}</div>
                       )}
                     </Link>
                   </td>

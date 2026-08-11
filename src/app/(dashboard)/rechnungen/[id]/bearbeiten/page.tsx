@@ -30,7 +30,7 @@ export default async function RechnungBearbeitenPage({ params }: { params: Promi
       .eq('client_id', membership.client_id)
       .maybeSingle(),
     admin.from('customers')
-      .select('id,name,company_name,street,zip,city,country,uid_number,email')
+      .select('id,name,contact_person,street,zip,city,country,uid_number,email')
       .eq('client_id', membership.client_id).eq('is_active', true).order('name'),
     admin.from('client_branding')
       .select('invoice_prefix,invoice_next_nr,invoice_nr_digits,payment_days')

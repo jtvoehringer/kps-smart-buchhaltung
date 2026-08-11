@@ -26,7 +26,7 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
 
   const [{ data: invoice }, { data: branding }, { data: incomeCategories }] = await Promise.all([
     admin.from('invoices')
-      .select(`*, customers(id,name,company_name,street,zip,city,country,uid_number,email)`)
+      .select(`*, customers(id,name,contact_person,street,zip,city,country,uid_number,email)`)
       .eq('id', id)
       .eq('client_id', membership.client_id)
       .maybeSingle(),

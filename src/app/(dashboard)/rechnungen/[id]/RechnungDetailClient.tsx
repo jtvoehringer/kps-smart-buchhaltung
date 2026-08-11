@@ -37,7 +37,7 @@ type Invoice = {
   sent_at: string | null;
   sent_to: string | null;
   customers: {
-    id: string; name: string; company_name: string | null;
+    id: string; name: string; contact_person: string | null;
     street: string | null; zip: string | null; city: string | null;
     country: string; uid_number: string | null; email: string | null;
   } | null;
@@ -328,10 +328,10 @@ export default function RechnungDetailClient({
             className="mb-8 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg inline-block min-w-[220px] transition-colors"
             title="Zu den Kundendaten"
           >
-            {invoice.customers.company_name && (
-              <p className="font-semibold text-gray-800">{invoice.customers.company_name}</p>
+            <p className="font-semibold text-gray-800">{invoice.customers.name}</p>
+            {invoice.customers.contact_person && (
+              <p className="text-sm text-gray-600">z.H. {invoice.customers.contact_person}</p>
             )}
-            <p className="text-gray-700">{invoice.customers.name}</p>
             {invoice.customers.street && <p className="text-sm text-gray-500">{invoice.customers.street}</p>}
             {(invoice.customers.zip || invoice.customers.city) && (
               <p className="text-sm text-gray-500">

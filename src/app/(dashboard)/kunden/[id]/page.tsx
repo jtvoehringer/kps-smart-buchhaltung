@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import KundeForm from '../KundeForm';
+import StammsatzRechnungen, { type StammsatzRechnung } from '../../StammsatzRechnungen';
 
 export default async function KundeBearbeitenPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -32,10 +33,28 @@ export default async function KundeBearbeitenPage({ params }: { params: Promise<
 
   if (!customer) notFound();
 
+  // Alle Rechnungen dieses Kunden – Grundlage für die Auswertung je Kunde
+  const { data: rechnungen } = await admin
+    .from('invoices')
+    .select('id, invoice_number, invoice_date, due_date, status, total_gross')
+    .eq('client_id', membership.client_id)
+    .eq('customer_id', id)
+    .order('invoice_date', { ascending: false });
+
+  const zeilen: StammsatzRechnung[] = (rechnungen ?? []).map(r => ({
+    id:      r.id,
+    nummer:  r.invoice_number,
+    datum:   r.invoice_date,
+    faellig: r.due_date,
+    status:  r.status,
+    brutto:  Number(r.total_gross),
+    href:    `/rechnungen/${r.id}`,
+  }));
+
   const initial = {
     id:           customer.id,
     name:         customer.name          ?? '',
-    company_name: customer.company_name  ?? '',
+    contact_person: customer.contact_person ?? '',
     street:       customer.street        ?? '',
     zip:          customer.zip           ?? '',
     city:         customer.city          ?? '',
@@ -56,6 +75,14 @@ export default async function KundeBearbeitenPage({ params }: { params: Promise<
         <h1 className="text-2xl font-bold text-[#35609E]">{customer.name}</h1>
       </div>
       <KundeForm clientId={membership.client_id} initial={initial} />
+
+      <div className="mt-5">
+        <StammsatzRechnungen
+          titel="Rechnungen"
+          zeilen={zeilen}
+          leerText="Für diesen Kunden wurde noch keine Rechnung erstellt."
+        />
+      </div>
     </div>
   );
 }

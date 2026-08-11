@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Plus, Paperclip, Loader2 } from 'lucide-react';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
-type Supplier = { id: string; name: string; company_name: string | null };
+type Supplier = { id: string; name: string; contact_person: string | null };
 
 const VAT_RATES = [0, 10, 13, 20];
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
@@ -53,7 +53,7 @@ export default function NeueEingangsrechnungForm({
     setSupplierId(id);
     if (id) {
       const s = suppliers.find(s => s.id === id);
-      if (s) setVendorName(s.company_name || s.name);
+      if (s) setVendorName(s.name);
     }
   }
 
@@ -162,7 +162,7 @@ export default function NeueEingangsrechnungForm({
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-1.5 focus:outline-none focus:ring-2 focus:ring-[#35609E]">
               <option value="">— aus Lieferantenstamm wählen —</option>
               {suppliers.map(s => (
-                <option key={s.id} value={s.id}>{s.company_name || s.name}</option>
+                <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
           )}

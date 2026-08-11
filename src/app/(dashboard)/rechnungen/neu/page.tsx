@@ -24,7 +24,7 @@ export default async function NeueRechnungPage() {
   if (!membership?.client_id) redirect('/dashboard');
 
   const [{ data: customers }, { data: branding }] = await Promise.all([
-    admin.from('customers').select('id,name,company_name,street,zip,city,country,uid_number,email')
+    admin.from('customers').select('id,name,contact_person,street,zip,city,country,uid_number,email')
       .eq('client_id', membership.client_id).eq('is_active', true).order('name'),
     admin.from('client_branding').select('invoice_prefix,invoice_next_nr,invoice_nr_digits,payment_days')
       .eq('client_id', membership.client_id).maybeSingle(),

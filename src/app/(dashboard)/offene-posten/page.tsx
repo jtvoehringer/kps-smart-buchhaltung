@@ -26,7 +26,7 @@ export default async function OffenePostenPage() {
     .select(`
       id, invoice_number, invoice_date, due_date, status,
       total_net, total_vat, total_gross,
-      customers ( id, name, company_name )
+      customers ( id, name, contact_person )
     `)
     .eq('client_id', client.id)
     .eq('status', 'open')
@@ -35,7 +35,7 @@ export default async function OffenePostenPage() {
   const outgoingInvoices: {
     id: string; invoice_number: string; invoice_date: string; due_date: string; status: string;
     total_net: number; total_vat: number; total_gross: number;
-    customers: { id: string; name: string; company_name: string | null } | null;
+    customers: { id: string; name: string; contact_person: string | null } | null;
   }[] = outgoingInvoicesData ?? [];
 
   const { data: incomingInvoices } = await supabase
@@ -57,7 +57,7 @@ export default async function OffenePostenPage() {
 
   const { data: suppliers } = await supabase
     .from('suppliers')
-    .select('id, name, company_name')
+    .select('id, name, contact_person')
     .eq('client_id', client.id)
     .eq('is_active', true)
     .order('name');

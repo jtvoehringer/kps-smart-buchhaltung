@@ -14,7 +14,7 @@ type Invoice = {
   total_vat: number;
   total_gross: number;
   paid_date: string | null;
-  customers: { id: string; name: string; company_name: string | null } | null;
+  customers: { id: string; name: string; contact_person: string | null } | null;
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -138,10 +138,10 @@ export default function RechnungenClient({
                       {inv.customers ? (
                         <Link href={`/kunden/${inv.customers.id}`} className="group block">
                           <div className="font-medium text-gray-800 group-hover:text-[#35609E] transition-colors">
-                            {inv.customers.company_name ?? inv.customers.name}
+                            {inv.customers.name}
                           </div>
-                          {inv.customers.company_name && (
-                            <div className="text-xs text-gray-400">{inv.customers.name}</div>
+                          {inv.customers.contact_person && (
+                            <div className="text-xs text-gray-400">{inv.customers.contact_person}</div>
                           )}
                         </Link>
                       ) : (

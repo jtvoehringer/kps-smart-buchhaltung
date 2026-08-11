@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 type SupplierInput = {
   id?: string;
   name: string;
-  company_name: string;
+  contact_person: string;
   street: string;
   zip: string;
   city: string;
@@ -20,7 +20,7 @@ type SupplierInput = {
 };
 
 const EMPTY: SupplierInput = {
-  name: '', company_name: '', street: '', zip: '', city: '',
+  name: '', contact_person: '', street: '', zip: '', city: '',
   country: 'Österreich', email: '', phone: '', uid_number: '', iban: '', notes: '',
 };
 
@@ -43,14 +43,14 @@ export default function LieferantForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim()) { setError('Name ist ein Pflichtfeld.'); return; }
+    if (!form.name.trim()) { setError('Bezeichnung ist ein Pflichtfeld.'); return; }
     setLoading(true);
     setError('');
 
     const payload = {
       client_id:    clientId,
       name:         form.name.trim(),
-      company_name: form.company_name.trim()  || null,
+      contact_person: form.contact_person.trim() || null,
       street:       form.street.trim()        || null,
       zip:          form.zip.trim()           || null,
       city:         form.city.trim()          || null,
@@ -87,15 +87,16 @@ export default function LieferantForm({
         <h2 className="font-semibold text-gray-800">Stammdaten</h2>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 block mb-1">Name <span className="text-red-400">*</span></label>
-          <input type="text" placeholder="Vorname Nachname" value={form.name}
+          <label className="text-xs font-medium text-gray-500 block mb-1">Bezeichnung <span className="text-red-400">*</span></label>
+          <input type="text" placeholder="Musterfirma GmbH – oder Vorname Nachname" value={form.name}
             onChange={e => set('name', e.target.value)} className={inputCls} required />
+          <p className="text-xs text-gray-400 mt-1">Erscheint als Rechnungsempfänger.</p>
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 block mb-1">Firma (optional)</label>
-          <input type="text" placeholder="Firmenname GmbH" value={form.company_name}
-            onChange={e => set('company_name', e.target.value)} className={inputCls} />
+          <label className="text-xs font-medium text-gray-500 block mb-1">Kontakt (optional)</label>
+          <input type="text" placeholder="Fr./Hrn. Vorname Nachname" value={form.contact_person}
+            onChange={e => set('contact_person', e.target.value)} className={inputCls} />
         </div>
 
         <div>

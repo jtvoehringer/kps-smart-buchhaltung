@@ -58,7 +58,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const customer = invoice.customers as {
-    name: string; company_name: string | null;
+    name: string; contact_person: string | null;
     street: string | null; zip: string | null; city: string | null;
     country: string; uid_number: string | null; email: string | null;
   } | null;
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const resend = new Resend(apiKey);
     const senderName = clientData?.company_name || 'Ihre Buchhaltung';
-    const greetingName = customer?.company_name ?? customer?.name ?? '';
+    const greetingName = customer?.name ?? '';
 
     const { error: sendErr } = await resend.emails.send({
       from: fromAddress,
