@@ -22,7 +22,7 @@ type InvoiceItem = {
 
 type Invoice = {
   id: string;
-  invoice_number: string;
+  invoice_number: string | null;
   invoice_date: string;
   due_date: string;
   status: 'draft' | 'open' | 'paid' | 'cancelled';
@@ -31,6 +31,7 @@ type Invoice = {
   total_vat: number;
   total_gross: number;
   paid_date: string | null;
+  transaction_id: string | null;
   notes: string | null;
   customer_id: string | null;
   sent_at: string | null;
@@ -51,11 +52,7 @@ type Branding = {
   bank_name: string | null; invoice_footer: string | null;
 } | null;
 
-type Customer = {
-  id: string; name: string; company_name: string | null;
-  street: string | null; zip: string | null; city: string | null;
-  country: string; uid_number: string | null; email: string | null;
-};
+type Category = { id: string; name: string; type: string; vat_rate: number };
 
 const STATUS_LABEL: Record<string, string> = {
   draft: 'Entwurf', open: 'Offen', paid: 'Bezahlt', cancelled: 'Storniert',
@@ -67,16 +64,24 @@ const STATUS_STYLE: Record<string, string> = {
   cancelled: 'bg-red-100 text-red-400',
 };
 
+// Lokales Datum – toISOString() liefert UTC und würde am Monatsersten
+// vor 02:00 Uhr das Datum auf den Vortag (und damit in den bereits
+// gemeldeten UVA-Zeitraum) setzen.
+function heuteLokal() {
+  return new Date().toLocaleDateString('en-CA');
+}
+
 export default function RechnungDetailClient({
-  invoice, customers, branding, clientId,
+  invoice, branding, incomeCategories,
 }: {
-  invoice: Invoice; customers: Customer[]; branding: Branding; clientId: string;
+  invoice: Invoice; branding: Branding; incomeCategories: Category[];
 }) {
   const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading]   = useState(false);
-  const [paidDate, setPaidDate] = useState(new Date().toISOString().slice(0, 10));
+  const [paidDate, setPaidDate] = useState(heuteLokal());
   const [showPay, setShowPay]   = useState(false);
+  const [payCategoryId, setPayCategoryId] = useState(incomeCategories[0]?.id ?? '');
   const [error, setError]       = useState('');
 
   const [showSend, setShowSend]     = useState(false);
@@ -90,30 +95,45 @@ export default function RechnungDetailClient({
   const isOverdue = invoice.status === 'open' && new Date(invoice.due_date) < today;
 
   async function handleMarkPaid() {
+    if (!payCategoryId) { setError('Bitte eine Einnahmen-Kategorie wählen.'); return; }
     setLoading(true);
     setError('');
-    const { error: err } = await supabase
-      .from('invoices')
-      .update({ status: 'paid', paid_date: paidDate })
-      .eq('id', invoice.id);
-    if (err) { setError(err.message); setLoading(false); return; }
 
-    // Buchung updaten: booking_date auf Zahlungsdatum setzen
-    if (invoice.id) {
-      await supabase.from('transactions')
-        .update({ booking_date: paidDate })
-        .like('description', `%${invoice.invoice_number}%`)
-        .eq('client_id', clientId);
+    // Buchung und Statuswechsel laufen atomar in der Datenbank ab.
+    // Vorher wurden hier Buchungen per .like('description', '%<nummer>%')
+    // gesucht und ihr Buchungsdatum überschrieben – bei leerer
+    // Rechnungsnummer wurde daraus %% und traf jede Buchung des Mandanten.
+    const { error: err } = await supabase.rpc('rechnung_bezahlt_buchen', {
+      p_invoice_id:  invoice.id,
+      p_category_id: payCategoryId,
+      p_paid_date:   paidDate,
+    });
+
+    if (err) {
+      setError(err.message);
+      setLoading(false);
+      return;
     }
+
     router.refresh();
     setLoading(false);
     setShowPay(false);
   }
 
   async function handleCancel() {
-    if (!confirm('Rechnung wirklich stornieren?')) return;
+    if (!confirm(
+      `Rechnung ${invoice.invoice_number ?? '(Entwurf)'} über ${formatCurrency(invoice.total_gross)} wirklich stornieren?`
+    )) return;
     setLoading(true);
-    await supabase.from('invoices').update({ status: 'cancelled' }).eq('id', invoice.id);
+    setError('');
+    const { error: err } = await supabase
+      .from('invoices').update({ status: 'cancelled' }).eq('id', invoice.id);
+    if (err) {
+      console.error('Storno fehlgeschlagen:', err);
+      setError(`Stornieren fehlgeschlagen: ${err.message}`);
+      setLoading(false);
+      return;
+    }
     router.refresh();
     setLoading(false);
   }
@@ -226,19 +246,37 @@ export default function RechnungDetailClient({
 
       {/* Zahlungseingang erfassen */}
       {showPay && (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-5 flex items-center gap-4">
+        <div className="bg-green-50 border border-green-200 rounded-xl p-5 space-y-3">
           <div>
             <p className="text-sm font-semibold text-green-800 mb-1">Zahlungseingang erfassen</p>
-            <p className="text-xs text-green-600">Buchungsdatum wird auf Zahlungsdatum aktualisiert.</p>
+            <p className="text-xs text-green-600">
+              Es wird die Erlösbuchung zum Zahlungsdatum angelegt – bei mehreren Steuersätzen
+              je Satz eine eigene Buchung.
+            </p>
           </div>
-          <input type="date" value={paidDate} onChange={e => setPaidDate(e.target.value)}
-            className="border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
-          <button onClick={handleMarkPaid} disabled={loading}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50">
-            {loading ? 'Speichern…' : 'Bestätigen'}
-          </button>
-          <button onClick={() => setShowPay(false)}
-            className="text-green-600 hover:text-green-800 text-sm">Abbrechen</button>
+          <div className="flex items-end gap-3 flex-wrap">
+            <div>
+              <label htmlFor="pay-date" className="text-xs font-medium text-green-700 block mb-1">Zahlungsdatum</label>
+              <input id="pay-date" type="date" value={paidDate} onChange={e => setPaidDate(e.target.value)}
+                className="border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <label htmlFor="pay-cat" className="text-xs font-medium text-green-700 block mb-1">Erlöskategorie</label>
+              <select id="pay-cat" value={payCategoryId} onChange={e => setPayCategoryId(e.target.value)}
+                className="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+                <option value="">— Kategorie wählen —</option>
+                {incomeCategories.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <button onClick={handleMarkPaid} disabled={loading}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50">
+              {loading ? 'Wird gebucht…' : 'Buchen'}
+            </button>
+            <button onClick={() => setShowPay(false)}
+              className="px-2 py-2 text-green-600 hover:text-green-800 text-sm">Abbrechen</button>
+          </div>
         </div>
       )}
 

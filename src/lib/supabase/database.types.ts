@@ -760,6 +760,15 @@ export type Database = {
         Args: Record<string, never>;
         Returns: string[];
       };
+      // Migration 021 – Rechnungen / Ist-Besteuerung
+      naechste_rechnungsnummer: {
+        Args: { p_client_id: string };
+        Returns: string;
+      };
+      rechnung_bezahlt_buchen: {
+        Args: { p_invoice_id: string; p_category_id: string; p_paid_date: string };
+        Returns: string;
+      };
       uva_uebermitteln: {
         Args: { p_tax_return_id: string };
         Returns: TaxReturn;

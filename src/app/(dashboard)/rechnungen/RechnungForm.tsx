@@ -41,7 +41,7 @@ type InvoiceItem = {
 
 type ExistingInvoice = {
   id: string;
-  invoice_number: string;
+  invoice_number: string | null;
   invoice_date: string;
   due_date: string;
   status: string;
@@ -65,7 +65,7 @@ type InvoicePayload = {
   total_gross: number;
   notes: string | null;
   footer_override: string | null;
-  invoice_number: string;
+  invoice_number: string | null;
   status: 'draft' | 'open';
 };
 
@@ -112,6 +112,9 @@ export default function RechnungForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Eine bereits finalisierte Rechnung darf nicht erneut finalisiert werden
+  const istFinalisiert = !!existing && existing.status !== 'draft';
+
   // Totals
   const totalNet   = items.reduce((s, i) => s + i.amount_net,   0);
   const totalVat   = items.reduce((s, i) => s + i.amount_vat,   0);
@@ -144,6 +147,15 @@ export default function RechnungForm({
     if (items.length === 0) { setError('Mindestens eine Position erforderlich.'); return; }
     if (items.some(i => !i.description.trim())) { setError('Alle Positionen brauchen eine Beschreibung.'); return; }
 
+    // Finalisieren ist nur für neue Rechnungen und Entwürfe erlaubt.
+    // Vorher löste jedes erneute Speichern einer bereits offenen Rechnung
+    // eine weitere Erlösbuchung aus und zählte den Nummernkreis hoch –
+    // mit Lücken in der fortlaufenden Nummer (§ 11 Abs. 1 Z 2 UStG).
+    if (finalize && existing && existing.status !== 'draft') {
+      setError('Diese Rechnung ist bereits finalisiert. Änderungen sind nur an Entwürfen möglich.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -158,20 +170,28 @@ export default function RechnungForm({
       total_gross:    Math.round(totalGross * 100) / 100,
       notes:          notes || null,
       footer_override: footerOverride || null,
-      invoice_number: existing?.invoice_number ?? '',
+      // Entwürfe haben bewusst NULL statt '' – sonst kollidiert der
+      // zweite Entwurf desselben Mandanten am Unique-Index.
+      invoice_number: existing?.invoice_number || null,
       status:         (existing?.status as 'draft' | 'open' | undefined) ?? 'draft',
     };
 
-    if (finalize && !existing) {
-      // Rechnungsnummer vergeben
-      const prefix  = branding?.invoice_prefix   ?? 'RE-';
-      const digits  = branding?.invoice_nr_digits ?? 3;
-      const nextNr  = branding?.invoice_next_nr   ?? 1;
-      payload.invoice_number = `${prefix}${String(nextNr).padStart(digits, '0')}`;
+    if (finalize) {
+      // Nummer atomar in der Datenbank ziehen. Das frühere
+      // Read-Modify-Write über branding.invoice_next_nr konnte bei
+      // parallelem Finalisieren zweimal dieselbe Nummer vergeben und
+      // verschluckte Fehler beim Hochzählen komplett.
+      if (!payload.invoice_number) {
+        const { data: nr, error: nrErr } = await supabase
+          .rpc('naechste_rechnungsnummer', { p_client_id: clientId });
+        if (nrErr || !nr) {
+          setError(`Rechnungsnummer konnte nicht vergeben werden: ${nrErr?.message ?? 'unbekannter Fehler'}`);
+          setLoading(false);
+          return;
+        }
+        payload.invoice_number = nr as string;
+      }
       payload.status = 'open';
-    } else if (!existing) {
-      payload.status = 'draft';
-      payload.invoice_number = '';
     }
 
     let invoiceId = existing?.id;
@@ -180,7 +200,7 @@ export default function RechnungForm({
     if (existing) {
       ({ error: err } = await supabase
         .from('invoices')
-        .update({ ...payload, ...(finalize && existing.status === 'draft' ? { status: 'open' } : {}) })
+        .update(payload)
         .eq('id', existing.id));
     } else {
       const { data, error: insertErr } = await supabase
@@ -198,42 +218,17 @@ export default function RechnungForm({
       return;
     }
 
-    // Rechnungsnummer-Zähler hochsetzen bei Finalisierung
-    if (finalize && branding) {
-      await supabase
-        .from('client_branding')
-        .update({ invoice_next_nr: (branding.invoice_next_nr ?? 1) + 1 })
-        .eq('client_id', clientId);
-    }
+    // Der Zähler wird nicht mehr hier hochgesetzt – das erledigt
+    // naechste_rechnungsnummer() atomar in derselben Anweisung.
 
-    // Auto-Buchung bei Finalisierung
-    if (finalize && invoiceId) {
-      // Kategorie für Einnahmen suchen (erste passende Einnahmen-Kategorie)
-      // Hinweis: "categories" hat keine client_id-Spalte (nur tenant_id) – die
-      // RLS-Policy "Kategorien lesen" filtert bereits auf systemweite +
-      // eigene Tenant-Kategorien, daher hier kein zusätzlicher .or()-Filter nötig.
-      const { data: cat } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('type', 'income')
-        .order('sort_order')
-        .limit(1)
-        .maybeSingle();
-
-      if (cat) {
-        await supabase.from('transactions').insert({
-          client_id:    clientId,
-          category_id:  cat.id,
-          type:         'income',
-          amount_net:   Math.round(totalNet   * 100) / 100,
-          vat_rate:     (items[0]?.vat_rate ?? 20) as 0 | 10 | 13 | 20,
-          vat_amount:   Math.round(totalVat  * 100) / 100,
-          booking_date: invoiceDate,
-          description:  `Rechnung ${payload.invoice_number ?? ''} – ${customers.find(c => c.id === customerId)?.name ?? ''}`.trim(),
-          import_source: 'manual',
-        });
-      }
-    }
+    // Hier entsteht BEWUSST keine Erlösbuchung mehr.
+    // Der Betrieb rechnet nach dem Zufluss-/Abflussprinzip (Ist-Besteuerung,
+    // § 17 UStG): die Umsatzsteuer entsteht erst mit der Vereinnahmung.
+    // Gebucht wird deshalb ausschließlich beim Erfassen des Zahlungs-
+    // eingangs – über /offene-posten oder den Button auf der Rechnung.
+    // Beide Wege laufen über rechnung_bezahlt_buchen() (Migration 021),
+    // das je Steuersatz eine Buchung anlegt und eine Doppelbuchung
+    // verweigert, sobald invoices.transaction_id gesetzt ist.
 
     router.push(invoiceId ? `/rechnungen/${invoiceId}` : '/rechnungen');
     router.refresh();
@@ -402,20 +397,36 @@ export default function RechnungForm({
 
       {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
+      {!istFinalisiert && (
+        <p className="text-xs text-gray-400 leading-relaxed">
+          Beim Finalisieren wird die Rechnungsnummer vergeben und die Rechnung als offener Posten geführt.
+          Die Erlösbuchung entsteht erst, wenn Sie den Zahlungseingang erfassen (Ist-Besteuerung).
+        </p>
+      )}
+
       {/* Aktionen */}
       <div className="flex gap-3">
         <button type="button" onClick={() => router.push('/rechnungen')}
           className="px-5 py-3 rounded-xl border border-gray-300 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
           Abbrechen
         </button>
-        <button type="button" onClick={() => handleSave(false)} disabled={loading}
-          className="flex-1 py-3 rounded-xl border-2 border-[#35609E] text-[#35609E] text-sm font-semibold hover:bg-[#35609E]/5 transition-colors disabled:opacity-50">
-          {loading ? 'Speichern…' : 'Als Entwurf speichern'}
-        </button>
-        <button type="button" onClick={() => handleSave(true)} disabled={loading}
-          className="flex-1 py-3 rounded-xl bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold transition-colors disabled:opacity-50">
-          {loading ? 'Finalisieren…' : existing?.status === 'draft' ? 'Finalisieren & verbuchen' : 'Speichern'}
-        </button>
+        {istFinalisiert ? (
+          <button type="button" onClick={() => handleSave(false)} disabled={loading}
+            className="flex-1 py-3 rounded-xl bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold transition-colors disabled:opacity-50">
+            {loading ? 'Speichern…' : 'Änderungen speichern'}
+          </button>
+        ) : (
+          <>
+            <button type="button" onClick={() => handleSave(false)} disabled={loading}
+              className="flex-1 py-3 rounded-xl border-2 border-[#35609E] text-[#35609E] text-sm font-semibold hover:bg-[#35609E]/5 transition-colors disabled:opacity-50">
+              {loading ? 'Speichern…' : 'Als Entwurf speichern'}
+            </button>
+            <button type="button" onClick={() => handleSave(true)} disabled={loading}
+              className="flex-1 py-3 rounded-xl bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold transition-colors disabled:opacity-50">
+              {loading ? 'Finalisieren…' : 'Finalisieren'}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

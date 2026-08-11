@@ -109,7 +109,10 @@ function findMatch(
   if (row.type === 'income') {
     const candidates = openInvoices.filter(inv => amountsMatch(row.amount, Number(inv.amount_gross)));
     for (const inv of candidates) {
-      const numNorm = normalize(inv.invoice_number).replace(/ /g, '');
+      // Seit Migration 021 kann invoice_number NULL sein (Entwürfe). Offene
+      // Rechnungen haben durch den CHECK-Constraint immer eine Nummer – der
+      // Guard schützt vor Altbeständen aus der Zeit davor.
+      const numNorm = inv.invoice_number ? normalize(inv.invoice_number).replace(/ /g, '') : '';
       const hitByNumber = numNorm.length >= 3 && haystack.replace(/ /g, '').includes(numNorm);
       const custNorm = normalize(inv.customer_name);
       const hitByName = custNorm.length >= 3 && (counterpartNorm.includes(custNorm) || custNorm.includes(counterpartNorm));

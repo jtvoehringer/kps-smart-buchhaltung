@@ -24,17 +24,21 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
 
   if (!membership?.client_id) redirect('/dashboard');
 
-  const [{ data: invoice }, { data: customers }, { data: branding }] = await Promise.all([
+  const [{ data: invoice }, { data: branding }, { data: incomeCategories }] = await Promise.all([
     admin.from('invoices')
       .select(`*, customers(id,name,company_name,street,zip,city,country,uid_number,email)`)
       .eq('id', id)
       .eq('client_id', membership.client_id)
       .maybeSingle(),
-    admin.from('customers')
-      .select('id,name,company_name,street,zip,city,country,uid_number,email')
-      .eq('client_id', membership.client_id).eq('is_active', true).order('name'),
     admin.from('client_branding').select('*')
       .eq('client_id', membership.client_id).maybeSingle(),
+    // Bewusst über den RLS-gebundenen Client: "categories" hat keine
+    // client_id, sondern tenant_id. Der Admin-Client würde die
+    // Kategorien aller Kanzleien liefern.
+    supabase.from('categories')
+      .select('id, name, type, vat_rate')
+      .eq('type', 'income')
+      .order('sort_order'),
   ]);
 
   if (!invoice) notFound();
@@ -52,9 +56,8 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
       </div>
       <RechnungDetailClient
         invoice={invoice}
-        customers={customers ?? []}
         branding={branding ?? null}
-        clientId={membership.client_id}
+        incomeCategories={incomeCategories ?? []}
       />
     </div>
   );

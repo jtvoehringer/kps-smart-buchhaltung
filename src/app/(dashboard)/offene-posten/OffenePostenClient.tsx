@@ -44,13 +44,10 @@ type IncomingInvoice = {
   beleg_file_size: number | null;
 };
 
-const VAT_RATES = [0, 10, 13, 20];
-
-function naheliegendeRate(totalNet: number, totalVat: number): number {
-  if (totalNet <= 0) return 20;
-  const ratio = (totalVat / totalNet) * 100;
-  return VAT_RATES.reduce((best, r) => (Math.abs(r - ratio) < Math.abs(best - ratio) ? r : best), 20);
-}
+// naheliegendeRate() ist entfallen: der Steuersatz einer Ausgangsrechnung
+// wird nicht mehr aus dem Verhältnis USt/Netto geraten, sondern in
+// rechnung_bezahlt_buchen() je Position aus invoices.items gelesen.
+// Damit landen gemischte Rechnungen korrekt in KZ 022 und KZ 029.
 
 function isOverdue(dueDate: string, today: Date) { return new Date(dueDate) < today; }
 
@@ -75,14 +72,16 @@ export default function OffenePostenClient({
   const [outBookingId, setOutBookingId] = useState<string | null>(null);
   const [outPaymentDate, setOutPaymentDate] = useState('');
   const [outCategoryId, setOutCategoryId] = useState('');
-  const [outVatRate, setOutVatRate] = useState(20);
   const [outSaving, setOutSaving] = useState(false);
   const [outError, setOutError] = useState('');
 
   function openOutBooking(inv: OutgoingInvoice) {
     setOutBookingId(inv.id);
-    setOutPaymentDate(new Date().toISOString().split('T')[0]);
-    setOutVatRate(naheliegendeRate(Number(inv.total_net), Number(inv.total_vat)));
+    // toLocaleDateString('en-CA') liefert das LOKALE Datum als YYYY-MM-DD.
+    // toISOString() wäre UTC und würde am Monatsersten vor 02:00 Uhr in den
+    // Vormonat rutschen – also womöglich in einen bereits gemeldeten
+    // UVA-Zeitraum.
+    setOutPaymentDate(new Date().toLocaleDateString('en-CA'));
     setOutCategoryId(incomeCategories[0]?.id ?? '');
     setOutError('');
   }
@@ -92,34 +91,20 @@ export default function OffenePostenClient({
     setOutSaving(true);
     setOutError('');
 
-    const { data: newTx, error: insertError } = await supabase
-      .from('transactions')
-      .insert({
-        client_id:    clientId,
-        category_id:  outCategoryId,
-        type:         'income',
-        amount_net:   Number(inv.total_net),
-        vat_rate:     outVatRate as 0 | 10 | 13 | 20,
-        vat_amount:   Number(inv.total_vat),
-        booking_date: outPaymentDate,
-        description:  `Zahlungseingang ${inv.invoice_number}`,
-      })
-      .select('id')
-      .single();
+    // Buchung(en) und Statuswechsel laufen atomar in der Datenbank ab
+    // (Migration 021). Vorher waren das zwei getrennte Schritte: schlug
+    // der zweite fehl, blieb die Rechnung offen, obwohl die Buchung schon
+    // existierte – der nächste Klick hätte ein zweites Mal gebucht.
+    // Die Funktion legt zudem je Steuersatz eine eigene Buchung an, damit
+    // gemischte Rechnungen in der UVA in den richtigen Kennzahlen landen.
+    const { error: rpcError } = await supabase.rpc('rechnung_bezahlt_buchen', {
+      p_invoice_id:  inv.id,
+      p_category_id: outCategoryId,
+      p_paid_date:   outPaymentDate,
+    });
 
-    if (insertError || !newTx) {
-      setOutError(`Fehler: ${insertError?.message ?? 'Unbekannter Fehler'}`);
-      setOutSaving(false);
-      return;
-    }
-
-    const { error: updateError } = await supabase
-      .from('invoices')
-      .update({ status: 'paid', paid_date: outPaymentDate, transaction_id: newTx.id })
-      .eq('id', inv.id);
-
-    if (updateError) {
-      setOutError(`Buchung angelegt, aber Rechnung konnte nicht aktualisiert werden: ${updateError.message}`);
+    if (rpcError) {
+      setOutError(rpcError.message);
       setOutSaving(false);
       return;
     }
@@ -291,11 +276,14 @@ export default function OffenePostenClient({
                                   </select>
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-medium text-gray-600 mb-1">USt %</label>
-                                  <select value={outVatRate} onChange={e => setOutVatRate(Number(e.target.value))}
-                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
-                                    {VAT_RATES.map(r => <option key={r} value={r}>{r}%</option>)}
-                                  </select>
+                                  <label className="block text-xs font-medium text-gray-600 mb-1">Umsatzsteuer</label>
+                                  <p className="text-sm text-gray-600 px-1 py-1.5">
+                                    {formatCurrency(Number(inv.total_net))} netto
+                                    {' + '}{formatCurrency(Number(inv.total_vat))} USt
+                                  </p>
+                                  <p className="text-[11px] text-gray-400 -mt-0.5">
+                                    Steuersätze werden aus den Positionen übernommen
+                                  </p>
                                 </div>
                                 <button onClick={() => handleOutBuchen(inv)} disabled={outSaving}
                                   className="inline-flex items-center gap-1.5 bg-income hover:bg-income-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
