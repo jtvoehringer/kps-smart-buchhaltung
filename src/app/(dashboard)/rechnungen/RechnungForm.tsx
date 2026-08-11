@@ -294,8 +294,8 @@ export default function RechnungForm({
         <h2 className="font-semibold text-gray-800 mb-4">Rechnungskopf</h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label className="text-xs font-medium text-gray-500 block mb-1">Kunde <span className="text-red-400">*</span></label>
-            <select value={customerId} onChange={e => kundeWaehlen(e.target.value)} className={inputCls}>
+            <label htmlFor="rechnungForm-0" className="text-xs font-medium text-gray-500 block mb-1">Kunde <span className="text-red-400">*</span></label>
+            <select id="rechnungForm-0" value={customerId} onChange={e => kundeWaehlen(e.target.value)} className={inputCls}>
               <option value="">— Kunden auswählen —</option>
               {customers.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
@@ -303,10 +303,10 @@ export default function RechnungForm({
             </select>
           </div>
           <div className="col-span-2">
-            <label className="text-xs font-medium text-gray-500 block mb-1">
+            <label htmlFor="rechnungForm-1" className="text-xs font-medium text-gray-500 block mb-1">
               z.H. / Ansprechpartner <span className="text-gray-300">(optional)</span>
             </label>
-            <input type="text" placeholder="z.B. Hrn. AL Ing. Harald Nirschl"
+            <input id="rechnungForm-1" type="text" placeholder="z.B. Hrn. AL Ing. Harald Nirschl"
               value={contactPerson} onChange={e => setContactPerson(e.target.value)}
               className={inputCls} />
             <p className="text-xs text-gray-400 mt-1">
@@ -315,8 +315,8 @@ export default function RechnungForm({
             </p>
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 block mb-1">Rechnungsdatum</label>
-            <input type="date" value={invoiceDate}
+            <label htmlFor="rechnungForm-2" className="text-xs font-medium text-gray-500 block mb-1">Rechnungsdatum</label>
+            <input id="rechnungForm-2" type="date" value={invoiceDate}
               onChange={e => {
                 setInvoiceDate(e.target.value);
                 setDueDate(addDays(e.target.value, zahlungsziel));
@@ -324,8 +324,8 @@ export default function RechnungForm({
               className={inputCls} />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 block mb-1">Fällig am</label>
-            <input type="date" value={dueDate}
+            <label htmlFor="rechnungForm-3" className="text-xs font-medium text-gray-500 block mb-1">Fällig am</label>
+            <input id="rechnungForm-3" type="date" value={dueDate}
               onChange={e => setDueDate(e.target.value)}
               className={inputCls} />
             <p className="text-xs text-gray-400 mt-1">
@@ -369,11 +369,11 @@ export default function RechnungForm({
               </div>
               <div className="grid grid-cols-5 gap-2 pl-12">
                 <div>
-                  <label className="text-xs text-gray-400 block mb-0.5">Menge</label>
+                  <label htmlFor={`pos-${idx}-menge`} className="text-xs text-gray-400 block mb-0.5">Menge</label>
                   {/* Text statt number: erlaubt Komma und ein leeres Feld.
                       Bei type=number blieb nach dem Leeren eine 0 stehen,
                       hinter die weitergetippt wurde ("033,25"). */}
-                  <input
+                  <input id={`pos-${idx}-menge`}
                     type="text" inputMode="decimal" placeholder="1"
                     value={item.menge_text ?? String(item.quantity ?? '')}
                     onChange={e => updateItem(idx, { menge_text: e.target.value, quantity: zahl(e.target.value) })}
@@ -381,14 +381,14 @@ export default function RechnungForm({
                     className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-0.5">Einheit</label>
-                  <input type="text" list="einheiten-liste" placeholder="Stk." value={item.unit}
+                  <label htmlFor={`pos-${idx}-einheit`} className="text-xs text-gray-400 block mb-0.5">Einheit</label>
+                  <input id={`pos-${idx}-einheit`} type="text" list="einheiten-liste" placeholder="Stk." value={item.unit}
                     onChange={e => updateItem(idx, { unit: e.target.value })}
                     className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-0.5">Einzelpreis (netto)</label>
-                  <input
+                  <label htmlFor={`pos-${idx}-preis`} className="text-xs text-gray-400 block mb-0.5">Einzelpreis (netto)</label>
+                  <input id={`pos-${idx}-preis`}
                     type="text" inputMode="decimal" placeholder="0,00"
                     value={item.preis_text ?? String(item.unit_price ?? '')}
                     onChange={e => updateItem(idx, { preis_text: e.target.value, unit_price: zahl(e.target.value) })}
@@ -396,8 +396,8 @@ export default function RechnungForm({
                     className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-0.5">USt %</label>
-                  <select value={item.vat_rate}
+                  <label htmlFor={`pos-${idx}-ust`} className="text-xs text-gray-400 block mb-0.5">USt %</label>
+                  <select id={`pos-${idx}-ust`} value={item.vat_rate}
                     onChange={e => updateItem(idx, { vat_rate: parseInt(e.target.value) })}
                     className={inputCls}>
                     <option value={0}>0 %</option>
@@ -408,9 +408,9 @@ export default function RechnungForm({
                 </div>
                 <div>
                   {/* Folgt dem Buchungsmodus aus den Einstellungen */}
-                  <label className="text-xs text-gray-400 block mb-0.5">
+                  <p className="text-xs text-gray-400 block mb-0.5">
                     {istNettoModus ? 'Gesamt netto' : 'Gesamt brutto'}
-                  </label>
+                  </p>
                   <div className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-right font-medium text-gray-700">
                     {formatCurrency(istNettoModus ? item.amount_net : item.amount_gross)}
                   </div>
@@ -418,21 +418,21 @@ export default function RechnungForm({
               </div>
               <div className="grid grid-cols-3 gap-2 pl-12">
                 <div>
-                  <label className="text-xs text-gray-400 block mb-0.5">Berater</label>
-                  <input type="text" placeholder="Name des Beraters"
+                  <label htmlFor={`pos-${idx}-berater`} className="text-xs text-gray-400 block mb-0.5">Berater</label>
+                  <input id={`pos-${idx}-berater`} type="text" placeholder="Name des Beraters"
                     value={item.berater ?? ''}
                     onChange={e => updateItem(idx, { berater: e.target.value })}
                     className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-0.5">Leistungszeitraum von</label>
-                  <input type="date" value={item.leistung_von ?? ''}
+                  <label htmlFor={`pos-${idx}-von`} className="text-xs text-gray-400 block mb-0.5">Leistungszeitraum von</label>
+                  <input id={`pos-${idx}-von`} type="date" value={item.leistung_von ?? ''}
                     onChange={e => updateItem(idx, { leistung_von: e.target.value || null })}
                     className={inputCls} />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-400 block mb-0.5">Leistungszeitraum bis</label>
-                  <input type="date" value={item.leistung_bis ?? ''}
+                  <label htmlFor={`pos-${idx}-bis`} className="text-xs text-gray-400 block mb-0.5">Leistungszeitraum bis</label>
+                  <input id={`pos-${idx}-bis`} type="date" value={item.leistung_bis ?? ''}
                     onChange={e => updateItem(idx, { leistung_bis: e.target.value || null })}
                     className={inputCls} />
                 </div>

@@ -45,15 +45,15 @@ export default function PasswortNeuPage() {
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Neues Passwort</label>
-            <input type="password" name="new-password" required autoComplete="new-password"
+            <label htmlFor="page-0" className="block text-sm font-medium text-gray-700 mb-1">Neues Passwort</label>
+            <input id="page-0" type="password" name="new-password" required autoComplete="new-password"
               value={password} onChange={e => setPassword(e.target.value)}
               placeholder="Mindestens 8 Zeichen"
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Passwort bestätigen</label>
-            <input type="password" name="confirm-password" required autoComplete="new-password"
+            <label htmlFor="page-1" className="block text-sm font-medium text-gray-700 mb-1">Passwort bestätigen</label>
+            <input id="page-1" type="password" name="confirm-password" required autoComplete="new-password"
               value={password2} onChange={e => setPassword2(e.target.value)}
               placeholder="Nochmals eingeben"
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />

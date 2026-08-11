@@ -88,8 +88,8 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div className="sm:col-span-2">
-          <label className="block text-xs font-medium text-gray-600 mb-1">Name</label>
-          <input
+          <label htmlFor="neueKategorieForm-0" className="block text-xs font-medium text-gray-600 mb-1">Name</label>
+          <input id="neueKategorieForm-0"
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
@@ -99,8 +99,8 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Typ</label>
-          <div className="flex gap-1.5">
+          <span id="gruppe-kategorietyp" className="block text-xs font-medium text-gray-600 mb-1">Typ</span>
+        <div role="group" aria-labelledby="gruppe-kategorietyp" className="flex gap-1.5">
             <button
               type="button"
               onClick={() => setType('income')}
@@ -129,8 +129,8 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">USt %</label>
-          <select
+          <label htmlFor="neueKategorieForm-1" className="block text-xs font-medium text-gray-600 mb-1">USt %</label>
+          <select id="neueKategorieForm-1"
             value={vatRate}
             onChange={e => setVatRate(Number(e.target.value) as VatRate)}
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
@@ -142,8 +142,8 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Konto-Nr. (optional)</label>
-          <input
+          <label htmlFor="neueKategorieForm-2" className="block text-xs font-medium text-gray-600 mb-1">Konto-Nr. (optional)</label>
+          <input id="neueKategorieForm-2"
             type="text"
             value={kontoNr}
             onChange={e => setKontoNr(e.target.value)}

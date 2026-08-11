@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { useServerState } from '@/lib/useServerState';
 import { createClient } from '@/lib/supabase/client';
 
 type Attachment = {
@@ -30,7 +31,7 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
   const fileInput   = useRef<HTMLInputElement>(null);
   const cameraInput = useRef<HTMLInputElement>(null);
 
-  const [attachments, setAttachments] = useState<Attachment[]>(initialAttachments);
+  const [attachments, setAttachments] = useServerState<Attachment[]>(initialAttachments);
   const [uploading, setUploading]     = useState(false);
   const [dragOver, setDragOver]       = useState(false);
   const [error, setError]             = useState('');

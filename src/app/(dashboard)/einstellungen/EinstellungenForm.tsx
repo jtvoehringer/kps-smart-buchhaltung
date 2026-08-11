@@ -331,8 +331,8 @@ export default function EinstellungenForm({
 
             {regelOptiert && (
               <div className="mt-3 flex items-center gap-3 pl-6">
-                <label className="text-xs text-gray-500 font-medium">Jahr der Verzichtserklärung</label>
-                <input
+                <label htmlFor="einstellungenForm-0" className="text-xs text-gray-500 font-medium">Jahr der Verzichtserklärung</label>
+                <input id="einstellungenForm-0"
                   type="number"
                   value={regelJahr}
                   onChange={e => setRegelJahr(Number(e.target.value))}
@@ -575,24 +575,24 @@ export default function EinstellungenForm({
         <div className="space-y-3">
           <div className="flex gap-3 items-end">
             <div className="flex-1">
-              <label className="text-xs text-gray-500 font-medium block mb-1">Prefix</label>
-              <input
+              <label htmlFor="einstellungenForm-1" className="text-xs text-gray-500 font-medium block mb-1">Prefix</label>
+              <input id="einstellungenForm-1"
                 type="text" placeholder="RE-"
                 value={invoicePrefix} onChange={e => setInvoicePrefix(e.target.value)}
                 className={inputCls}
               />
             </div>
             <div className="w-28">
-              <label className="text-xs text-gray-500 font-medium block mb-1">Nächste Nr.</label>
-              <input
+              <label htmlFor="einstellungenForm-2" className="text-xs text-gray-500 font-medium block mb-1">Nächste Nr.</label>
+              <input id="einstellungenForm-2"
                 type="number" min={1}
                 value={invoiceNextNr} onChange={e => setInvoiceNextNr(Number(e.target.value))}
                 className={inputCls}
               />
             </div>
             <div className="w-36">
-              <label className="text-xs text-gray-500 font-medium block mb-1">Stellen</label>
-              <select
+              <label htmlFor="einstellungenForm-3" className="text-xs text-gray-500 font-medium block mb-1">Stellen</label>
+              <select id="einstellungenForm-3"
                 value={invoiceNrDigits}
                 onChange={e => setInvoiceNrDigits(Number(e.target.value))}
                 className={inputCls}
@@ -603,8 +603,8 @@ export default function EinstellungenForm({
               </select>
             </div>
             <div className="w-40">
-              <label className="text-xs text-gray-500 font-medium block mb-1">Suffix</label>
-              <input
+              <label htmlFor="einstellungenForm-4" className="text-xs text-gray-500 font-medium block mb-1">Suffix</label>
+              <input id="einstellungenForm-4"
                 type="text" placeholder="/{JJ}"
                 value={invoiceSuffix} onChange={e => setInvoiceSuffix(e.target.value)}
                 className={inputCls}

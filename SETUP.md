@@ -55,11 +55,27 @@ git push -u origin main
 
 ### Datenbank einrichten
 
+Zuerst unter **Database → Extensions** aktivieren: `uuid-ossp`,
+`pgcrypto` und `pg_cron`.
+
+Dann die Migrationen einspielen:
+
 1. Im Supabase Dashboard: Linke Seite → **"SQL Editor"**
 2. Klicke **"New query"**
-3. Öffne die Datei `supabase/migrations/001_initial_schema.sql` in VS Code
+3. Öffne die erste Datei aus `supabase/migrations/` in VS Code
 4. Kopiere den gesamten Inhalt → in den SQL Editor einfügen → **"Run"** klicken
-5. Wiederhole für `supabase/migrations/002_recurring_cron.sql`
+5. Wiederhole das für **jede weitere Datei in numerischer Reihenfolge**
+
+> **Alle Dateien, nicht nur die ersten zwei.** Hier standen lange nur
+> `001` und `002`. Wer sich daran hielt, bekam eine Datenbank, in der
+> drei Viertel der Anwendung nicht funktioniert – ohne verwertbare
+> Fehlermeldung, weil eine fehlende Spalte nur als
+> `column … does not exist` auftaucht.
+>
+> Welche Datei was macht, was vorher und was hinterher zu tun ist
+> (Storage-Buckets, erster Benutzer, Umgebungsvariablen) und wie man
+> prüft, ob alles durchgelaufen ist, steht in
+> **`supabase/migrations/README.md`**.
 
 ### API-Keys kopieren
 
@@ -79,6 +95,16 @@ git push -u origin main
 NEXT_PUBLIC_SUPABASE_URL=https://DEIN-PROJEKT.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=dein-anon-key-hier
 ```
+
+Für den vollen Funktionsumfang kommen dazu (lokal in `.env.local`, in
+der Produktion unter **Vercel → Settings → Environments → Production**):
+
+| Variable | wofür |
+|----------|-------|
+| `SUPABASE_SERVICE_ROLE_KEY` | BMD-Export, Belegerkennung, Mailversand. Steht in Supabase unter Settings → API. **Nie im Browser verwenden** – dieser Schlüssel umgeht sämtliche Zugriffsregeln. |
+| `ANTHROPIC_API_KEY` | Belegerkennung |
+| `RESEND_API_KEY` / `RESEND_FROM_EMAIL` | Rechnungsversand und App-Einladung |
+| `NEXT_PUBLIC_APP_URL` | Basisadresse für Links in versendeten E-Mails. In der Produktion die echte Domain, **nicht** `localhost`. |
 
 ---
 

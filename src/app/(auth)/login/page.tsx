@@ -46,10 +46,10 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4" suppressHydrationWarning>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="page-0" className="block text-sm font-medium text-gray-700 mb-1">
               E-Mail-Adresse
             </label>
-            <input
+            <input id="page-0"
               type="email"
               name="email"
               required
@@ -63,10 +63,10 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="page-1" className="block text-sm font-medium text-gray-700 mb-1">
               Passwort
             </label>
-            <input
+            <input id="page-1"
               type="password"
               name="password"
               required

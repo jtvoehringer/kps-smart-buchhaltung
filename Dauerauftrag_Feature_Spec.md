@@ -1,3 +1,26 @@
+> ## ⚠️ Status: NICHT UMGESETZT (Stand 11.08.2026)
+>
+> Dieses Dokument ist ein **Entwurf**, kein Bericht über den Ist-Zustand.
+> Nichts davon existiert in der Anwendung:
+>
+> - Es gibt **keine** Tabelle `dauerauftraege`, keine Typen
+>   `dauerauftrag_intervall` / `dauerauftrag_typ`.
+> - Es gibt **kein** Modul `src/lib/dauerauftraege/`.
+> - Rechnungen werden **nicht** automatisch erzeugt und **nicht**
+>   automatisch versendet.
+>
+> **Was tatsächlich existiert**, ist etwas anderes und wird leicht
+> damit verwechselt: `recurring_transactions` (Migration 001) legt
+> wiederkehrende **Buchungen** an – nicht Rechnungen. Die Oberfläche
+> dazu liegt unter `/dauerauftraege`, ausgelöst wird sie vom Cron-Job
+> aus Migration 002 über `process_recurring_transactions()`.
+>
+> Wer diese Spec als Beschreibung des Bestands liest, sucht danach
+> lange nach Code, den es nicht gibt. Der Entwurf selbst bleibt hier
+> erhalten – als Plan, nicht als Dokumentation.
+
+---
+
 # Feature-Spec: Automatische Dauerauftragsrechnungen
 
 **Stand:** Mai 2026 | **Autor:** IC&P Consultants e.U.  

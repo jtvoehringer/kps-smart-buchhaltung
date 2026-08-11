@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useServerState } from '@/lib/useServerState';
 import { createBenutzer, updateBenutzerRole } from './actions';
 
 type Benutzer = {
@@ -35,7 +36,7 @@ export default function BenutzerClient({
   myRole: string;
   myId: string;
 }) {
-  const [users, setUsers]           = useState<Benutzer[]>(initial);
+  const [users, setUsers]           = useServerState<Benutzer[]>(initial);
   const [email, setEmail]           = useState('');
   const [fullName, setFullName]     = useState('');
   const [role, setRole]             = useState('kanzlei');
@@ -184,28 +185,28 @@ export default function BenutzerClient({
         <form onSubmit={handleCreate} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="benutzerClient-0" className="block text-sm font-medium text-gray-700 mb-1">
                 E-Mail <span className="text-red-400">*</span>
               </label>
-              <input
+              <input id="benutzerClient-0"
                 type="email" value={email} onChange={e => setEmail(e.target.value)}
                 required placeholder="name@beispiel.at"
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <input
+              <label htmlFor="benutzerClient-1" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <input id="benutzerClient-1"
                 type="text" value={fullName} onChange={e => setFullName(e.target.value)}
                 placeholder="Vorname Nachname"
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="benutzerClient-2" className="block text-sm font-medium text-gray-700 mb-1">
                 Rolle <span className="text-red-400">*</span>
               </label>
-              <select
+              <select id="benutzerClient-2"
                 value={role} onChange={e => setRole(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
               >

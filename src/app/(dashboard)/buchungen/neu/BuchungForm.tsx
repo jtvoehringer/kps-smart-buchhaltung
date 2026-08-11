@@ -255,13 +255,14 @@ export default function BuchungForm({
 
       {/* Typ */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Art der Buchung</label>
-        <div className="flex gap-3">
+        <span id="gruppe-buchungsart" className="block text-sm font-medium text-gray-700 mb-2">Art der Buchung</span>
+        <div role="group" aria-labelledby="gruppe-buchungsart" className="flex gap-3">
           {(['income', 'expense'] as const).map(t => (
             <button
               key={t}
               type="button"
               onClick={() => setType(t)}
+              aria-pressed={type === t}
               className={`flex items-center justify-center gap-1.5 flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${
                 type === t
                   ? t === 'income' ? 'bg-income text-white border-income' : 'bg-expense text-white border-expense'
@@ -277,15 +278,15 @@ export default function BuchungForm({
 
       {/* Datum */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Buchungsdatum</label>
-        <input type="date" required value={bookingDate} onChange={e => setBookingDate(e.target.value)}
+        <label htmlFor="buchungForm-0" className="block text-sm font-medium text-gray-700 mb-1">Buchungsdatum</label>
+        <input id="buchungForm-0" type="date" required value={bookingDate} onChange={e => setBookingDate(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
       </div>
 
       {/* Kategorie */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
-        <select required value={categoryId} onChange={e => setCategoryId(e.target.value)}
+        <label htmlFor="buchungForm-1" className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
+        <select id="buchungForm-1" required value={categoryId} onChange={e => setCategoryId(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
           {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
@@ -294,15 +295,15 @@ export default function BuchungForm({
       {/* Betrag */}
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{isBrutto ? 'Brutto (€)' : 'Netto (€)'}</label>
-          <input type="number" required min="0.01" step="0.01" placeholder="0,00" value={amount}
+          <label htmlFor="buchungForm-2" className="block text-sm font-medium text-gray-700 mb-1">{isBrutto ? 'Brutto (€)' : 'Netto (€)'}</label>
+          <input id="buchungForm-2" type="number" required min="0.01" step="0.01" placeholder="0,00" value={amount}
             onChange={e => setAmount(e.target.value)}
             disabled={isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten')}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] disabled:bg-gray-100 disabled:cursor-not-allowed" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">USt %</label>
-          <select value={vatRate} onChange={e => setVatRate(Number(e.target.value))}
+          <label htmlFor="buchungForm-3" className="block text-sm font-medium text-gray-700 mb-1">USt %</label>
+          <select id="buchungForm-3" value={vatRate} onChange={e => setVatRate(Number(e.target.value))}
             disabled={isEAuto || (isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten'))}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] disabled:bg-gray-100 disabled:cursor-not-allowed">
             <option value={0}>0 %</option>
@@ -312,7 +313,7 @@ export default function BuchungForm({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{isBrutto ? 'Netto (€)' : 'Brutto (€)'}</label>
+          <p className="block text-sm font-medium text-gray-700 mb-1">{isBrutto ? 'Netto (€)' : 'Brutto (€)'}</p>
           <div className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-2.5 text-sm text-gray-700 font-medium">
             {isBrutto ? displayNet : displayGross}
           </div>
@@ -358,14 +359,14 @@ export default function BuchungForm({
             Dokumentation von Anlass und Teilnehmern – beides ist daher hier verpflichtend.
           </p>
           <div>
-            <label className="block text-xs font-medium text-amber-900 mb-1">Anlass der Bewirtung *</label>
-            <input type="text" required={isBewirtung} placeholder="z.B. Projektbesprechung mit Kunde XY"
+            <label htmlFor="buchungForm-4" className="block text-xs font-medium text-amber-900 mb-1">Anlass der Bewirtung *</label>
+            <input id="buchungForm-4" type="text" required={isBewirtung} placeholder="z.B. Projektbesprechung mit Kunde XY"
               value={bewirtungAnlass} onChange={e => setBewirtungAnlass(e.target.value)}
               className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-amber-900 mb-1">Teilnehmer *</label>
-            <input type="text" required={isBewirtung} placeholder="z.B. Max Mustermann (Kunde XY GmbH), Jörgen Voehringer"
+            <label htmlFor="buchungForm-5" className="block text-xs font-medium text-amber-900 mb-1">Teilnehmer *</label>
+            <input id="buchungForm-5" type="text" required={isBewirtung} placeholder="z.B. Max Mustermann (Kunde XY GmbH), Jörgen Voehringer"
               value={bewirtungTeilnehmer} onChange={e => setBewirtungTeilnehmer(e.target.value)}
               className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
           </div>
@@ -382,8 +383,8 @@ export default function BuchungForm({
             Zeitraum der Reise sind für den Nachweis verpflichtend.
           </p>
           <div>
-            <label className="block text-xs font-medium text-amber-900 mb-1">Art der Reisekosten *</label>
-            <select required value={reiseTyp} onChange={e => setReiseTyp(e.target.value as typeof reiseTyp)}
+            <label htmlFor="buchungForm-6" className="block text-xs font-medium text-amber-900 mb-1">Art der Reisekosten *</label>
+            <select id="buchungForm-6" required value={reiseTyp} onChange={e => setReiseTyp(e.target.value as typeof reiseTyp)}
               className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
               <option value="">Bitte wählen…</option>
               <option value="kilometergeld">Kilometergeld</option>
@@ -395,35 +396,35 @@ export default function BuchungForm({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-amber-900 mb-1">Reiseziel *</label>
-              <input type="text" required placeholder="z.B. Wien" value={reiseZiel}
+              <label htmlFor="buchungForm-7" className="block text-xs font-medium text-amber-900 mb-1">Reiseziel *</label>
+              <input id="buchungForm-7" type="text" required placeholder="z.B. Wien" value={reiseZiel}
                 onChange={e => setReiseZiel(e.target.value)}
                 className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-amber-900 mb-1">Zweck der Reise *</label>
-              <input type="text" required placeholder="z.B. Kundentermin XY GmbH" value={reiseZweck}
+              <label htmlFor="buchungForm-8" className="block text-xs font-medium text-amber-900 mb-1">Zweck der Reise *</label>
+              <input id="buchungForm-8" type="text" required placeholder="z.B. Kundentermin XY GmbH" value={reiseZweck}
                 onChange={e => setReiseZweck(e.target.value)}
                 className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-amber-900 mb-1">Von *</label>
-              <input type="date" required value={reiseVon} onChange={e => setReiseVon(e.target.value)}
+              <label htmlFor="buchungForm-9" className="block text-xs font-medium text-amber-900 mb-1">Von *</label>
+              <input id="buchungForm-9" type="date" required value={reiseVon} onChange={e => setReiseVon(e.target.value)}
                 className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-amber-900 mb-1">Bis *</label>
-              <input type="date" required value={reiseBis} onChange={e => setReiseBis(e.target.value)}
+              <label htmlFor="buchungForm-10" className="block text-xs font-medium text-amber-900 mb-1">Bis *</label>
+              <input id="buchungForm-10" type="date" required value={reiseBis} onChange={e => setReiseBis(e.target.value)}
                 className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
             </div>
           </div>
 
           {reiseTyp === 'kilometergeld' && (
             <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
-              <label className="block text-xs font-medium text-amber-900 mb-1">Gefahrene Kilometer *</label>
-              <input type="number" required min="0.1" step="0.1" placeholder="z.B. 120" value={reiseKm}
+              <label htmlFor="buchungForm-11" className="block text-xs font-medium text-amber-900 mb-1">Gefahrene Kilometer *</label>
+              <input id="buchungForm-11" type="number" required min="0.1" step="0.1" placeholder="z.B. 120" value={reiseKm}
                 onChange={e => setReiseKm(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
               <p className="text-xs text-gray-500">
@@ -434,8 +435,8 @@ export default function BuchungForm({
 
           {reiseTyp === 'diaeten' && (
             <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
-              <label className="block text-xs font-medium text-amber-900 mb-1">Reisedauer in Stunden *</label>
-              <input type="number" required min="0.5" step="0.5" placeholder="z.B. 9,5 – bei Mehrtagesreisen 58" value={reiseStunden}
+              <label htmlFor="buchungForm-12" className="block text-xs font-medium text-amber-900 mb-1">Reisedauer in Stunden *</label>
+              <input id="buchungForm-12" type="number" required min="0.5" step="0.5" placeholder="z.B. 9,5 – bei Mehrtagesreisen 58" value={reiseStunden}
                 onChange={e => setReiseStunden(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
               <p className="text-xs text-gray-500">
@@ -546,10 +547,10 @@ export default function BuchungForm({
 
       {/* Beschreibung */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="buchungForm-13" className="block text-sm font-medium text-gray-700 mb-1">
           Beschreibung <span className="text-gray-400 font-normal">(optional)</span>
         </label>
-        <input type="text" placeholder="z.B. Büromaterial Dezember, Rechnung Nr. 2024-001 …"
+        <input id="buchungForm-13" type="text" placeholder="z.B. Büromaterial Dezember, Rechnung Nr. 2024-001 …"
           value={description} onChange={e => setDescription(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
       </div>

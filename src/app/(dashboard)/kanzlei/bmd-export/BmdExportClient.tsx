@@ -80,8 +80,8 @@ export default function BmdExportClient({ clients }: Props) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {/* Mandant */}
           <div className="sm:col-span-3">
-            <label className="block text-xs font-medium text-gray-500 mb-1">Mandant</label>
-            <select
+            <label htmlFor="bmdExportClient-0" className="block text-xs font-medium text-gray-500 mb-1">Mandant</label>
+            <select id="bmdExportClient-0"
               value={clientId}
               onChange={e => { setClientId(e.target.value); setPreviewRows(null); setSummen(null); }}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 bg-white"
@@ -97,8 +97,8 @@ export default function BmdExportClient({ clients }: Props) {
 
           {/* Datum von */}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Datum von</label>
-            <input
+            <label htmlFor="bmdExportClient-1" className="block text-xs font-medium text-gray-500 mb-1">Datum von</label>
+            <input id="bmdExportClient-1"
               type="date"
               value={dateFrom}
               onChange={e => { setDateFrom(e.target.value); setPreviewRows(null); setSummen(null); }}
@@ -108,8 +108,8 @@ export default function BmdExportClient({ clients }: Props) {
 
           {/* Datum bis */}
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Datum bis</label>
-            <input
+            <label htmlFor="bmdExportClient-2" className="block text-xs font-medium text-gray-500 mb-1">Datum bis</label>
+            <input id="bmdExportClient-2"
               type="date"
               value={dateTo}
               onChange={e => { setDateTo(e.target.value); setPreviewRows(null); setSummen(null); }}
@@ -119,8 +119,8 @@ export default function BmdExportClient({ clients }: Props) {
 
           {/* Schnellwahl */}
           <div className="flex flex-col justify-end gap-1">
-            <label className="block text-xs font-medium text-gray-500 mb-1">Schnellwahl</label>
-            <div className="flex gap-1 flex-wrap">
+            <span id="gruppe-schnellwahl" className="block text-xs font-medium text-gray-500 mb-1">Schnellwahl</span>
+        <div role="group" aria-labelledby="gruppe-schnellwahl" className="flex gap-1 flex-wrap">
               {[currentYear, currentYear - 1].map(y => (
                 <button
                   key={y}

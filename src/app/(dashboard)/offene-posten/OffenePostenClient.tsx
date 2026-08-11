@@ -265,19 +265,19 @@ export default function OffenePostenClient({
                             <td colSpan={5} className="px-4 py-3">
                               <div className="flex flex-wrap items-end gap-3">
                                 <div>
-                                  <label className="block text-xs font-medium text-gray-600 mb-1">Zahlungsdatum</label>
-                                  <input type="date" value={outPaymentDate} onChange={e => setOutPaymentDate(e.target.value)}
+                                  <label htmlFor={`op-${inv.id}-zahldatum`} className="block text-xs font-medium text-gray-600 mb-1">Zahlungsdatum</label>
+                                  <input id={`op-${inv.id}-zahldatum`} type="date" value={outPaymentDate} onChange={e => setOutPaymentDate(e.target.value)}
                                     className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-medium text-gray-600 mb-1">Kategorie</label>
-                                  <select value={outCategoryId} onChange={e => setOutCategoryId(e.target.value)}
+                                  <label htmlFor={`op-${inv.id}-kategorie`} className="block text-xs font-medium text-gray-600 mb-1">Kategorie</label>
+                                  <select id={`op-${inv.id}-kategorie`} value={outCategoryId} onChange={e => setOutCategoryId(e.target.value)}
                                     className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
                                     {incomeCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                   </select>
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-medium text-gray-600 mb-1">Umsatzsteuer</label>
+                                  <p className="block text-xs font-medium text-gray-600 mb-1">Umsatzsteuer</p>
                                   <p className="text-sm text-gray-600 px-1 py-1.5">
                                     {formatCurrency(Number(inv.total_net))} netto
                                     {' + '}{formatCurrency(Number(inv.total_vat))} USt
@@ -385,13 +385,13 @@ export default function OffenePostenClient({
                             <td colSpan={5} className="px-4 py-3">
                               <div className="flex flex-wrap items-end gap-3">
                                 <div>
-                                  <label className="block text-xs font-medium text-gray-600 mb-1">Zahlungsdatum</label>
-                                  <input type="date" value={inPaymentDate} onChange={e => setInPaymentDate(e.target.value)}
+                                  <label htmlFor={`op-${inv.id}-zahldatum`} className="block text-xs font-medium text-gray-600 mb-1">Zahlungsdatum</label>
+                                  <input id={`op-${inv.id}-zahldatum`} type="date" value={inPaymentDate} onChange={e => setInPaymentDate(e.target.value)}
                                     className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-medium text-gray-600 mb-1">Kategorie</label>
-                                  <select value={inCategoryId} onChange={e => setInCategoryId(e.target.value)}
+                                  <label htmlFor={`op-${inv.id}-kategorie`} className="block text-xs font-medium text-gray-600 mb-1">Kategorie</label>
+                                  <select id={`op-${inv.id}-kategorie`} value={inCategoryId} onChange={e => setInCategoryId(e.target.value)}
                                     className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
                                     {expenseCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                   </select>

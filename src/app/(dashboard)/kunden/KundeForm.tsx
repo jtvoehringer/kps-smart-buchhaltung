@@ -89,21 +89,21 @@ export default function KundeForm({
         <h2 className="font-semibold text-gray-800">Stammdaten</h2>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 block mb-1">Bezeichnung <span className="text-red-400">*</span></label>
-          <input type="text" placeholder="Musterfirma GmbH – oder Vorname Nachname" value={form.name}
+          <label htmlFor="kundeForm-0" className="text-xs font-medium text-gray-500 block mb-1">Bezeichnung <span className="text-red-400">*</span></label>
+          <input id="kundeForm-0" type="text" placeholder="Musterfirma GmbH – oder Vorname Nachname" value={form.name}
             onChange={e => set('name', e.target.value)} className={inputCls} required />
           <p className="text-xs text-gray-400 mt-1">Erscheint als Rechnungsempfänger.</p>
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 block mb-1">Kontakt (optional)</label>
-          <input type="text" placeholder="Fr./Hrn. Vorname Nachname" value={form.contact_person}
+          <label htmlFor="kundeForm-1" className="text-xs font-medium text-gray-500 block mb-1">Kontakt (optional)</label>
+          <input id="kundeForm-1" type="text" placeholder="Fr./Hrn. Vorname Nachname" value={form.contact_person}
             onChange={e => set('contact_person', e.target.value)} className={inputCls} />
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 block mb-1">UID-Nummer (optional)</label>
-          <input type="text" placeholder="ATU12345678" value={form.uid_number}
+          <label htmlFor="kundeForm-2" className="text-xs font-medium text-gray-500 block mb-1">UID-Nummer (optional)</label>
+          <input id="kundeForm-2" type="text" placeholder="ATU12345678" value={form.uid_number}
             onChange={e => set('uid_number', e.target.value)} className={inputCls} />
         </div>
       </div>
@@ -132,22 +132,22 @@ export default function KundeForm({
 
         <div className="flex gap-3">
           <div className="flex-1">
-            <label className="text-xs font-medium text-gray-500 block mb-1">E-Mail</label>
-            <input type="email" placeholder="office@beispiel.at" value={form.email}
+            <label htmlFor="kundeForm-3" className="text-xs font-medium text-gray-500 block mb-1">E-Mail</label>
+            <input id="kundeForm-3" type="email" placeholder="office@beispiel.at" value={form.email}
               onChange={e => set('email', e.target.value)} className={inputCls} />
           </div>
           <div className="flex-1">
-            <label className="text-xs font-medium text-gray-500 block mb-1">Telefon</label>
-            <input type="tel" placeholder="+43 1 234 567" value={form.phone}
+            <label htmlFor="kundeForm-4" className="text-xs font-medium text-gray-500 block mb-1">Telefon</label>
+            <input id="kundeForm-4" type="tel" placeholder="+43 1 234 567" value={form.phone}
               onChange={e => set('phone', e.target.value)} className={inputCls} />
           </div>
         </div>
 
         <div>
-          <label className="text-xs font-medium text-gray-500 block mb-1">
+          <label htmlFor="kundeForm-5" className="text-xs font-medium text-gray-500 block mb-1">
             Zahlungsziel in Tagen <span className="text-red-400">*</span>
           </label>
-          <input type="number" required min={0} max={365} step={1}
+          <input id="kundeForm-5" type="number" required min={0} max={365} step={1}
             value={form.payment_days}
             onChange={e => set('payment_days', e.target.value === '' ? 0 : Number(e.target.value))}
             className="w-40 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />

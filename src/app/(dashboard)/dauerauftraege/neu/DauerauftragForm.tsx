@@ -115,10 +115,10 @@ export default function DauerauftragForm({
 
       {/* Name */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="dauerauftragForm-0" className="block text-sm font-medium text-gray-700 mb-1">
           Bezeichnung <span className="text-red-400">*</span>
         </label>
-        <input
+        <input id="dauerauftragForm-0"
           type="text"
           required
           placeholder="z.B. Büromiete, Steuerberater-Honorar …"
@@ -130,8 +130,8 @@ export default function DauerauftragForm({
 
       {/* Typ */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Art der Buchung</label>
-        <div className="flex gap-3">
+        <span id="gruppe-buchungsart" className="block text-sm font-medium text-gray-700 mb-2">Art der Buchung</span>
+        <div role="group" aria-labelledby="gruppe-buchungsart" className="flex gap-3">
           <button
             type="button"
             onClick={() => setType('income')}
@@ -159,8 +159,8 @@ export default function DauerauftragForm({
 
       {/* Kategorie */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
-        <select
+        <label htmlFor="dauerauftragForm-1" className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
+        <select id="dauerauftragForm-1"
           required
           value={categoryId}
           onChange={e => setCategoryId(e.target.value)}
@@ -175,10 +175,10 @@ export default function DauerauftragForm({
       {/* Betrag */}
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="dauerauftragForm-2" className="block text-sm font-medium text-gray-700 mb-1">
             {isBrutto ? 'Brutto (€)' : 'Netto (€)'}
           </label>
-          <input
+          <input id="dauerauftragForm-2"
             type="number"
             required
             min="0.01"
@@ -190,8 +190,8 @@ export default function DauerauftragForm({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">USt %</label>
-          <select
+          <label htmlFor="dauerauftragForm-3" className="block text-sm font-medium text-gray-700 mb-1">USt %</label>
+          <select id="dauerauftragForm-3"
             value={vatRate}
             onChange={e => setVatRate(Number(e.target.value))}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
@@ -200,9 +200,9 @@ export default function DauerauftragForm({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <p className="block text-sm font-medium text-gray-700 mb-1">
             {isBrutto ? 'Netto (€)' : 'Brutto (€)'}
-          </label>
+          </p>
           <div className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-2.5 text-sm text-gray-700 font-medium">
             {inputNum > 0 ? (isBrutto ? netNum.toFixed(2) : grossNum.toFixed(2)) : '—'}
           </div>
@@ -217,8 +217,8 @@ export default function DauerauftragForm({
 
       {/* Intervall */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Wiederholungsintervall</label>
-        <div className="grid grid-cols-2 gap-2">
+        <span id="gruppe-intervall" className="block text-sm font-medium text-gray-700 mb-2">Wiederholungsintervall</span>
+        <div role="group" aria-labelledby="gruppe-intervall" className="grid grid-cols-2 gap-2">
           {INTERVAL_OPTIONS.map(opt => (
             <button
               key={opt.value}
@@ -238,10 +238,10 @@ export default function DauerauftragForm({
 
       {/* Erste Ausführung */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="dauerauftragForm-4" className="block text-sm font-medium text-gray-700 mb-1">
           Erste Ausführung
         </label>
-        <input
+        <input id="dauerauftragForm-4"
           type="date"
           required
           value={nextRunDate}

@@ -224,14 +224,14 @@ export default function RechnungDetailClient({
         <div className="bg-white border border-accent/30 rounded-xl p-5 space-y-3">
           <p className="text-sm font-semibold text-gray-800">Rechnung per E-Mail senden</p>
           <div>
-            <label className="text-xs font-medium text-gray-500 block mb-1">Empfänger-E-Mail-Adresse</label>
-            <input type="email" value={sendTo} onChange={e => setSendTo(e.target.value)}
+            <label htmlFor="rechnungDetailClient-0" className="text-xs font-medium text-gray-500 block mb-1">Empfänger-E-Mail-Adresse</label>
+            <input id="rechnungDetailClient-0" type="email" value={sendTo} onChange={e => setSendTo(e.target.value)}
               placeholder="kunde@beispiel.at"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent" />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 block mb-1">Nachricht (optional)</label>
-            <textarea rows={2} value={sendMessage} onChange={e => setSendMessage(e.target.value)}
+            <label htmlFor="rechnungDetailClient-1" className="text-xs font-medium text-gray-500 block mb-1">Nachricht (optional)</label>
+            <textarea id="rechnungDetailClient-1" rows={2} value={sendMessage} onChange={e => setSendMessage(e.target.value)}
               placeholder="z.B. anbei erhalten Sie die Rechnung wie besprochen."
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none" />
           </div>

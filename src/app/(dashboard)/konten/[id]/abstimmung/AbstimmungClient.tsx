@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useServerState } from '@/lib/useServerState';
 import { createClient } from '@/lib/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import { Check, EyeOff, Eye } from 'lucide-react';
@@ -33,7 +34,7 @@ export default function AbstimmungClient({
   openingDate: string | null;
 }) {
   const supabase = createClient();
-  const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useServerState(initialRows);
   const [hidePrivate, setHidePrivate] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [fehler, setFehler] = useState('');

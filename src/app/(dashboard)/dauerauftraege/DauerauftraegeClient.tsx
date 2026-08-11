@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useServerState } from '@/lib/useServerState';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 
@@ -41,7 +42,7 @@ export default function DauerauftraegeClient({
   bookingMode: string;
 }) {
   const supabase = createClient();
-  const [items, setItems] = useState<RecurringTransaction[]>(recurring);
+  const [items, setItems] = useServerState<RecurringTransaction[]>(recurring);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState('');
 

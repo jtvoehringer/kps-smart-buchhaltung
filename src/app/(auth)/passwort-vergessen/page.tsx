@@ -51,8 +51,8 @@ export default function PasswortVergessenPage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">E-Mail-Adresse</label>
-              <input
+              <label htmlFor="page-0" className="block text-sm font-medium text-gray-700 mb-1">E-Mail-Adresse</label>
+              <input id="page-0"
                 type="email" name="email" required autoComplete="email"
                 value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="max@mustermann.at"

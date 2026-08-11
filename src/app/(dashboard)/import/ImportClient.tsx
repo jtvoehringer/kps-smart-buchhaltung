@@ -476,8 +476,8 @@ export default function ImportClient({
             <div className="flex items-center gap-3">
               {accounts.length > 0 && (
                 <div>
-                  <label className="text-xs font-medium text-gray-500 block mb-1">Konto</label>
-                  <select
+                  <label htmlFor="importClient-0" className="text-xs font-medium text-gray-500 block mb-1">Konto</label>
+                  <select id="importClient-0"
                     value={accountId}
                     onChange={e => setAccountId(e.target.value)}
                     className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#35609E]"

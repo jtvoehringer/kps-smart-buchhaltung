@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
+import { useServerState } from '@/lib/useServerState';
 import { createClient } from '@/lib/supabase/client';
 import { heute } from '@/lib/fehler';
 import {
@@ -88,7 +89,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
   const fileInputRef                = useRef<HTMLInputElement>(null);
   const cameraInputRef              = useRef<HTMLInputElement>(null);
 
-  const [receipts, setReceipts]     = useState<Receipt[]>(initialReceipts);
+  const [receipts, setReceipts]     = useServerState<Receipt[]>(initialReceipts);
   const [uploading, setUploading]   = useState(false);
   const [uploadErr, setUploadErr]   = useState('');
   const [dragOver, setDragOver]     = useState(false);
@@ -539,8 +540,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                 <div className="grid grid-cols-2 gap-3">
                   {/* Typ */}
                   <div className="col-span-2">
-                    <label className="text-xs text-gray-500 font-medium block mb-1">Typ</label>
-                    <div className="flex gap-2">
+                    <span id="gruppe-belegtyp" className="text-xs text-gray-500 font-medium block mb-1">Typ</span>
+        <div role="group" aria-labelledby="gruppe-belegtyp" className="flex gap-2">
                       {(['ausgabe', 'einnahme'] as const).map(t => (
                         <button
                           key={t}
@@ -564,8 +565,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                   {/* Kategorie */}
                   <div className="col-span-2">
-                    <label className="text-xs text-gray-500 font-medium block mb-1">Kategorie</label>
-                    <select
+                    <label htmlFor="belegeClient-0" className="text-xs text-gray-500 font-medium block mb-1">Kategorie</label>
+                    <select id="belegeClient-0"
                       value={categoryId}
                       onChange={e => setCategoryId(e.target.value)}
                       className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 bg-white"
@@ -589,14 +590,14 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                         Dokumentation von Anlass und Teilnehmern – beides ist daher hier verpflichtend.
                       </p>
                       <div>
-                        <label className="block text-xs font-medium text-amber-900 mb-1">Anlass der Bewirtung *</label>
-                        <input type="text" required placeholder="z.B. Projektbesprechung mit Kunde XY"
+                        <label htmlFor="belegeClient-1" className="block text-xs font-medium text-amber-900 mb-1">Anlass der Bewirtung *</label>
+                        <input id="belegeClient-1" type="text" required placeholder="z.B. Projektbesprechung mit Kunde XY"
                           value={bewirtungAnlass} onChange={e => setBewirtungAnlass(e.target.value)}
                           className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-amber-900 mb-1">Teilnehmer *</label>
-                        <input type="text" required placeholder="z.B. Max Mustermann (Kunde XY GmbH), Jörgen Voehringer"
+                        <label htmlFor="belegeClient-2" className="block text-xs font-medium text-amber-900 mb-1">Teilnehmer *</label>
+                        <input id="belegeClient-2" type="text" required placeholder="z.B. Max Mustermann (Kunde XY GmbH), Jörgen Voehringer"
                           value={bewirtungTeilnehmer} onChange={e => setBewirtungTeilnehmer(e.target.value)}
                           className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
                       </div>
@@ -613,8 +614,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                         Zeitraum der Reise sind für den Nachweis verpflichtend.
                       </p>
                       <div>
-                        <label className="block text-xs font-medium text-amber-900 mb-1">Art der Reisekosten *</label>
-                        <select required value={reiseTyp} onChange={e => setReiseTyp(e.target.value as typeof reiseTyp)}
+                        <label htmlFor="belegeClient-3" className="block text-xs font-medium text-amber-900 mb-1">Art der Reisekosten *</label>
+                        <select id="belegeClient-3" required value={reiseTyp} onChange={e => setReiseTyp(e.target.value as typeof reiseTyp)}
                           className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
                           <option value="">Bitte wählen…</option>
                           <option value="kilometergeld">Kilometergeld</option>
@@ -626,35 +627,35 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-medium text-amber-900 mb-1">Reiseziel *</label>
-                          <input type="text" required placeholder="z.B. Wien" value={reiseZiel}
+                          <label htmlFor="belegeClient-4" className="block text-xs font-medium text-amber-900 mb-1">Reiseziel *</label>
+                          <input id="belegeClient-4" type="text" required placeholder="z.B. Wien" value={reiseZiel}
                             onChange={e => setReiseZiel(e.target.value)}
                             className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-amber-900 mb-1">Zweck der Reise *</label>
-                          <input type="text" required placeholder="z.B. Kundentermin XY GmbH" value={reiseZweck}
+                          <label htmlFor="belegeClient-5" className="block text-xs font-medium text-amber-900 mb-1">Zweck der Reise *</label>
+                          <input id="belegeClient-5" type="text" required placeholder="z.B. Kundentermin XY GmbH" value={reiseZweck}
                             onChange={e => setReiseZweck(e.target.value)}
                             className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-medium text-amber-900 mb-1">Von *</label>
-                          <input type="date" required value={reiseVon} onChange={e => setReiseVon(e.target.value)}
+                          <label htmlFor="belegeClient-6" className="block text-xs font-medium text-amber-900 mb-1">Von *</label>
+                          <input id="belegeClient-6" type="date" required value={reiseVon} onChange={e => setReiseVon(e.target.value)}
                             className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-amber-900 mb-1">Bis *</label>
-                          <input type="date" required value={reiseBis} onChange={e => setReiseBis(e.target.value)}
+                          <label htmlFor="belegeClient-7" className="block text-xs font-medium text-amber-900 mb-1">Bis *</label>
+                          <input id="belegeClient-7" type="date" required value={reiseBis} onChange={e => setReiseBis(e.target.value)}
                             className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
                         </div>
                       </div>
 
                       {reiseTyp === 'kilometergeld' && (
                         <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
-                          <label className="block text-xs font-medium text-amber-900 mb-1">Gefahrene Kilometer *</label>
-                          <input type="number" required min="0.1" step="0.1" placeholder="z.B. 120" value={reiseKm}
+                          <label htmlFor="belegeClient-8" className="block text-xs font-medium text-amber-900 mb-1">Gefahrene Kilometer *</label>
+                          <input id="belegeClient-8" type="number" required min="0.1" step="0.1" placeholder="z.B. 120" value={reiseKm}
                             onChange={e => {
                               const km = e.target.value;
                               setReiseKm(km);
@@ -670,8 +671,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                       {reiseTyp === 'diaeten' && (
                         <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
-                          <label className="block text-xs font-medium text-amber-900 mb-1">Reisedauer in Stunden *</label>
-                          <input type="number" required min="0.5" step="0.5" placeholder="z.B. 9,5" value={reiseStunden}
+                          <label htmlFor="belegeClient-9" className="block text-xs font-medium text-amber-900 mb-1">Reisedauer in Stunden *</label>
+                          <input id="belegeClient-9" type="number" required min="0.5" step="0.5" placeholder="z.B. 9,5" value={reiseStunden}
                             onChange={e => {
                               const val = e.target.value;
                               setReiseStunden(val);
@@ -707,8 +708,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                   {/* Datum */}
                   <div>
-                    <label className="text-xs text-gray-500 font-medium block mb-1">Datum</label>
-                    <input
+                    <label htmlFor="belegeClient-10" className="text-xs text-gray-500 font-medium block mb-1">Datum</label>
+                    <input id="belegeClient-10"
                       type="date"
                       value={editing.datum ?? ''}
                       onChange={e => setEditing(p => ({ ...p, datum: e.target.value }))}
@@ -718,8 +719,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                   {/* MwSt-Satz */}
                   <div>
-                    <label className="text-xs text-gray-500 font-medium block mb-1">MwSt-Satz</label>
-                    <select
+                    <label htmlFor="belegeClient-11" className="text-xs text-gray-500 font-medium block mb-1">MwSt-Satz</label>
+                    <select id="belegeClient-11"
                       value={editing.mwst_satz ?? 20}
                       disabled={isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten')}
                       onChange={e => {
@@ -743,8 +744,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                   {/* Betrag Brutto */}
                   <div>
-                    <label className="text-xs text-gray-500 font-medium block mb-1">Brutto (€)</label>
-                    <input
+                    <label htmlFor="belegeClient-12" className="text-xs text-gray-500 font-medium block mb-1">Brutto (€)</label>
+                    <input id="belegeClient-12"
                       type="number"
                       step="0.01"
                       value={editing.betrag_brutto ?? ''}
@@ -766,8 +767,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                   {/* MwSt-Betrag (readonly) */}
                   <div>
-                    <label className="text-xs text-gray-500 font-medium block mb-1">MwSt-Betrag (€)</label>
-                    <input
+                    <label htmlFor="belegeClient-13" className="text-xs text-gray-500 font-medium block mb-1">MwSt-Betrag (€)</label>
+                    <input id="belegeClient-13"
                       type="number"
                       readOnly
                       value={fmt(editing.mwst_betrag ?? null)}
@@ -777,8 +778,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                   {/* Lieferant */}
                   <div className="col-span-2">
-                    <label className="text-xs text-gray-500 font-medium block mb-1">Lieferant / Aussteller</label>
-                    <input
+                    <label htmlFor="belegeClient-14" className="text-xs text-gray-500 font-medium block mb-1">Lieferant / Aussteller</label>
+                    <input id="belegeClient-14"
                       type="text"
                       value={editing.lieferant ?? ''}
                       onChange={e => setEditing(p => ({ ...p, lieferant: e.target.value }))}
@@ -788,8 +789,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                   {/* Beschreibung */}
                   <div className="col-span-2">
-                    <label className="text-xs text-gray-500 font-medium block mb-1">Beschreibung</label>
-                    <input
+                    <label htmlFor="belegeClient-15" className="text-xs text-gray-500 font-medium block mb-1">Beschreibung</label>
+                    <input id="belegeClient-15"
                       type="text"
                       value={editing.beschreibung ?? ''}
                       onChange={e => setEditing(p => ({ ...p, beschreibung: e.target.value }))}

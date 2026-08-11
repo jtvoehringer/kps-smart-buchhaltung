@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useServerState } from '@/lib/useServerState';
 import { addUserToMandant, removeUserFromMandant } from './actions';
 
 type Member = { userId: string; email: string; fullName: string };
@@ -12,7 +13,7 @@ export default function MandantUserManager({
   clientId: string;
   members: Member[];
 }) {
-  const [members, setMembers] = useState<Member[]>(initial);
+  const [members, setMembers] = useServerState<Member[]>(initial);
   const [email, setEmail]     = useState('');
   const [error, setError]     = useState('');
   const [success, setSuccess] = useState('');
