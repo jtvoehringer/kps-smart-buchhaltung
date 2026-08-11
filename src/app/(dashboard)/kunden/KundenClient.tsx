@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { meldeFehler } from '@/lib/fehler';
 
 type Customer = {
   id: string;
@@ -31,6 +32,7 @@ export default function KundenClient({
   const supabase = createClient();
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [fehler, setFehler] = useState('');
 
   const filtered = customers.filter(c =>
     `${c.name} ${c.contact_person ?? ''} ${c.email ?? ''} ${c.city ?? ''}`.toLowerCase()
@@ -40,7 +42,10 @@ export default function KundenClient({
   async function handleDeactivate(id: string) {
     if (!confirm('Kunden wirklich deaktivieren? Er wird nicht mehr in der Liste angezeigt.')) return;
     setDeletingId(id);
-    await supabase.from('customers').update({ is_active: false }).eq('id', id);
+    const { error: loeschFehler } = await supabase.from('customers')
+      .update({ is_active: false })
+      .eq('id', id);
+    if (meldeFehler('Kunden deaktivieren', loeschFehler, setFehler)) return;
     router.refresh();
     setDeletingId(null);
   }
@@ -62,6 +67,11 @@ export default function KundenClient({
 
   return (
     <div className="space-y-4">
+      {fehler && (
+        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
+          {fehler}
+        </p>
+      )}
       {/* Suche */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3">
         <input

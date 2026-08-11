@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { heute } from '@/lib/fehler';
 import {
   berechneKilometergeld, berechneDiaeten, vorgeschlagenerSteuersatz, reiseSaetzeFuer,
 } from '@/lib/steuer';
@@ -10,6 +11,8 @@ import { useRouter }    from 'next/navigation';
 // ── Typen ────────────────────────────────────────────────────────────────────
 
 type OcrData = {
+  /** Plausibilitätshinweise aus der OCR-Route (Migration/Route 026er-Runde) */
+  pruefhinweise?: string[];
   datum:          string | null;
   betrag_brutto:  number | null;
   mwst_satz:      number | null;
@@ -171,20 +174,42 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
   async function startOcr(receiptId: string) {
     setReceipts(prev => prev.map(r => r.id === receiptId ? { ...r, status: 'processing' } : r));
 
-    const res  = await fetch('/api/ocr/process', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ receiptId }),
-    });
-    const data = await res.json();
+    // Ohne try/catch blieb der Beleg bei einem Gateway-Timeout oder einer
+    // HTML-Fehlerseite dauerhaft auf "Wird verarbeitet…" stehen: res.json()
+    // warf, der Status wurde nie zurückgesetzt, und in der Liste war der
+    // Beleg weder anklickbar noch erneut startbar.
+    try {
+      const res = await fetch('/api/ocr/process', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ receiptId }),
+        signal:  AbortSignal.timeout(90_000),
+      });
 
-    if (!res.ok) {
+      let data: { error?: string; ocrData?: OcrData } = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = { error: `Unerwartete Antwort vom Server (HTTP ${res.status}).` };
+      }
+
+      if (!res.ok) {
+        setReceipts(prev => prev.map(r =>
+          r.id === receiptId ? { ...r, status: 'error', ocr_error: data.error ?? 'Belegerkennung fehlgeschlagen' } : r
+        ));
+      } else {
+        setReceipts(prev => prev.map(r =>
+          r.id === receiptId ? { ...r, status: 'processed', ocr_data: data.ocrData ?? null } : r
+        ));
+      }
+    } catch (e: unknown) {
+      const abgebrochen = e instanceof DOMException && e.name === 'TimeoutError';
+      const meldung = abgebrochen
+        ? 'Die Belegerkennung hat zu lange gedauert. Bitte erneut versuchen – bei mehrseitigen PDFs kann das vorkommen.'
+        : (e instanceof Error ? e.message : 'Belegerkennung fehlgeschlagen');
+      console.error('OCR fehlgeschlagen:', e);
       setReceipts(prev => prev.map(r =>
-        r.id === receiptId ? { ...r, status: 'error', ocr_error: data.error } : r
-      ));
-    } else {
-      setReceipts(prev => prev.map(r =>
-        r.id === receiptId ? { ...r, status: 'processed', ocr_data: data.ocrData } : r
+        r.id === receiptId ? { ...r, status: 'error', ocr_error: meldung } : r
       ));
     }
   }
@@ -249,7 +274,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
       .insert({
         client_id:    clientId,
         category_id:  categoryId,
-        booking_date: d.datum ?? new Date().toISOString().split('T')[0],
+        booking_date: d.datum ?? heute(),
         description:  `${d.lieferant ? d.lieferant + ' – ' : ''}${d.beschreibung ?? ''}`.trim(),
         type,
         amount_net:   net,
@@ -430,6 +455,11 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                   {r.ocr_error && (
                     <p className="text-xs text-red-500 truncate">{r.ocr_error}</p>
                   )}
+                  {r.status === 'processing' && !r.ocr_error && (
+                    <p className="text-xs text-gray-400">
+                      Läuft. Bleibt es länger stehen, rechts auf „Erneut versuchen" tippen.
+                    </p>
+                  )}
                 </div>
 
                 {/* Dateigröße */}
@@ -445,13 +475,19 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                   }
                 </span>
 
-                {/* Retry-Button bei Fehler */}
-                {r.status === 'error' && (
+                {/* Erneut versuchen – auch bei 'processing'. Bricht die
+                    Serverless-Function ab (Timeout, Neustart), bleibt der
+                    Status sonst für immer auf "Wird verarbeitet…" und der
+                    Beleg ist über die Oberfläche nicht mehr erreichbar. */}
+                {(r.status === 'error' || r.status === 'processing') && (
                   <button
-                    onClick={e => { e.stopPropagation(); startOcr(r.id); }}
+                    onClick={e => { e.stopPropagation(); void startOcr(r.id); }}
                     className="text-xs text-[#35609E] hover:underline flex-shrink-0"
+                    title={r.status === 'processing'
+                      ? 'Erkennung neu starten – falls sie hängengeblieben ist'
+                      : 'Erkennung erneut versuchen'}
                   >
-                    Retry
+                    Erneut versuchen
                   </button>
                 )}
               </li>
@@ -484,6 +520,21 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                   KI-Erkennung — bitte prüfen und ggf. korrigieren
                 </p>
+
+                {/* Plausibilitätshinweise der Erkennung. Vorher wurden
+                    netto/USt/Satz ungeprüft übernommen – bei einem Beleg
+                    mit mehreren Steuersätzen ergab das eine Buchung, deren
+                    Steuer zu keinem der Sätze passte. */}
+                {selected.ocr_data?.pruefhinweise?.length ? (
+                  <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 space-y-1">
+                    <p className="text-xs font-semibold text-amber-900">
+                      Bitte vor dem Verbuchen prüfen
+                    </p>
+                    <ul className="text-xs text-amber-800 list-disc pl-4 space-y-0.5">
+                      {selected.ocr_data.pruefhinweise.map((h, i) => <li key={i}>{h}</li>)}
+                    </ul>
+                  </div>
+                ) : null}
 
                 <div className="grid grid-cols-2 gap-3">
                   {/* Typ */}

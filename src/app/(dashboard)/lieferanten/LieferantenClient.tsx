@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { meldeFehler } from '@/lib/fehler';
 import { Truck, Pencil, X } from 'lucide-react';
 
 type Supplier = {
@@ -33,6 +34,7 @@ export default function LieferantenClient({
   const supabase = createClient();
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [fehler, setFehler] = useState('');
 
   const filtered = suppliers.filter(s =>
     `${s.name} ${s.contact_person ?? ''} ${s.email ?? ''} ${s.city ?? ''}`.toLowerCase()
@@ -42,7 +44,10 @@ export default function LieferantenClient({
   async function handleDeactivate(id: string) {
     if (!confirm('Lieferanten wirklich deaktivieren? Er wird nicht mehr in der Liste angezeigt.')) return;
     setDeletingId(id);
-    await supabase.from('suppliers').update({ is_active: false }).eq('id', id);
+    const { error: loeschFehler } = await supabase.from('suppliers')
+      .update({ is_active: false })
+      .eq('id', id);
+    if (meldeFehler('Lieferanten deaktivieren', loeschFehler, setFehler)) return;
     router.refresh();
     setDeletingId(null);
   }
@@ -64,6 +69,11 @@ export default function LieferantenClient({
 
   return (
     <div className="space-y-4">
+      {fehler && (
+        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
+          {fehler}
+        </p>
+      )}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3">
         <input
           type="text"

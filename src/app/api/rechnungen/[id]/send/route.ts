@@ -124,7 +124,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }
 
     const sentAt = new Date().toISOString();
-    await admin.from('invoices').update({ sent_at: sentAt, sent_to: recipient }).eq('id', id);
+    const { error: sentErr } = await admin.from('invoices').update({ sent_at: sentAt, sent_to: recipient }).eq('id', id);
+    if (sentErr) {
+      // Die Mail ist raus – der Vermerk fehlt. Ohne Log versendet
+      // der Nutzer die Rechnung womöglich ein zweites Mal.
+      console.error('[Rechnungsversand] sent_at konnte nicht gesetzt werden', sentErr);
+    }
 
     return NextResponse.json({ ok: true, sentAt, sentTo: recipient });
   } catch (err: unknown) {

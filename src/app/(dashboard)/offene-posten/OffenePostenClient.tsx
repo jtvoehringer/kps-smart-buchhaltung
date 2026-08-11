@@ -4,6 +4,7 @@ import { useState, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { heute } from '@/lib/fehler';
 import { formatCurrency } from '@/lib/utils';
 import {
   ArrowUpCircle, ArrowDownCircle, AlertTriangle, Check, X, Loader2, Inbox, Paperclip,
@@ -123,7 +124,7 @@ export default function OffenePostenClient({
 
   function openInBooking(inv: IncomingInvoice) {
     setInBookingId(inv.id);
-    setInPaymentDate(new Date().toISOString().split('T')[0]);
+    setInPaymentDate(heute());
     setInCategoryId(inv.category_id ?? expenseCategories[0]?.id ?? '');
     setInError('');
   }

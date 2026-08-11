@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { heute, alsDatum } from '@/lib/fehler';
 import { formatCurrency, calcVat } from '@/lib/utils';
 
 type Customer = {
@@ -95,13 +96,13 @@ const EMPTY_ITEM: InvoiceItem = {
 };
 
 function todayStr() {
-  return new Date().toISOString().slice(0, 10);
+  return heute();
 }
 
 function addDays(dateStr: string, days: number) {
   const d = new Date(dateStr);
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  return alsDatum(d);
 }
 
 export default function RechnungForm({

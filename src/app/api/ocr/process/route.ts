@@ -9,6 +9,12 @@ import { createAdminClient }          from '@/lib/supabase/admin';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+// Ohne explizite Grenze greift der Vercel-Default. Läuft die Function in
+// den Timeout, wird der catch-Block unten NICHT mehr erreicht – der Beleg
+// bliebe dann dauerhaft auf 'processing' stehen und wäre in der Oberfläche
+// weder anklickbar noch wiederholbar.
+export const maxDuration = 60;
+
 const OCR_PROMPT = `Du bist ein Buchhalter-Assistent. Analysiere diesen österreichischen Beleg (Rechnung, Kassenbon oder Quittung) und extrahiere folgende Felder als JSON.
 
 Antworte NUR mit validem JSON, kein erklärender Text davor oder danach.
@@ -124,6 +130,35 @@ export async function POST(req: NextRequest) {
     if (!json) throw new Error('Keine JSON-Antwort von Claude');
 
     const ocrData = JSON.parse(json);
+
+    // Plausibilität prüfen, bevor das Ergebnis als verwertbar gilt.
+    // Die Buchungsmaske übernahm netto/USt/Satz bisher ungeprüft – bei
+    // einem Mischbeleg (z.B. Speisen 10 %, Getränke 20 %) liefert das
+    // Modell einen "dominanten" Satz, der zu keiner der beiden Summen passt.
+    const brutto = Number(ocrData?.betrag_brutto);
+    const netto  = Number(ocrData?.betrag_netto);
+    const ust    = Number(ocrData?.mwst_betrag);
+    const satz   = Number(ocrData?.mwst_satz);
+    const hinweise: string[] = [];
+
+    if (Number.isFinite(brutto) && Number.isFinite(netto) && Number.isFinite(ust)) {
+      if (Math.abs(netto + ust - brutto) > 0.02) {
+        hinweise.push(`Netto (${netto.toFixed(2)}) + USt (${ust.toFixed(2)}) ergibt nicht den Bruttobetrag (${brutto.toFixed(2)}).`);
+      }
+    }
+    if (Number.isFinite(netto) && Number.isFinite(ust) && Number.isFinite(satz) && satz > 0) {
+      const erwartet = Math.round((Math.round(netto * 100) * satz) / 100) / 100;
+      if (Math.abs(erwartet - ust) > 0.02) {
+        hinweise.push(`Die USt passt nicht zum erkannten Satz von ${satz} % – möglicherweise ein Beleg mit mehreren Steuersätzen.`);
+      }
+    }
+    if (Number.isFinite(satz) && ![0, 10, 13, 20].includes(satz)) {
+      hinweise.push(`Steuersatz ${satz} % ist in Österreich nicht vorgesehen – bitte vor dem Verbuchen korrigieren.`);
+    }
+
+    if (hinweise.length > 0) {
+      ocrData.pruefhinweise = hinweise;
+    }
 
     // Ergebnis speichern
     await admin.from('receipts').update({

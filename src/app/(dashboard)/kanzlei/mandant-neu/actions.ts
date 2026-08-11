@@ -91,13 +91,25 @@ export async function createMandant(formData: FormData) {
   }
 
   // 3. client_membership anlegen (User → Client-Zugriff)
-  await adminSupabase
+  // Der Fehler wurde bisher verworfen. Schlägt der Insert fehl, ist der
+  // Mandant angelegt, der Klient sieht aber dauerhaft nur „Ihr
+  // Buchführungs-Profil wird von der Kanzlei eingerichtet" – während die
+  // Kanzlei ihn in der Liste sieht und alles für erledigt hält.
+  const { error: membershipError } = await adminSupabase
     .from('client_memberships')
     .insert({
       client_id:  newClient.id,
       user_id:    mandantUserId,
       invited_by: user.id,
     });
+
+  if (membershipError) {
+    console.error('[Mandant anlegen] Membership konnte nicht angelegt werden', membershipError);
+    return {
+      error: `Der Mandant wurde angelegt, aber der Zugang konnte nicht verknüpft werden: ${membershipError.message}. `
+           + `Bitte den Benutzer unter Kanzlei → Mandant manuell zuordnen.`,
+    };
+  }
 
   redirect('/kanzlei');
 }

@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { heute, alsDatum } from '@/lib/fehler';
 import { Plus, Paperclip, Loader2 } from 'lucide-react';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
@@ -12,11 +13,11 @@ const VAT_RATES = [0, 10, 13, 20];
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 const MAX_SIZE_MB = 10;
 
-function todayIso() { return new Date().toISOString().split('T')[0]; }
+function todayIso() { return heute(); }
 function defaultDueDate() {
   const d = new Date();
   d.setDate(d.getDate() + 14);
-  return d.toISOString().split('T')[0];
+  return alsDatum(d);
 }
 
 export default function NeueEingangsrechnungForm({

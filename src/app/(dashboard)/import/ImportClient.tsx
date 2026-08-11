@@ -155,6 +155,8 @@ export default function ImportClient({
   const [fileType,  setFileType]  = useState<'camt053'|'csv'|''>('');
   const [accountId, setAccountId] = useState('');
   const [importing, setImporting] = useState(false);
+  // Fortschritt: bei 200 Zeilen sonst minutenlang nur ein statisches "Importiere…"
+  const [fortschritt, setFortschritt] = useState<{ fertig: number; gesamt: number } | null>(null);
   const [importMsg, setImportMsg] = useState('');
   const [dragOver,  setDragOver]  = useState(false);
 
@@ -250,8 +252,13 @@ export default function ImportClient({
     let withExtras = true; // versuche zuerst mit import_source + bank_ref + account_id + is_private
     let imported = 0;
     const learned = new Map<string, { categoryId: string; isPrivate: boolean }>();
+    // Nur die tatsächlich gebuchten Zeilen werden anschließend gesperrt.
+    const erledigt = new Set<string>();
+    const fehler: { zeile: ImportRow; meldung: string }[] = [];
+    setFortschritt({ fertig: 0, gesamt: toImport.length });
 
-    for (const r of toImport) {
+    for (const [i, r] of toImport.entries()) {
+      setFortschritt({ fertig: i, gesamt: toImport.length });
       const useMatch = r.linked && r.match;
 
       let base: TxInsert;
@@ -318,18 +325,24 @@ export default function ImportClient({
           const { data: retryTx, error: retryErr } = await supabase
             .from('transactions').insert(base).select('id').single();
           if (retryErr || !retryTx) {
-            setImportMsg(`❌ Fehler beim Import: ${retryErr?.message ?? error.message}`);
-            setImporting(false);
-            return;
+            fehler.push({ zeile: r, meldung: retryErr?.message ?? error.message });
+            continue;
           }
+          erledigt.add(r.bankRef);
           imported += 1;
           await linkIfMatched(r, retryTx.id);
         } else {
-          setImportMsg(`❌ Fehler beim Import: ${error.message}`);
-          setImporting(false);
-          return;
+          // Nicht mehr abbrechen: eine einzelne Problemzeile (gesperrter
+          // Monat, fehlende Kategorie, Duplikat) darf den restlichen
+          // Import nicht verhindern. Vorher blieben die bereits
+          // importierten Zeilen unmarkiert zurück – ein zweiter Versuch
+          // scheiterte dann sofort am Duplikat-Index, und der Import war
+          // gar nicht mehr abschließbar.
+          fehler.push({ zeile: r, meldung: error.message });
+          continue;
         }
       } else if (newTx) {
+        erledigt.add(r.bankRef);
         imported += 1;
         await linkIfMatched(r, newTx.id);
       }
@@ -376,11 +389,27 @@ export default function ImportClient({
       account_id:  accountId || null,
     }).then(() => {}, () => {});
 
-    setImportMsg(`✅ ${imported} Buchung${imported !== 1 ? 'en' : ''} importiert.${!withExtras ? ' (Tipp: Migrationen ausführen für Duplikat-Schutz, Konto- und Privat-Kennzeichnung)' : ''}`);
+    setFortschritt(null);
+
+    if (fehler.length === 0) {
+      setImportMsg(`✅ ${imported} Buchung${imported !== 1 ? 'en' : ''} importiert.${!withExtras ? ' (Tipp: Migrationen ausführen für Duplikat-Schutz, Konto- und Privat-Kennzeichnung)' : ''}`);
+    } else {
+      const ersteMeldungen = fehler.slice(0, 3).map(f => `„${f.zeile.counterpart || f.zeile.description}“: ${f.meldung}`);
+      setImportMsg(
+        `${imported} von ${toImport.length} Buchungen importiert. ` +
+        `${fehler.length} Zeile${fehler.length !== 1 ? 'n' : ''} konnte${fehler.length !== 1 ? 'n' : ''} nicht gebucht werden und ` +
+        `bleibt${fehler.length !== 1 ? 'en' : ''} zum erneuten Versuch stehen:\n` +
+        ersteMeldungen.join('\n') +
+        (fehler.length > 3 ? `\n… und ${fehler.length - 3} weitere.` : '')
+      );
+    }
     setImporting(false);
 
+    // Nur die tatsächlich importierten Zeilen sperren. Alles andere bleibt
+    // auswählbar, damit der Import nach einer Korrektur fortgesetzt werden
+    // kann, ohne am Duplikat-Index hängenzubleiben.
     setRows(prev => prev.map(r =>
-      r.selected ? { ...r, isDuplicate: true, selected: false } : r
+      erledigt.has(r.bankRef) ? { ...r, isDuplicate: true, selected: false } : r
     ));
 
     router.refresh();
@@ -472,9 +501,11 @@ export default function ImportClient({
             <div className={`px-4 py-3 rounded-xl border ${
               importMsg.startsWith('✅')
                 ? 'bg-green-50 text-green-700 border-green-200'
-                : 'bg-red-50 text-red-700 border-red-200'
+                : /^\d+ von \d+/.test(importMsg)
+                  ? 'bg-amber-50 text-amber-800 border-amber-200'
+                  : 'bg-red-50 text-red-700 border-red-200'
             }`}>
-              <p className="text-sm font-medium mb-2">{importMsg}</p>
+              <p className="text-sm font-medium mb-2 whitespace-pre-line">{importMsg}</p>
               {importMsg.startsWith('✅') && (
                 <div className="flex gap-3 mt-2">
                   <button
@@ -642,7 +673,9 @@ export default function ImportClient({
                   className="px-6 py-3 bg-[#35609E] hover:bg-[#4F90E8] text-white font-semibold rounded-xl transition-colors disabled:opacity-40"
                 >
                   {importing
-                    ? 'Wird importiert…'
+                    ? (fortschritt
+                        ? `Importiere… ${fortschritt.fertig} von ${fortschritt.gesamt}`
+                        : 'Wird importiert…')
                     : `${importable} Buchung${importable !== 1 ? 'en' : ''} importieren`
                   }
                 </button>

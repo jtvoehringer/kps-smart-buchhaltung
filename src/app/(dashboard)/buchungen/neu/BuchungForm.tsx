@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { heute } from '@/lib/fehler';
 import {
   berechneKilometergeld, berechneDiaeten, berechneEAutoVorsteuer,
   vorgeschlagenerSteuersatz, istPauschale, reiseSaetzeFuer,
@@ -34,7 +35,7 @@ export default function BuchungForm({
   const fileInputRef   = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = heute();
 
   const [type, setType]               = useState<'income' | 'expense'>('income');
   const [categoryId, setCategoryId]   = useState('');

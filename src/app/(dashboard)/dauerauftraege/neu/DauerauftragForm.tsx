@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { alsDatum } from '@/lib/fehler';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
 
@@ -31,7 +32,7 @@ export default function DauerauftragForm({
     const d = new Date();
     d.setDate(1);
     d.setMonth(d.getMonth() + 1);
-    return d.toISOString().split('T')[0];
+    return alsDatum(d);
   })();
 
   const [type, setType]             = useState<'income' | 'expense'>('expense');

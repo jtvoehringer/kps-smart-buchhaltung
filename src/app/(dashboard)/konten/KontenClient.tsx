@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { meldeFehler } from '@/lib/fehler';
 import { CreditCard, Pencil, X, Scale } from 'lucide-react';
 
 type AccountType = 'kontokorrent' | 'kreditkarte' | 'kreditkonto';
@@ -33,11 +34,15 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
   const router = useRouter();
   const supabase = createClient();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [fehler, setFehler] = useState('');
 
   async function handleDeactivate(id: string) {
     if (!confirm('Konto wirklich deaktivieren? Es wird nicht mehr in der Liste angezeigt.')) return;
     setDeletingId(id);
-    await supabase.from('accounts').update({ is_active: false }).eq('id', id);
+    const { error: loeschFehler } = await supabase.from('accounts')
+      .update({ is_active: false })
+      .eq('id', id);
+    if (meldeFehler('Konten deaktivieren', loeschFehler, setFehler)) return;
     router.refresh();
     setDeletingId(null);
   }
@@ -59,6 +64,11 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      {fehler && (
+        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
+          {fehler}
+        </p>
+      )}
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
