@@ -493,6 +493,33 @@ export default function EinstellungenForm({
             value={companyWebsite} onChange={e => setCompanyWebsite(e.target.value)}
             className={inputCls}
           />
+
+          {/* Absenderblock im Rechnungskopf abschaltbar (Migration 028).
+              Wer ein Logo hinterlegt hat, will oben oft nur das Logo –
+              die Angaben stehen ohnehin vollständig in der Fußzeile. */}
+          <label className={`flex items-start gap-3 rounded-lg border p-3 mt-1 ${
+            logoUrl
+              ? 'border-gray-200 cursor-pointer hover:bg-gray-50'
+              : 'border-gray-100 bg-gray-50 cursor-not-allowed'
+          }`}>
+            <input
+              type="checkbox"
+              checked={showSenderInHeader}
+              disabled={!logoUrl}
+              onChange={e => setShowSenderInHeader(e.target.checked)}
+              className="mt-0.5 w-4 h-4 accent-[#35609E]"
+            />
+            <span className="text-sm">
+              <span className="font-medium text-gray-700">
+                Firmenname und Adresse auch im Rechnungskopf zeigen
+              </span>
+              <span className="block text-xs text-gray-500 mt-0.5 leading-relaxed">
+                {logoUrl
+                  ? 'Ausgeschaltet steht im Rechnungskopf nur das Logo. Firmenwortlaut, Adresse, Kontakt, Bankverbindung und UID bleiben in der Fußzeile – die Rechnung erfüllt § 11 UStG also weiterhin.'
+                  : 'Erst wählbar, wenn oben ein Logo hinterlegt ist – sonst bliebe der Rechnungskopf leer.'}
+              </span>
+            </span>
+          </label>
         </div>
       </div>
 
