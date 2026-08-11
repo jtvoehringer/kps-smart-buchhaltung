@@ -51,17 +51,31 @@ export default async function DashboardPage() {
     );
   }
 
-  // Alle Buchungen laden (alle Jahre)
-  const { data: transactions } = await supabase
-    .from('transactions')
-    .select('booking_date, type, amount_net, vat_amount, amount_gross')
-    .eq('client_id', client.id)
-    .order('booking_date', { ascending: true });
+  // Alle Buchungen laden (alle Jahre) + offene Posten für die Überfällig-Anzeige
+  const [{ data: transactions }, { data: openInvoices }, { data: openIncoming }] = await Promise.all([
+    supabase
+      .from('transactions')
+      .select('booking_date, type, amount_net, vat_amount, amount_gross')
+      .eq('client_id', client.id)
+      .order('booking_date', { ascending: true }),
+    supabase
+      .from('invoices')
+      .select('id, invoice_number, due_date, total_gross, customers(id, name, company_name)')
+      .eq('client_id', client.id)
+      .eq('status', 'open'),
+    supabase
+      .from('incoming_invoices')
+      .select('id, vendor_name, invoice_number, due_date, amount_gross')
+      .eq('client_id', client.id)
+      .eq('status', 'open'),
+  ]);
 
   return (
     <DashboardClient
       companyName={client.company_name}
       transactions={transactions ?? []}
+      openInvoices={openInvoices ?? []}
+      openIncoming={openIncoming ?? []}
     />
   );
 }

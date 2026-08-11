@@ -33,7 +33,7 @@ function buildNav(role: string): NavEntry[] {
   const buchungenGroup: NavEntry = {
     kind: 'group',
     href: '/buchungen',
-    label: 'E&A',
+    label: 'EINNAHMEN & AUSGABEN',
     icon: ClipboardList,
     children: [
       { href: '/buchungen',            label: 'Buchungen' },
