@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import DruckButtons from './DruckButtons';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
-import { VAT_RATES, calculateUVA } from '@/lib/utils';
+import { baueUvaAufstellung, type UstKennzeichen } from '@/lib/steuer/uva-kennzahlen';
 
 const MONATE = ['Jänner', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 
@@ -110,28 +110,37 @@ export default async function UVADruckenPage({
     .maybeSingle();
 
   const tx = transactions ?? [];
+  void tx;
 
-  const { ustByRate, vstByRate, totalUSt, totalVSt, zahllast } = calculateUVA(tx);
+  // Dieselbe Kennzahlen-Zuordnung wie in der Bildschirmansicht.
+  const aufstellung = baueUvaAufstellung((summenZeilen ?? []).map(
+    (s: { typ: 'income' | 'expense'; ust_kennzeichen: string; vat_rate: number; bemessungsgrundlage: number; steuer: number }) => ({
+      typ: s.typ,
+      ust_kennzeichen: (s.ust_kennzeichen ?? 'normal') as UstKennzeichen,
+      vat_rate: Number(s.vat_rate),
+      bemessungsgrundlage: Number(s.bemessungsgrundlage),
+      steuer: Number(s.steuer),
+    }),
+  ));
+  const totalUSt = aufstellung.gesamtUst;
+  const totalVSt = aufstellung.gesamtVorsteuer;
+  const zahllast = aufstellung.zahllast;
   const isGutschrift = zahllast < 0;
   const isSubmitted = taxReturn?.status === 'submitted';
 
   const today = new Date().toLocaleDateString('de-AT');
 
   const ustRows = [
-    { label: 'Steuerfreie Umsätze mit Vorsteuerabzug (Kz 011)', bgl: ustByRate[0].bemessungsgrundlage, steuer: 0, rate: 0 },
-    ...VAT_RATES.filter(r => r !== 0).map(r => ({
-      label: r === 20 ? '20 % Normalsteuersatz (Kz 022)' : r === 10 ? '10 % ermäßigter Steuersatz (Kz 029)' : '13 % ermäßigter Steuersatz (Kz 006)',
-      bgl: ustByRate[r].bemessungsgrundlage,
-      steuer: ustByRate[r].steuer,
-      rate: r,
+    ...aufstellung.umsatz.map(z => ({
+      label: `${z.label} (Kz ${z.kz})`, bgl: z.bemessungsgrundlage, steuer: z.steuer, rate: 0,
+    })),
+    ...aufstellung.erwerb.map(z => ({
+      label: `${z.label} (Kz ${z.kz})`, bgl: z.bemessungsgrundlage, steuer: z.steuer, rate: 0,
     })),
   ];
 
-  const vstRows = VAT_RATES.map(r => ({
-    label: r === 0 ? 'Steuerfreie Eingangsleistungen' : `Vorsteuern ${r}% (Kz 060)`,
-    bgl: vstByRate[r].bemessungsgrundlage,
-    steuer: vstByRate[r].steuer,
-    rate: r,
+  const vstRows = aufstellung.vorsteuer.map(z => ({
+    label: `${z.label} (Kz ${z.kz})`, bgl: z.bemessungsgrundlage, steuer: z.steuer, rate: 0,
   }));
 
   return (

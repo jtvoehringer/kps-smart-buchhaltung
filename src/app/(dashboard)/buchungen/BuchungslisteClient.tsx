@@ -22,8 +22,14 @@ type Transaction = {
   is_locked: boolean;
   is_private: boolean;
   is_eauto: boolean;
+  beleg_jahr: number | null;
+  beleg_nr: number | null;
   categories: { name: string } | null;
 };
+
+/** Belegnummer wie im BMD-Export – die Klammer zum Papierbeleg. */
+const belegNr = (t: { beleg_jahr: number | null; beleg_nr: number | null }) =>
+  t.beleg_nr == null ? '—' : `${t.beleg_jahr}/${String(t.beleg_nr).padStart(5, '0')}`;
 
 const MONTHS = ['Alle','Jän','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
 
@@ -61,8 +67,9 @@ export default function BuchungslisteClient({
 
   function handleExport() {
     const BOM = '﻿';
-    const headers = ['Datum', 'Typ', 'Kategorie', 'Beschreibung', 'Netto (EUR)', 'USt %', 'USt-Betrag (EUR)', 'Brutto (EUR)'];
+    const headers = ['Beleg-Nr', 'Datum', 'Typ', 'Kategorie', 'Beschreibung', 'Netto (EUR)', 'USt %', 'USt-Betrag (EUR)', 'Brutto (EUR)'];
     const rows = filtered.map(t => [
+      belegNr(t),
       new Date(t.booking_date).toLocaleDateString('de-AT'),
       t.type === 'income' ? 'Einnahme' : 'Ausgabe',
       t.categories?.name ?? '',
@@ -170,6 +177,7 @@ export default function BuchungslisteClient({
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 text-xs font-semibold text-gray-600 uppercase tracking-wide border-b border-gray-100">
+                  <th className="text-left px-4 py-3">Beleg-Nr</th>
                   <th className="text-left px-4 py-3">Datum</th>
                   <th className="text-left px-4 py-3">Kategorie</th>
                   <th className="text-left px-4 py-3">Beschreibung</th>
@@ -183,6 +191,12 @@ export default function BuchungslisteClient({
               <tbody>
                 {filtered.map(t => (
                   <tr key={t.id} className="border-t border-gray-50 hover:bg-gray-50/50">
+                    <td
+                      className="px-4 py-3 text-gray-400 font-mono text-[11px] whitespace-nowrap"
+                      title="Belegnummer – dieselbe Nummer steht im BMD-Export"
+                    >
+                      {belegNr(t)}
+                    </td>
                     <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
                       {new Date(t.booking_date).toLocaleDateString('de-AT')}
                     </td>

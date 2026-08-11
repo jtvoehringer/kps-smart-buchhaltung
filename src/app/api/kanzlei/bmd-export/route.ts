@@ -4,61 +4,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient }      from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import {
+  baueBmdZeilen, baueBmdCsv, bmdSummen, nachCp1252, type BmdTransaction,
+} from '@/lib/bmd/export';
 
-// BMD NTCS: Dezimalzahl mit Komma, Tausenderpunkt
-function bmdNum(n: number): string {
-  return n.toFixed(2).replace('.', ',');
-}
+const FELDER = `
+  id, booking_date, description, type,
+  amount_net, vat_amount, amount_gross, vat_rate,
+  beleg_jahr, beleg_nr, ust_kennzeichen, is_eauto,
+  bewirtung_anlass, bewirtung_teilnehmer,
+  reise_typ, reise_ziel, reise_zweck, reise_von, reise_bis, reise_km, reise_stunden,
+  category:categories ( name, konto_nr )
+`;
 
-// BMD NTCS: Datum TT.MM.JJJJ
-function bmdDate(iso: string): string {
-  const [y, m, d] = iso.split('T')[0].split('-');
-  return `${d}.${m}.${y}`;
-}
-
-// Konto nach Typ (einfache Standardzuordnung – im BMD nachpflegen)
-function konto(type: string): string {
-  return type === 'income' ? '4000' : '5000';
-}
-
-type Transaction = {
-  id: string;
-  booking_date: string;
-  description: string | null;
-  type: 'income' | 'expense';
-  amount_net: number;
-  vat_amount: number;
-  amount_gross: number;
-  vat_rate: number;
-};
-
-function buildRows(transactions: Transaction[]) {
-  return transactions.map((t, i) => {
-    const net   = Number(t.amount_net);
-    const vat   = Number(t.vat_amount);
-    const gross = Number(t.amount_gross);
-    // Ausgaben als negative Werte im BMD
-    const sign  = t.type === 'expense' ? -1 : 1;
-    return {
-      datum:        bmdDate(t.booking_date),
-      belegnr:      String(i + 1).padStart(4, '0'),
-      text:         (t.description ?? '').replace(/;/g, ','),
-      netto:        bmdNum(sign * net),
-      steuerProzent: Number(t.vat_rate),
-      steuer:       bmdNum(sign * vat),
-      brutto:       bmdNum(sign * gross),
-      konto:        konto(t.type),
-      type:         t.type,
-    };
-  });
-}
-
-function buildCsv(rows: ReturnType<typeof buildRows>): string {
-  const header = 'Datum;BelegNr;Text;Netto;Steuer%;Steuer;Brutto;Konto';
-  const lines  = rows.map(r =>
-    [r.datum, r.belegnr, r.text, r.netto, r.steuerProzent, r.steuer, r.brutto, r.konto].join(';')
-  );
-  return [header, ...lines].join('\r\n');
+/** Dateiname ohne Zeichen, die Windows oder der Content-Disposition-Header nicht mögen. */
+function dateiname(firma: string, von: string, bis: string): string {
+  const sauber = firma
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Za-z0-9_-]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 40) || 'Mandant';
+  return `BMD_EA_${sauber}_${von}_${bis}.csv`;
 }
 
 export async function GET(req: NextRequest) {
@@ -87,24 +53,34 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Parameter fehlen' }, { status: 400 });
   }
 
+  const istDatum = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s);
+  if (!istDatum(dateFrom) || !istDatum(dateTo)) {
+    return NextResponse.json({ error: 'Datum bitte als JJJJ-MM-TT angeben.' }, { status: 400 });
+  }
+  if (dateFrom > dateTo) {
+    return NextResponse.json({ error: 'Das Anfangsdatum liegt nach dem Enddatum.' }, { status: 400 });
+  }
+
   // Prüfen ob Mandant zum Tenant gehört (ausser Superadmin)
   const admin = createAdminClient();
 
-  if (me.role !== 'superadmin') {
-    const { data: client } = await admin
-      .from('clients')
-      .select('tenant_id')
-      .eq('id', clientId)
-      .maybeSingle();
-    if (!client || client.tenant_id !== me.tenant_id) {
-      return NextResponse.json({ error: 'Kein Zugriff auf diesen Mandanten' }, { status: 403 });
-    }
+  const { data: client } = await admin
+    .from('clients')
+    .select('tenant_id, company_name')
+    .eq('id', clientId)
+    .maybeSingle();
+
+  if (!client) {
+    return NextResponse.json({ error: 'Mandant nicht gefunden' }, { status: 404 });
+  }
+  if (me.role !== 'superadmin' && client.tenant_id !== me.tenant_id) {
+    return NextResponse.json({ error: 'Kein Zugriff auf diesen Mandanten' }, { status: 403 });
   }
 
   // Buchungen laden
   const { data: transactions, error: txError } = await admin
     .from('transactions')
-    .select('id, booking_date, description, type, amount_net, vat_amount, amount_gross, vat_rate')
+    .select(FELDER)
     // Privatumsätze zählen steuerlich nicht mit (F-5)
     .eq('is_private', false)
     .eq('client_id', clientId)
@@ -117,20 +93,25 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: txError.message }, { status: 500 });
   }
 
-  const rows = buildRows((transactions ?? []) as Transaction[]);
+  const liste = (transactions ?? []) as unknown as BmdTransaction[];
+  const rows  = baueBmdZeilen(liste);
 
   if (isPreview) {
-    return NextResponse.json({ rows });
+    return NextResponse.json({ rows, summen: bmdSummen(liste) });
   }
 
-  // CSV-Download (ISO-8859-1 für BMD-Kompatibilität)
-  const csv = buildCsv(rows);
+  // CSV-Download. Windows-1252, weil BMD NTCS das beim Import erwartet –
+  // und weil der Header das bisher zwar behauptet, aber nicht geliefert hat.
+  const bytes = nachCp1252(baueBmdCsv(rows));
 
-  return new NextResponse(csv, {
+  return new NextResponse(bytes as unknown as BodyInit, {
     status: 200,
     headers: {
-      'Content-Type': 'text/csv; charset=iso-8859-1',
-      'Content-Disposition': `attachment; filename="BMD_EA_Export.csv"`,
+      'Content-Type': 'text/csv; charset=windows-1252',
+      'Content-Length': String(bytes.byteLength),
+      'Content-Disposition':
+        `attachment; filename="${dateiname(client.company_name ?? '', dateFrom, dateTo)}"`,
+      'Cache-Control': 'no-store',
     },
   });
 }

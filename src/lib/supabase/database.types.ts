@@ -141,6 +141,9 @@ export type Transaction = {
   reise_km: number | null;              // Migration 018
   reise_stunden: number | null;         // Migration 018
   is_eauto: boolean;                    // Migration 024
+  ust_kennzeichen: string;              // Migration 029
+  beleg_jahr: number | null;            // Migration 030
+  beleg_nr: number | null;              // Migration 030
   created_at: string;
   updated_at: string;
   // Joins (optional)
@@ -520,6 +523,9 @@ export type Database = {
           reise_km?: number | null;
           reise_stunden?: number | null;
           is_eauto?: boolean;
+          ust_kennzeichen?: string;
+          beleg_jahr?: number | null;
+          beleg_nr?: number | null;
         };
         Update: Partial<Transaction>;
         Relationships: [
@@ -804,7 +810,11 @@ export type Database = {
       // Migration 026 – Aggregation serverseitig statt im Browser
       uva_summe: {
         Args: { p_client_id: string; p_von: string; p_bis: string };
-        Returns: { typ: 'income' | 'expense'; vat_rate: number; bemessungsgrundlage: number; steuer: number; anzahl: number }[];
+        // Migration 029: zusätzlich nach Umsatzsteuer-Kennzeichen gruppiert
+        Returns: {
+          typ: 'income' | 'expense'; ust_kennzeichen: string; vat_rate: number;
+          bemessungsgrundlage: number; steuer: number; anzahl: number;
+        }[];
       };
       buchungsjahre: {
         Args: { p_client_id: string };

@@ -9,6 +9,7 @@ import {
   berechneKilometergeld, berechneDiaeten, berechneEAutoVorsteuer,
   vorgeschlagenerSteuersatz, reiseSaetzeFuer,
 } from '@/lib/steuer';
+import { kennzeichenFuer, kennzeichenInfo, type UstKennzeichen } from '@/lib/steuer/uva-kennzahlen';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
 type Transaction = {
@@ -24,6 +25,7 @@ type Transaction = {
   reise_km?: number | null;
   reise_stunden?: number | null;
   is_eauto?: boolean | null;
+  ust_kennzeichen?: string | null;
 };
 type Attachment = { id: string; file_name: string; storage_path: string; uploaded_at: string };
 const BEWIRTUNG_KATEGORIE_NAME = 'Bewirtungsspesen (Geschäftsessen)';
@@ -74,8 +76,16 @@ export default function BuchungBearbeitenForm({
   // Speichern wurde vat_amount neu berechnet und die Vorsteuerdeckelung
   // ging verloren – ohne jede Warnung.
   const [isEAuto, setIsEAuto] = useState(!!transaction.is_eauto);
+  const [ustKennzeichen, setUstKennzeichen] = useState<UstKennzeichen>(
+    (transaction.ust_kennzeichen as UstKennzeichen) ?? 'normal');
 
   const filteredCategories = categories.filter(c => c.type === type);
+  const aktuellesKennzeichen = kennzeichenInfo(ustKennzeichen, type);
+  // Beim Wechsel zwischen Einnahme und Ausgabe passen die Kennzeichen
+  // nicht mehr – dann auf den Normalfall zurückfallen.
+  useEffect(() => {
+    if (!kennzeichenInfo(ustKennzeichen, type)) setUstKennzeichen('normal');
+  }, [type, ustKennzeichen]);
   const isBewirtung = categories.find(c => c.id === categoryId)?.name === BEWIRTUNG_KATEGORIE_NAME;
   const isReisekosten = categories.find(c => c.id === categoryId)?.name === REISEKOSTEN_KATEGORIE_NAME;
   const saetze = reiseSaetzeFuer(bookingDate);
@@ -158,6 +168,7 @@ export default function BuchungBearbeitenForm({
         reise_km:      isReisekosten && reiseTyp === 'kilometergeld' ? parseFloat(reiseKm) : null,
         reise_stunden: isReisekosten && reiseTyp === 'diaeten' ? parseFloat(reiseStunden) : null,
         is_eauto:      isEAuto,
+        ust_kennzeichen: ustKennzeichen,
       })
       .eq('id', transaction.id);
 
@@ -239,6 +250,28 @@ export default function BuchungBearbeitenForm({
             {inputNum > 0 ? (isBrutto ? netNum.toFixed(2) : grossNum.toFixed(2)) : '—'}
           </div>
         </div>
+      </div>
+
+      {/* Umsatzsteuerliche Einordnung. Bestimmt zusammen mit dem
+          Steuersatz die Kennzahl in der UVA. Ohne dieses Feld landete
+          jeder 0-%-Umsatz pauschal unter Kz 011 (Ausfuhrlieferung). */}
+      <div>
+        <label htmlFor="ust-kz" className="block text-sm font-medium text-gray-700 mb-1">
+          Umsatzsteuerliche Einordnung
+        </label>
+        <select
+          id="ust-kz"
+          value={ustKennzeichen}
+          onChange={e => setUstKennzeichen(e.target.value as UstKennzeichen)}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+        >
+          {kennzeichenFuer(type).map(k => (
+            <option key={k.wert} value={k.wert}>{k.label}</option>
+          ))}
+        </select>
+        {aktuellesKennzeichen && ustKennzeichen !== 'normal' && (
+          <p className="text-xs text-gray-500 mt-1 leading-relaxed">{aktuellesKennzeichen.hilfe}</p>
+        )}
       </div>
 
       {vatAmt > 0 && !isEAuto && (

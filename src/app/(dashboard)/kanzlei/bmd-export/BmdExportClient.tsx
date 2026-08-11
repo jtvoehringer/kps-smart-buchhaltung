@@ -10,12 +10,16 @@ type Props = {
 
 const currentYear = new Date().getFullYear();
 
+const eur = (n: number) =>
+  n.toLocaleString('de-AT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 export default function BmdExportClient({ clients }: Props) {
   const [clientId, setClientId]   = useState(clients[0]?.id ?? '');
   const [dateFrom, setDateFrom]   = useState(`${currentYear}-01-01`);
   const [dateTo, setDateTo]       = useState(`${currentYear}-12-31`);
   const [loading, setLoading]     = useState(false);
   const [previewRows, setPreviewRows] = useState<PreviewRow[] | null>(null);
+  const [summen, setSummen]       = useState<Summen | null>(null);
   const [error, setError]         = useState('');
 
   const selectedClient = clients.find(c => c.id === clientId);
@@ -25,6 +29,7 @@ export default function BmdExportClient({ clients }: Props) {
     setLoading(true);
     setError('');
     setPreviewRows(null);
+    setSummen(null);
     try {
       const res = await fetch(
         `/api/kanzlei/bmd-export?clientId=${clientId}&dateFrom=${dateFrom}&dateTo=${dateTo}&preview=1`
@@ -32,6 +37,7 @@ export default function BmdExportClient({ clients }: Props) {
       if (!res.ok) throw new Error(await res.text());
       const json = await res.json();
       setPreviewRows(json.rows);
+      setSummen(json.summen ?? null);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Fehler beim Laden');
     } finally {
@@ -77,7 +83,7 @@ export default function BmdExportClient({ clients }: Props) {
             <label className="block text-xs font-medium text-gray-500 mb-1">Mandant</label>
             <select
               value={clientId}
-              onChange={e => { setClientId(e.target.value); setPreviewRows(null); }}
+              onChange={e => { setClientId(e.target.value); setPreviewRows(null); setSummen(null); }}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 bg-white"
             >
               {clients.length === 0 && (
@@ -95,7 +101,7 @@ export default function BmdExportClient({ clients }: Props) {
             <input
               type="date"
               value={dateFrom}
-              onChange={e => { setDateFrom(e.target.value); setPreviewRows(null); }}
+              onChange={e => { setDateFrom(e.target.value); setPreviewRows(null); setSummen(null); }}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30"
             />
           </div>
@@ -106,7 +112,7 @@ export default function BmdExportClient({ clients }: Props) {
             <input
               type="date"
               value={dateTo}
-              onChange={e => { setDateTo(e.target.value); setPreviewRows(null); }}
+              onChange={e => { setDateTo(e.target.value); setPreviewRows(null); setSummen(null); }}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30"
             />
           </div>
@@ -123,6 +129,7 @@ export default function BmdExportClient({ clients }: Props) {
                     setDateFrom(`${y}-01-01`);
                     setDateTo(`${y}-12-31`);
                     setPreviewRows(null);
+                    setSummen(null);
                   }}
                   className="text-xs px-2.5 py-1 rounded-md border border-[#35609E]/20 text-[#35609E] hover:bg-[#35609E]/5 transition-colors"
                 >
@@ -138,7 +145,7 @@ export default function BmdExportClient({ clients }: Props) {
                   <button
                     key={q}
                     type="button"
-                    onClick={() => { setDateFrom(from); setDateTo(to); setPreviewRows(null); }}
+                    onClick={() => { setDateFrom(from); setDateTo(to); setPreviewRows(null); setSummen(null); }}
                     className="text-xs px-2.5 py-1 rounded-md border border-[#35609E]/20 text-[#35609E] hover:bg-[#35609E]/5 transition-colors"
                   >
                     Q{q}
@@ -201,6 +208,8 @@ export default function BmdExportClient({ clients }: Props) {
                     <th className="text-right px-4 py-2.5">Steuer</th>
                     <th className="text-right px-4 py-2.5">Brutto</th>
                     <th className="text-center px-4 py-2.5">Konto</th>
+                    <th className="text-center px-4 py-2.5">UVA-Kz</th>
+                    <th className="text-left px-4 py-2.5">Hinweis</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -214,9 +223,25 @@ export default function BmdExportClient({ clients }: Props) {
                       <td className="px-4 py-2 text-right tabular-nums">{row.steuer}</td>
                       <td className="px-4 py-2 text-right tabular-nums font-medium">{row.brutto}</td>
                       <td className="px-4 py-2 text-center text-gray-500">{row.konto}</td>
+                      <td className="px-4 py-2 text-center font-mono text-[11px] text-gray-500">{row.steuercode}</td>
+                      <td className="px-4 py-2 text-gray-400 max-w-[220px] truncate" title={row.hinweis}>
+                        {row.hinweis}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
+                {summen && (
+                  <tfoot>
+                    <tr className="border-t-2 border-gray-200 bg-gray-50 font-semibold text-gray-700">
+                      <td className="px-4 py-2.5" colSpan={3}>Kontrollsumme</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums">{eur(summen.netto)}</td>
+                      <td />
+                      <td className="px-4 py-2.5 text-right tabular-nums">{eur(summen.steuer)}</td>
+                      <td className="px-4 py-2.5 text-right tabular-nums">{eur(summen.brutto)}</td>
+                      <td colSpan={3} />
+                    </tr>
+                  </tfoot>
+                )}
               </table>
             </div>
           )}
@@ -227,9 +252,12 @@ export default function BmdExportClient({ clients }: Props) {
       <div className="rounded-xl border border-accent/40 bg-surface-band px-5 py-4 text-sm text-accent-dark">
         <p className="font-semibold mb-1">ℹ️ BMD NTCS EA-Import</p>
         <p className="text-xs leading-relaxed opacity-80">
-          Die CSV-Datei ist kompatibel mit dem BMD NTCS EA-Import (Semikolon-getrennt, ISO-8859-1).
-          Einnahmen werden mit Konto 4000, Ausgaben mit Konto 5000 exportiert —
-          diese können im BMD nach dem Import angepasst werden.
+          Semikolon-getrennt, Zeichensatz Windows-1252, Textfelder nach RFC 4180 eingefasst.
+          Die Belegnummer stammt aus der Buchung selbst und bleibt über alle Exporte
+          hinweg gleich. Das Konto kommt aus der Kategorie; ist dort keines hinterlegt,
+          greifen 4000 für Einnahmen und 5000 für Ausgaben. Bewirtungs-, Reise- und
+          E-Auto-Angaben werden in eigenen Spalten mitgeliefert, damit die
+          Abzugsbeschränkungen nachvollziehbar bleiben. Privatentnahmen bleiben außen vor.
         </p>
       </div>
     </div>
@@ -245,5 +273,13 @@ type PreviewRow = {
   steuer: string;
   brutto: string;
   konto: string;
+  steuercode: string;
+  kategorie: string;
+  bewirtungAnlass: string;
+  bewirtungTeilnehmer: string;
+  reise: string;
+  hinweis: string;
   type: 'income' | 'expense';
 };
+
+type Summen = { anzahl: number; netto: number; steuer: number; brutto: number };

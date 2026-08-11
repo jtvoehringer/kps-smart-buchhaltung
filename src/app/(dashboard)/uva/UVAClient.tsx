@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { VAT_RATES, calculateUVA, type UVATransaction } from '@/lib/utils';
+import { baueUvaAufstellung, type UstKennzeichen } from '@/lib/steuer/uva-kennzahlen';
 import {
   Printer, CalendarClock, Inbox, Info, Lock, CheckCircle2, AlertTriangle,
   Calculator, Send, Loader2,
@@ -30,6 +31,7 @@ type Props = {
 /** Eine Zeile aus uva_summe() */
 type SummenZeile = {
   typ: 'income' | 'expense';
+  ust_kennzeichen: string;
   vat_rate: number;
   bemessungsgrundlage: number;
   steuer: number;
@@ -110,6 +112,18 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
 
   // Die Summenzeilen in dieselbe Form bringen, die calculateUVA erwartet.
   // So bleibt die Kennzahlenzuordnung an einer Stelle und ist getestet.
+  // Zuordnung zu den amtlichen Kennzahlen liegt in @/lib/steuer und ist
+  // dort getestet – inklusive Reverse Charge und ig. Erwerb.
+  const aufstellung = useMemo(() => baueUvaAufstellung(summen.map(s => ({
+    typ: s.typ,
+    ust_kennzeichen: (s.ust_kennzeichen ?? 'normal') as UstKennzeichen,
+    vat_rate: Number(s.vat_rate),
+    bemessungsgrundlage: Number(s.bemessungsgrundlage),
+    steuer: Number(s.steuer),
+  }))), [summen]);
+
+  // Für die gespeicherte tax_returns-Zeile weiterhin die Aufteilung
+  // nach Steuersatz – das Formular kennt nur diese Felder.
   const uvaData = useMemo(() => {
     const alsBuchungen: UVATransaction[] = summen.map(s => ({
       type: s.typ,
@@ -341,30 +355,53 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
             subtitle="Ausgangsleistungen / Einnahmen"
             color="blue"
             rows={[
-              { label: 'Steuerfreie Umsätze mit Vorsteuerabzug (Kz 011)', bgl: uvaData.ustByRate[0].bemessungsgrundlage, steuer: 0, rate: 0 },
-              { label: '20 % Normalsteuersatz (Kz 022)',  bgl: uvaData.ustByRate[20].bemessungsgrundlage, steuer: uvaData.ustByRate[20].steuer, rate: 20 },
-              { label: '10 % ermäßigter Steuersatz (Kz 029)', bgl: uvaData.ustByRate[10].bemessungsgrundlage, steuer: uvaData.ustByRate[10].steuer, rate: 10 },
-              { label: '13 % ermäßigter Steuersatz (Kz 006)', bgl: uvaData.ustByRate[13].bemessungsgrundlage, steuer: uvaData.ustByRate[13].steuer, rate: 13 },
+              ...aufstellung.umsatz.map(z => ({
+                label: `${z.label} (Kz ${z.kz})`,
+                bgl: z.bemessungsgrundlage,
+                steuer: z.steuer,
+                rate: 0,
+              })),
             ]}
-            total={uvaData.totalUSt}
-            totalLabel="Gesamte Umsatzsteuer"
+            total={aufstellung.umsatz.reduce((s, z) => s + z.steuer, 0)}
+            totalLabel={`Summe Bemessungsgrundlagen (Kz 000): ${formatEur(aufstellung.gesamtBemessungsgrundlage)} · Umsatzsteuer`}
           />
 
+          {aufstellung.erwerb.length > 0 && (
+            <UVATable
+              title="2. Innergemeinschaftliche Erwerbe und Steuerschuld gemäß § 19"
+              subtitle="Erwerbsteuer – im selben Zeitraum als Vorsteuer abziehbar"
+              color="blue"
+              rows={aufstellung.erwerb.map(z => ({
+                label: `${z.label} (Kz ${z.kz})`,
+                bgl: z.bemessungsgrundlage,
+                steuer: z.steuer,
+                rate: 0,
+              }))}
+              total={aufstellung.erwerb.reduce((s, z) => s + z.steuer, 0)}
+              totalLabel="Geschuldete Erwerb- bzw. Reverse-Charge-Steuer"
+            />
+          )}
+
           <UVATable
-            title="2. Vorsteuer (Kz 060)"
+            title={`${aufstellung.erwerb.length > 0 ? '3' : '2'}. Abziehbare Vorsteuer (Kz 060)`}
             subtitle="Eingangsleistungen / Ausgaben"
             color="teal"
-            rows={VAT_RATES.map(rate => ({
-              label: rate === 0 ? 'Steuerfreie Eingangsleistungen' : `Vorsteuern ${rate}%`,
-              bgl: uvaData.vstByRate[rate].bemessungsgrundlage,
-              steuer: uvaData.vstByRate[rate].steuer,
-              rate,
+            rows={aufstellung.vorsteuer.map(z => ({
+              label: `${z.label} (Kz ${z.kz})`,
+              bgl: z.bemessungsgrundlage,
+              steuer: z.steuer,
+              rate: 0,
             }))}
-            total={uvaData.totalVSt}
+            total={aufstellung.gesamtVorsteuer}
             totalLabel="Gesamtbetrag der abziehbaren Vorsteuer"
           />
 
-          <ZahllastCard zahllast={uvaData.zahllast} totalUSt={uvaData.totalUSt} totalVSt={uvaData.totalVSt} periodLabel={periodLabel} />
+          <ZahllastCard
+            zahllast={aufstellung.zahllast}
+            totalUSt={aufstellung.gesamtUst}
+            totalVSt={aufstellung.gesamtVorsteuer}
+            periodLabel={periodLabel}
+          />
         </div>
       )}
 

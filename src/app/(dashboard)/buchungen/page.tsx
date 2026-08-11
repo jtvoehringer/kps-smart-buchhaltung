@@ -34,6 +34,7 @@ export default async function BuchungslistePage({
     .select(`
       id, type, amount_net, vat_rate, vat_amount, amount_gross,
       booking_date, description, is_locked, is_private, is_eauto,
+      beleg_jahr, beleg_nr,
       categories ( name )
     `)
     .eq('client_id', client.id)
