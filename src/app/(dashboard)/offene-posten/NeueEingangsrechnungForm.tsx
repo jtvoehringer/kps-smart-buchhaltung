@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Plus, Paperclip, Loader2 } from 'lucide-react';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
+type Supplier = { id: string; name: string; company_name: string | null };
 
 const VAT_RATES = [0, 10, 13, 20];
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
@@ -19,10 +20,11 @@ function defaultDueDate() {
 }
 
 export default function NeueEingangsrechnungForm({
-  clientId, categories,
+  clientId, categories, suppliers,
 }: {
   clientId: string;
   categories: Category[];
+  suppliers: Supplier[];
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -30,6 +32,7 @@ export default function NeueEingangsrechnungForm({
 
   const [open, setOpen] = useState(false);
   const [vendorName, setVendorName] = useState('');
+  const [supplierId, setSupplierId] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState(todayIso());
   const [dueDate, setDueDate] = useState(defaultDueDate());
@@ -42,8 +45,16 @@ export default function NeueEingangsrechnungForm({
   const [error, setError] = useState('');
 
   function resetForm() {
-    setVendorName(''); setInvoiceNumber(''); setInvoiceDate(todayIso()); setDueDate(defaultDueDate());
+    setVendorName(''); setSupplierId(''); setInvoiceNumber(''); setInvoiceDate(todayIso()); setDueDate(defaultDueDate());
     setAmountNet(''); setVatRate(20); setCategoryId(''); setFile(null); setFileError(''); setError('');
+  }
+
+  function handleSupplierSelect(id: string) {
+    setSupplierId(id);
+    if (id) {
+      const s = suppliers.find(s => s.id === id);
+      if (s) setVendorName(s.company_name || s.name);
+    }
   }
 
   function handleFileChange(files: FileList | null) {
@@ -96,6 +107,7 @@ export default function NeueEingangsrechnungForm({
     const { error: insertError } = await supabase.from('incoming_invoices').insert({
       client_id:          clientId,
       category_id:        categoryId || null,
+      supplier_id:        supplierId || null,
       vendor_name:        vendorName.trim(),
       invoice_number:     invoiceNumber.trim() || null,
       invoice_date:       invoiceDate,
@@ -145,7 +157,16 @@ export default function NeueEingangsrechnungForm({
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div className="sm:col-span-2">
           <label className="block text-xs font-medium text-gray-600 mb-1">Lieferant</label>
-          <input type="text" value={vendorName} onChange={e => setVendorName(e.target.value)} placeholder="z. B. Musterfirma GmbH"
+          {suppliers.length > 0 && (
+            <select value={supplierId} onChange={e => handleSupplierSelect(e.target.value)}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-1.5 focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+              <option value="">— aus Lieferantenstamm wählen —</option>
+              {suppliers.map(s => (
+                <option key={s.id} value={s.id}>{s.company_name || s.name}</option>
+              ))}
+            </select>
+          )}
+          <input type="text" value={vendorName} onChange={e => { setVendorName(e.target.value); setSupplierId(''); }} placeholder="z. B. Musterfirma GmbH"
             className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
         </div>
         <div className="sm:col-span-2">

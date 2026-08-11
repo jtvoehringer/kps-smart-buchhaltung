@@ -13,33 +13,30 @@ export default async function OffenePostenPage() {
   const clientId = await getMyClientId(supabase, user.id);
   const { data: client } = !clientId ? { data: null } : await supabase
     .from('clients')
-    .select('id, company_name, modules_enabled')
+    .select('id, company_name')
     .eq('id', clientId)
     .maybeSingle();
 
   if (!client) redirect('/dashboard');
 
-  const hasInvoicing = (client.modules_enabled ?? []).includes('invoicing');
+  // Rechnungsmodul ist fixer Bestandteil der Lösung – Ausgangsrechnungen
+  // werden immer geladen, unabhängig von einem Modul-Flag.
+  const { data: outgoingInvoicesData } = await supabase
+    .from('invoices')
+    .select(`
+      id, invoice_number, invoice_date, due_date, status,
+      total_net, total_vat, total_gross,
+      customers ( id, name, company_name )
+    `)
+    .eq('client_id', client.id)
+    .eq('status', 'open')
+    .order('due_date', { ascending: true });
 
-  let outgoingInvoices: {
+  const outgoingInvoices: {
     id: string; invoice_number: string; invoice_date: string; due_date: string; status: string;
     total_net: number; total_vat: number; total_gross: number;
     customers: { id: string; name: string; company_name: string | null } | null;
-  }[] = [];
-
-  if (hasInvoicing) {
-    const { data } = await supabase
-      .from('invoices')
-      .select(`
-        id, invoice_number, invoice_date, due_date, status,
-        total_net, total_vat, total_gross,
-        customers ( id, name, company_name )
-      `)
-      .eq('client_id', client.id)
-      .eq('status', 'open')
-      .order('due_date', { ascending: true });
-    outgoingInvoices = data ?? [];
-  }
+  }[] = outgoingInvoicesData ?? [];
 
   const { data: incomingInvoices } = await supabase
     .from('incoming_invoices')
@@ -58,6 +55,13 @@ export default async function OffenePostenPage() {
     .order('type')
     .order('sort_order');
 
+  const { data: suppliers } = await supabase
+    .from('suppliers')
+    .select('id, name, company_name')
+    .eq('client_id', client.id)
+    .eq('is_active', true)
+    .order('name');
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="mb-6">
@@ -70,11 +74,12 @@ export default async function OffenePostenPage() {
 
       <OffenePostenClient
         clientId={client.id}
-        hasInvoicing={hasInvoicing}
-        outgoingInvoices={outgoingInvoices ?? []}
+        hasInvoicing={true}
+        outgoingInvoices={outgoingInvoices}
         incomingInvoices={incomingInvoices ?? []}
         incomeCategories={(categories ?? []).filter(c => c.type === 'income')}
         expenseCategories={(categories ?? []).filter(c => c.type === 'expense')}
+        suppliers={suppliers ?? []}
       />
     </div>
   );

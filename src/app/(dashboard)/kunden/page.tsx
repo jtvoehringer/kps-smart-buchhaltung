@@ -8,7 +8,6 @@ import KundenClient from './KundenClient';
 
 export default async function KundenPage() {
   const supabase = await createClient();
-  // Modul-Schutz wird weiter unten nach membership-Load geprüft
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
@@ -23,12 +22,6 @@ export default async function KundenPage() {
     .maybeSingle();
 
   if (!membership?.client_id) redirect('/dashboard');
-
-  // Modul-Schutz
-  const { data: clientData } = await admin
-    .from('clients').select('modules_enabled').eq('id', membership.client_id).maybeSingle();
-  const modules: string[] = (clientData as { modules_enabled?: string[] } | null)?.modules_enabled ?? [];
-  if (!modules.includes('invoicing')) redirect('/dashboard');
 
   const { data: customers } = await admin
     .from('customers')

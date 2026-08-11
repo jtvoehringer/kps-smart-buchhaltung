@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const clientId = await getMyClientId(supabase, user.id);
   const { data: client } = !clientId ? { data: null } : await supabase
     .from('clients')
-    .select('company_name, modules_enabled')
+    .select('company_name')
     .eq('id', clientId)
     .maybeSingle();
 
@@ -22,14 +22,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq('id', user.id)
     .maybeSingle();
 
-  const modulesEnabled: string[] = (client as { modules_enabled?: string[] } | null)?.modules_enabled ?? [];
-
   return (
     <div className="h-screen flex overflow-hidden">
       <Sidebar
         companyName={client?.company_name ?? 'Smart Buchhaltung'}
         role={me?.role ?? 'klient'}
-        modulesEnabled={modulesEnabled}
       />
       <main className="flex-1 overflow-y-auto bg-surface">
         {children}

@@ -40,7 +40,10 @@ export default async function EinstellungenPage() {
   // Client-Daten laden
   const { data: client, error: clientError } = await admin
     .from('clients')
-    .select('id, company_name, uid_number, vat_period, booking_mode')
+    .select(`
+      id, company_name, uid_number, vat_period, booking_mode,
+      ust_status, regelbesteuerung_optiert, regelbesteuerung_options_jahr, regelbesteuerung_bindung_bis
+    `)
     .eq('id', membership.client_id)
     .maybeSingle();
 
@@ -71,13 +74,31 @@ export default async function EinstellungenPage() {
     // Tabelle existiert noch nicht → kein Branding
   }
 
+  // Laufender Jahresumsatz (Einnahmen, brutto) – Hinweis für die
+  // Kleinunternehmer-Grenzen (55.000 € / Toleranz 60.500 €, § 6 Abs. 1 Z 27 UStG)
+  let currentYearRevenue = 0;
+  try {
+    const yearStart = `${new Date().getFullYear()}-01-01`;
+    const { data: incomeRows } = await admin
+      .from('transactions')
+      .select('amount_gross')
+      .eq('client_id', client.id)
+      .eq('type', 'income')
+      .gte('booking_date', yearStart);
+    currentYearRevenue = (incomeRows ?? []).reduce(
+      (sum, r) => sum + (Number((r as { amount_gross?: number }).amount_gross) || 0), 0
+    );
+  } catch {
+    // Buchungen konnten nicht geladen werden → Hinweis wird ohne Betrag angezeigt
+  }
+
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#35609E]">Einstellungen</h1>
         <p className="text-gray-500 text-sm">Buchführungs-Einstellungen für {client.company_name}</p>
       </div>
-      <EinstellungenForm client={client} branding={branding ?? null} />
+      <EinstellungenForm client={client} branding={branding ?? null} currentYearRevenue={currentYearRevenue} />
     </div>
   );
 }

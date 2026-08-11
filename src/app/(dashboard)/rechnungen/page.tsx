@@ -18,14 +18,6 @@ export default async function RechnungenPage() {
     .limit(1)
     .maybeSingle();
 
-  // Modul-Schutz: Rechnungsmodul muss aktiv sein
-  if (membership?.client_id) {
-    const { data: clientData } = await supabase
-      .from('clients').select('modules_enabled').eq('id', membership.client_id).maybeSingle();
-    const modules: string[] = (clientData as { modules_enabled?: string[] } | null)?.modules_enabled ?? [];
-    if (!modules.includes('invoicing')) redirect('/dashboard');
-  }
-
   if (!membership?.client_id) redirect('/dashboard');
 
   const { data: invoices } = await supabase

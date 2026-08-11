@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import MandantUserManager from './MandantUserManager';
-import ModulToggle from './ModulToggle';
+import InklusivCard from './ModulToggle';
 
 export default async function MandantDetailPage({
   params,
@@ -25,10 +25,13 @@ export default async function MandantDetailPage({
     redirect('/dashboard');
   }
 
-  // Mandant laden (inkl. modules_enabled)
+  // Mandant laden (inkl. USt-Status)
   let clientQuery = supabase
     .from('clients')
-    .select('id, company_name, uid_number, vat_period, is_active, modules_enabled')
+    .select(`
+      id, company_name, uid_number, vat_period, is_active,
+      ust_status, regelbesteuerung_optiert, regelbesteuerung_options_jahr, regelbesteuerung_bindung_bis
+    `)
     .eq('id', id);
 
   if (me.role !== 'superadmin') {
@@ -37,8 +40,6 @@ export default async function MandantDetailPage({
 
   const { data: client } = await clientQuery.maybeSingle();
   if (!client) redirect('/kanzlei');
-
-  const modulesEnabled: string[] = (client as { modules_enabled?: string[] }).modules_enabled ?? [];
 
   // Memberships + User-Details
   const { data: memberships } = await supabase
@@ -90,16 +91,28 @@ export default async function MandantDetailPage({
               {client.vat_period === 'monthly' ? 'Monatlich' : 'Vierteljährlich'}
             </dd>
           </div>
+          <div>
+            <dt className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">USt-Status</dt>
+            <dd className="text-gray-700">
+              {client.ust_status === 'kleinunternehmer' ? 'Kleinunternehmer (befreit)' : 'Regelbesteuerung'}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">Regelbesteuerungsantrag (U12)</dt>
+            <dd className="text-gray-700">
+              {client.regelbesteuerung_optiert
+                ? `Optiert ${client.regelbesteuerung_options_jahr} · bindend bis ${client.regelbesteuerung_bindung_bis}`
+                : '—'}
+            </dd>
+          </div>
         </dl>
+        <p className="text-xs text-gray-400 mt-3">
+          Änderungen an UID, UVA-Zeitraum und USt-Status nimmt der Mandant selbst unter „Einstellungen" vor.
+        </p>
       </div>
 
-      {/* Module – nur für Superadmin */}
-      {me.role === 'superadmin' && (
-        <ModulToggle
-          clientId={client.id}
-          modulesEnabled={modulesEnabled}
-        />
-      )}
+      {/* Inklusivleistungen – nur für Superadmin sichtbar */}
+      {me.role === 'superadmin' && <InklusivCard />}
 
       {/* User-Verwaltung */}
       <MandantUserManager clientId={client.id} members={members} />

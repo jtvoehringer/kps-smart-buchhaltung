@@ -10,6 +10,7 @@ import {
 import NeueEingangsrechnungForm from './NeueEingangsrechnungForm';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
+type Supplier = { id: string; name: string; company_name: string | null };
 
 type OutgoingInvoice = {
   id: string;
@@ -52,7 +53,7 @@ function naheliegendeRate(totalNet: number, totalVat: number): number {
 function isOverdue(dueDate: string, today: Date) { return new Date(dueDate) < today; }
 
 export default function OffenePostenClient({
-  clientId, hasInvoicing, outgoingInvoices, incomingInvoices, incomeCategories, expenseCategories,
+  clientId, hasInvoicing, outgoingInvoices, incomingInvoices, incomeCategories, expenseCategories, suppliers,
 }: {
   clientId: string;
   hasInvoicing: boolean;
@@ -60,6 +61,7 @@ export default function OffenePostenClient({
   incomingInvoices: IncomingInvoice[];
   incomeCategories: Category[];
   expenseCategories: Category[];
+  suppliers: Supplier[];
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -317,7 +319,7 @@ export default function OffenePostenClient({
             <ArrowDownCircle size={16} strokeWidth={2} className="text-expense" />
             Eingangsrechnungen
           </h2>
-          <NeueEingangsrechnungForm clientId={clientId} categories={expenseCategories} />
+          <NeueEingangsrechnungForm clientId={clientId} categories={expenseCategories} suppliers={suppliers} />
         </div>
 
         {incomingInvoices.length === 0 ? (

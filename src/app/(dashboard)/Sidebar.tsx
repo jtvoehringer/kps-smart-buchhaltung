@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import {
-  ClipboardList, Receipt, Wallet, Landmark, FileText, User, ScanSearch,
+  ClipboardList, Receipt, Wallet, Landmark, FileText, User, Truck,
   LayoutDashboard, Settings, Building2, Users, Upload, LogOut, X, Menu,
   type LucideIcon,
 } from 'lucide-react';
@@ -14,7 +14,6 @@ import {
 type Props = {
   companyName: string;
   role: string;
-  modulesEnabled: string[];
 };
 
 type SubItem = { href: string; label: string };
@@ -26,7 +25,10 @@ type NavEntry =
 const NAV_BG     = '#3F454C'; // Grau dunkel
 const NAV_ACCENT = '#4F90E8'; // Blau (aktive Elemente)
 
-function buildNav(role: string, hasInvoicing: boolean, hasOcr: boolean): NavEntry[] {
+// Rechnungen, Belege (OCR) und Offene Posten sind seit dem Vollintegrations-
+// Update fixer Bestandteil der Lösung und nicht mehr über modules_enabled
+// zu- oder abschaltbar (siehe MandantDetail/ModulToggle).
+function buildNav(role: string): NavEntry[] {
   const buchungenGroup: NavEntry = {
     kind: 'group',
     href: '/buchungen',
@@ -35,35 +37,33 @@ function buildNav(role: string, hasInvoicing: boolean, hasOcr: boolean): NavEntr
     children: [
       { href: '/buchungen/kategorien', label: 'Kategorien' },
       { href: '/dauerauftraege',       label: 'Daueraufträge' },
-      ...(hasOcr ? [{ href: '/belege', label: 'Belege (OCR)' }] : []),
+      { href: '/belege',               label: 'Belege (OCR)' },
     ],
   };
 
-  const middle: NavEntry[] = [
+  // Reihenfolge: Buchungen → UVA → Rechnungen → Kunden → Lieferanten →
+  // Offene Posten → Bank-Import (Rechnungen bewusst vor Offenen Posten,
+  // Lieferanten unterhalb Kunden).
+  const rest: NavEntry[] = [
     { kind: 'link', href: '/uva',            label: 'UVA-Meldung',   icon: Receipt },
+    { kind: 'link', href: '/rechnungen',     label: 'Rechnungen',    icon: FileText },
+    { kind: 'link', href: '/kunden',         label: 'Kunden',        icon: User },
+    { kind: 'link', href: '/lieferanten',    label: 'Lieferanten',   icon: Truck },
     { kind: 'link', href: '/offene-posten',  label: 'Offene Posten', icon: Wallet },
     { kind: 'link', href: '/import',         label: 'Bank-Import',   icon: Landmark },
   ];
-
-  const invoicing: NavEntry[] = hasInvoicing
-    ? [
-        { kind: 'link', href: '/rechnungen', label: 'Rechnungen', icon: FileText },
-        { kind: 'link', href: '/kunden',     label: 'Kunden',     icon: User },
-      ]
-    : [];
 
   if (role === 'superadmin') {
     return [
       { kind: 'link', href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
       buchungenGroup,
-      ...middle,
-      ...invoicing,
+      ...rest,
       { kind: 'link', href: '/einstellungen', label: 'Einstellungen', icon: Settings },
     ];
   }
 
   if (role === 'klient') {
-    return [buchungenGroup, ...middle, ...invoicing];
+    return [buchungenGroup, ...rest];
   }
 
   return [];
@@ -75,12 +75,9 @@ const kanzleiItems: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/kanzlei/bmd-export',  label: 'BMD-Export',         icon: Upload },
 ];
 
-export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
+export default function Sidebar({ companyName, role }: Props) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const hasInvoicing = modulesEnabled.includes('invoicing');
-  const hasOcr       = modulesEnabled.includes('ocr');
 
   function isActive(href: string) {
     if (href === '/dashboard') return pathname === '/dashboard';
@@ -101,7 +98,7 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
     role === 'kanzlei'    ? 'Kanzlei'       :
     'Klient';
 
-  const mainItems = buildNav(role, hasInvoicing, hasOcr);
+  const mainItems = buildNav(role);
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -194,13 +191,13 @@ export default function Sidebar({ companyName, role, modulesEnabled }: Props) {
         <div className="mt-3 px-3 flex items-center gap-2">
           <Image
             src="/icp-logo.png"
-            alt="IC&P Consultants"
+            alt="ICP Solutions"
             width={22}
             height={22}
             className="rounded-full opacity-80"
           />
           <p className="text-[9px] text-white/40">
-            &copy; IC&amp;P Consultants e.U. &middot; v0.9
+            &copy; ICP Solutions GmbH &middot; v0.9
           </p>
         </div>
       </div>

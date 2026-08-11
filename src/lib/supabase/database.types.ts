@@ -10,6 +10,7 @@ export type TaxReturnStatus = 'draft' | 'signed' | 'submitted';
 export type RecurringInterval = 'monthly' | 'quarterly' | 'semi-annual' | 'annual';
 export type TenantPlan = 'starter' | 'standard' | 'professional' | 'enterprise';
 export type VatPeriod = 'monthly' | 'quarterly';
+export type UstStatus = 'kleinunternehmer' | 'regelbesteuerung';
 export type InvoiceStatus = 'draft' | 'open' | 'paid' | 'cancelled';
 export type IncomingInvoiceStatus = 'open' | 'paid' | 'cancelled';
 export type ReceiptStatus = 'pending' | 'processing' | 'processed' | 'booked' | 'error';
@@ -48,7 +49,11 @@ export type Client = {
   fiscal_year_start: number;
   booking_mode: string;           // 'netto' | 'brutto' – Migration via Supabase Dashboard
   attachments_enabled: boolean;   // Migration 003
-  modules_enabled: string[];      // Migration 010: z.B. ['invoicing']
+  modules_enabled: string[];      // Migration 010: z.B. ['invoicing'] (seit Migration 015 informativ, App prüft nicht mehr darauf)
+  ust_status: UstStatus;          // Migration 015
+  regelbesteuerung_optiert: boolean;          // Migration 015
+  regelbesteuerung_options_jahr: number | null;  // Migration 015
+  regelbesteuerung_bindung_bis: number | null;   // Migration 015
   is_active: boolean;
   created_at: string;
 };
@@ -187,6 +192,25 @@ export type Customer = {
   updated_at: string;
 };
 
+export type Supplier = {
+  id: string;
+  client_id: string;
+  name: string;
+  company_name: string | null;
+  street: string | null;
+  zip: string | null;
+  city: string | null;
+  country: string;
+  email: string | null;
+  phone: string | null;
+  uid_number: string | null;
+  iban: string | null;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type InvoiceItem = {
   description: string;
   quantity: number;
@@ -230,6 +254,7 @@ export type IncomingInvoice = {
   id: string;
   client_id: string;
   category_id: string | null;
+  supplier_id: string | null;
   vendor_name: string;
   invoice_number: string | null;
   invoice_date: string;
@@ -337,6 +362,10 @@ export type Database = {
           booking_mode?: string;
           attachments_enabled?: boolean;
           modules_enabled?: string[];
+          ust_status?: UstStatus;
+          regelbesteuerung_optiert?: boolean;
+          regelbesteuerung_options_jahr?: number | null;
+          regelbesteuerung_bindung_bis?: number | null;
           is_active?: boolean;
         };
         Update: Partial<Client>;
@@ -537,6 +566,7 @@ export type Database = {
         Insert: {
           client_id: string;
           category_id?: string | null;
+          supplier_id?: string | null;
           vendor_name: string;
           invoice_number?: string | null;
           invoice_date?: string;
@@ -562,7 +592,34 @@ export type Database = {
             referencedRelation: 'categories';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'incoming_invoices_supplier_id_fkey';
+            columns: ['supplier_id'];
+            isOneToOne: false;
+            referencedRelation: 'suppliers';
+            referencedColumns: ['id'];
+          },
         ];
+      };
+      suppliers: {
+        Row: Supplier;
+        Insert: {
+          client_id: string;
+          name: string;
+          company_name?: string | null;
+          street?: string | null;
+          zip?: string | null;
+          city?: string | null;
+          country?: string;
+          email?: string | null;
+          phone?: string | null;
+          uid_number?: string | null;
+          iban?: string | null;
+          notes?: string | null;
+          is_active?: boolean;
+        };
+        Update: Partial<Supplier>;
+        Relationships: [];
       };
       receipts: {
         Row: Receipt;
