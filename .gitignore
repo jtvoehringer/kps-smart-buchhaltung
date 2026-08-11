@@ -8,6 +8,8 @@ out/
 # Umgebungsvariablen – NIEMALS einchecken!
 .env.local
 .env*.local
+.env
+!.env.local.example
 
 # Vercel
 .vercel
@@ -22,3 +24,10 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Arbeitsartefakte – nicht versionieren
+*.tar.gz
+*.zip
+fix_*.py
+_*_tmp*
+_to_delete/
