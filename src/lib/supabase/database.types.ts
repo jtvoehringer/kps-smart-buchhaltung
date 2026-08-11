@@ -84,6 +84,8 @@ export type ClientBranding = {
   invoice_prefix: string;
   invoice_next_nr: number;
   invoice_nr_digits: number;
+  /** Migration 022: Suffix mit Platzhaltern {JJ} / {JJJJ}, z.B. "/{JJ}" -> RE-001/26 */
+  invoice_suffix: string;
   payment_days: number;
   invoice_footer: string | null;
   updated_at: string;
@@ -447,6 +449,7 @@ export type Database = {
           invoice_prefix?: string;
           invoice_next_nr?: number;
           invoice_nr_digits?: number;
+          invoice_suffix?: string;
           payment_days?: number;
           invoice_footer?: string | null;
         };
@@ -761,8 +764,13 @@ export type Database = {
         Returns: string[];
       };
       // Migration 021 – Rechnungen / Ist-Besteuerung
+      // Migration 022 – p_datum steuert Jahres-Suffix und Jahreszähler
       naechste_rechnungsnummer: {
-        Args: { p_client_id: string };
+        Args: { p_client_id: string; p_datum?: string };
+        Returns: string;
+      };
+      rechnungsnummer_formatieren: {
+        Args: { p_prefix: string; p_nr: number; p_digits: number; p_suffix: string; p_jahr: number };
         Returns: string;
       };
       rechnung_bezahlt_buchen: {

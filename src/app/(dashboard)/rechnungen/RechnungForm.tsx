@@ -182,8 +182,11 @@ export default function RechnungForm({
       // parallelem Finalisieren zweimal dieselbe Nummer vergeben und
       // verschluckte Fehler beim Hochzählen komplett.
       if (!payload.invoice_number) {
+        // p_datum steuert das Jahr im Suffix und den Jahreszähler:
+        // eine im Jänner nachgetragene Dezemberrechnung bekommt die
+        // Nummer des alten Jahres und setzt dessen Serie fort.
         const { data: nr, error: nrErr } = await supabase
-          .rpc('naechste_rechnungsnummer', { p_client_id: clientId });
+          .rpc('naechste_rechnungsnummer', { p_client_id: clientId, p_datum: invoiceDate });
         if (nrErr || !nr) {
           setError(`Rechnungsnummer konnte nicht vergeben werden: ${nrErr?.message ?? 'unbekannter Fehler'}`);
           setLoading(false);

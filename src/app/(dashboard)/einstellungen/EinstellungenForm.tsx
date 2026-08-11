@@ -36,6 +36,7 @@ type BrandingData = {
   invoice_prefix: string;
   invoice_next_nr: number;
   invoice_nr_digits: number;
+  invoice_suffix: string;
   payment_days: number;
   invoice_footer: string | null;
 } | null;
@@ -85,6 +86,7 @@ export default function EinstellungenForm({
   const [invoicePrefix,   setInvoicePrefix]   = useState(branding?.invoice_prefix   ?? 'RE-');
   const [invoiceNextNr,   setInvoiceNextNr]   = useState(branding?.invoice_next_nr  ?? 1);
   const [invoiceNrDigits, setInvoiceNrDigits] = useState(branding?.invoice_nr_digits ?? 3);
+  const [invoiceSuffix,   setInvoiceSuffix]   = useState(branding?.invoice_suffix   ?? '');
   const [paymentDays,     setPaymentDays]     = useState(branding?.payment_days     ?? 14);
   const [invoiceFooter,   setInvoiceFooter]   = useState(branding?.invoice_footer   ?? '');
   const [logoUrl,         setLogoUrl]         = useState(branding?.logo_url         ?? '');
@@ -95,8 +97,21 @@ export default function EinstellungenForm({
   const [error,   setError]   = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Rechnungsnummer-Vorschau
-  const nrPreview = `${invoicePrefix}${String(invoiceNextNr).padStart(invoiceNrDigits, '0')}`;
+  // Rechnungsnummer-Vorschau. Muss zu rechnungsnummer_formatieren()
+  // aus Migration 022 passen – Platzhalter {JJJJ} vor {JJ} ersetzen.
+  const hatJahresSuffix = /\{JJJJ\}|\{JJ\}/.test(invoiceSuffix);
+
+  function formatiereNummer(nr: number, jahr: number) {
+    const suffix = invoiceSuffix
+      .replace(/\{JJJJ\}/g, String(jahr))
+      .replace(/\{JJ\}/g, String(jahr % 100).padStart(2, '0'));
+    return `${invoicePrefix}${String(nr).padStart(invoiceNrDigits, '0')}${suffix}`;
+  }
+
+  const aktuellesJahr = new Date().getFullYear();
+  const nrPreview = formatiereNummer(invoiceNextNr, aktuellesJahr);
+  // Bei jährlichem Neustart beginnt das Folgejahr wieder bei 1
+  const nrPreviewNaechstesJahr = formatiereNummer(1, aktuellesJahr + 1);
 
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -168,6 +183,7 @@ export default function EinstellungenForm({
       invoice_prefix:    invoicePrefix   || 'RE-',
       invoice_next_nr:   invoiceNextNr,
       invoice_nr_digits: invoiceNrDigits,
+      invoice_suffix:    invoiceSuffix,
       payment_days:      paymentDays,
       invoice_footer:    invoiceFooter   || null,
       ...(logoUrl ? { logo_url: logoUrl } : {}),
@@ -523,11 +539,35 @@ export default function EinstellungenForm({
                 ))}
               </select>
             </div>
+            <div className="w-40">
+              <label className="text-xs text-gray-500 font-medium block mb-1">Suffix</label>
+              <input
+                type="text" placeholder="/{JJ}"
+                value={invoiceSuffix} onChange={e => setInvoiceSuffix(e.target.value)}
+                className={inputCls}
+              />
+            </div>
           </div>
-          <div className="bg-gray-50 rounded-lg px-4 py-3 flex items-center gap-3">
+          <p className="text-xs text-gray-400 leading-relaxed">
+            Platzhalter im Suffix: <span className="font-mono">{'{JJ}'}</span> für das zweistellige Jahr,{' '}
+            <span className="font-mono">{'{JJJJ}'}</span> für das vierstellige. Leer lassen für kein Suffix.
+            Das Jahr richtet sich nach dem Rechnungsdatum.
+          </p>
+          <div className="bg-gray-50 rounded-lg px-4 py-3 flex items-center gap-3 flex-wrap">
             <span className="text-xs text-gray-400">Vorschau nächste Rechnung:</span>
             <span className="font-mono font-semibold text-[#35609E]">{nrPreview}</span>
           </div>
+          {hatJahresSuffix ? (
+            <p className="text-xs text-accent-dark bg-surface-band rounded-lg px-4 py-2.5 leading-relaxed">
+              Der Zähler beginnt zu jedem Jahreswechsel wieder bei 1 – im Beispiel oben also{' '}
+              <span className="font-mono">{nrPreviewNaechstesJahr}</span> für die erste Rechnung des Folgejahres.
+              Die Nummern bleiben eindeutig, weil das Jahr Teil der Nummer ist.
+            </p>
+          ) : (
+            <p className="text-xs text-gray-400 bg-gray-50 rounded-lg px-4 py-2.5 leading-relaxed">
+              Ohne Jahresplatzhalter läuft der Zähler durchgehend über alle Jahre weiter.
+            </p>
+          )}
         </div>
       </div>
 
