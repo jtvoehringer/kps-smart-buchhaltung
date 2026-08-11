@@ -18,14 +18,13 @@ export default async function UVAPage() {
 
   if (!client) redirect('/dashboard');
 
-  // Alle Buchungen laden – Filterung passiert client-seitig nach Jahr/Zeitraum
-  const { data: transactions } = await supabase
-    .from('transactions')
-    .select('id, type, amount_net, vat_rate, vat_amount, booking_date')
-    .eq('client_id', client.id)
-    // Privatumsätze zählen steuerlich nicht mit (F-5)
-    .eq('is_private', false)
-    .order('booking_date', { ascending: true });
+  // Die Summen holt der Client je Zeitraum über uva_summe() direkt aus
+  // der Datenbank. Vorher wurden hier ALLE Buchungen aller Jahre geladen
+  // und im Browser summiert – PostgREST schneidet aber bei db.max_rows
+  // (Default 1000) still ab, und zwar nach aufsteigendem Buchungsdatum,
+  // also ausgerechnet die neuesten. Ab rund 1000 Buchungen meldete der
+  // Mandant damit unbemerkt eine zu niedrige Zahllast.
+  const { data: jahre } = await supabase.rpc('buchungsjahre', { p_client_id: client.id });
 
   // Gespeicherte UVA-Meldungen (Entwurf/übermittelt) laden
   const { data: taxReturns } = await supabase
@@ -41,7 +40,7 @@ export default async function UVAPage() {
       companyName={client.company_name}
       vatLiable={client.vat_liable ?? true}
       vatPeriod={client.vat_period ?? 'quarterly'}
-      transactions={transactions ?? []}
+      jahre={(jahre ?? []).map((j: { jahr: number }) => j.jahr)}
       taxReturns={taxReturns ?? []}
     />
   );

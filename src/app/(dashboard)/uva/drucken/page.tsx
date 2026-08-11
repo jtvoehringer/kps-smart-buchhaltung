@@ -82,14 +82,24 @@ export default async function UVADruckenPage({
   const lastDay = new Date(year, periodMonth, 0).getDate();
   const dateTo = `${year}-${String(periodMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
-  const { data: transactions } = await supabase
-    .from('transactions')
-    .select('type, amount_net, vat_rate, vat_amount, booking_date')
-    .eq('client_id', client.id)
-    // Privatumsätze zählen steuerlich nicht mit (F-5)
-    .eq('is_private', false)
-    .gte('booking_date', dateFrom)
-    .lte('booking_date', dateTo);
+  // Dieselbe Quelle wie die Bildschirmansicht: uva_summe(). Vorher
+  // aggregierten beide Seiten unabhängig voneinander und konnten
+  // dadurch unterschiedliche Zahlen anzeigen.
+  const { data: summenZeilen } = await supabase.rpc('uva_summe', {
+    p_client_id: client.id,
+    p_von: dateFrom,
+    p_bis: dateTo,
+  });
+
+  const transactions = (summenZeilen ?? []).map(
+    (s: { typ: 'income' | 'expense'; vat_rate: number; bemessungsgrundlage: number; steuer: number }) => ({
+      type: s.typ,
+      amount_net: Number(s.bemessungsgrundlage),
+      vat_rate: Number(s.vat_rate),
+      vat_amount: Number(s.steuer),
+      booking_date: dateFrom,
+    }),
+  );
 
   const { data: taxReturn } = await supabase
     .from('tax_returns')

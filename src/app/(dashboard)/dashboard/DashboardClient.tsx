@@ -7,12 +7,14 @@ import { formatCurrency } from '@/lib/utils';
 
 const MONTHS = ['Jän','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
 
-type Transaction = {
-  booking_date: string;
-  type: string;
-  amount_net: number;
-  vat_amount: number;
-  amount_gross: number;
+/** Eine Zeile aus monatssummen() – bereits in der DB aggregiert */
+type Monatssumme = {
+  jahr: number;
+  monat: number;
+  einnahmen: number;
+  ausgaben: number;
+  ust: number;
+  vst: number;
 };
 
 type OpenInvoice = {
@@ -33,12 +35,12 @@ type OpenIncoming = {
 
 export default function DashboardClient({
   companyName,
-  transactions,
+  monatssummen,
   openInvoices,
   openIncoming,
 }: {
   companyName: string;
-  transactions: Transaction[];
+  monatssummen: Monatssumme[];
   openInvoices: OpenInvoice[];
   openIncoming: OpenIncoming[];
 }) {
@@ -46,25 +48,21 @@ export default function DashboardClient({
 
   // Verfügbare Jahre aus den Buchungen ermitteln
   const availableYears = useMemo(() => {
-    const years = new Set(transactions.map(t => new Date(t.booking_date).getFullYear()));
+    const years = new Set(monatssummen.map(m => Number(m.jahr)));
     years.add(currentYear);
     return Array.from(years).sort((a, b) => b - a);
-  }, [transactions, currentYear]);
+  }, [monatssummen, currentYear]);
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
   const monthly = useMemo(() => MONTHS.map((label, i) => {
     const month = i + 1;
-    const rows = transactions.filter(t => {
-      const d = new Date(t.booking_date);
-      return d.getFullYear() === selectedYear && d.getMonth() + 1 === month;
-    });
-    const income  = rows.filter(t => t.type === 'income' ).reduce((s, t) => s + Number(t.amount_gross), 0);
-    const expense = rows.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount_gross), 0);
-    const vat     = rows.filter(t => t.type === 'income' ).reduce((s, t) => s + Number(t.vat_amount), 0)
-                  - rows.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.vat_amount), 0);
+    const z = monatssummen.find(m => Number(m.jahr) === selectedYear && Number(m.monat) === month);
+    const income  = Number(z?.einnahmen ?? 0);
+    const expense = Number(z?.ausgaben  ?? 0);
+    const vat     = Number(z?.ust ?? 0) - Number(z?.vst ?? 0);
     return { label, month, income, expense, vat, balance: income - expense };
-  }), [transactions, selectedYear]);
+  }), [monatssummen, selectedYear]);
 
   const totalIncome  = monthly.reduce((s, m) => s + m.income,  0);
   const totalExpense = monthly.reduce((s, m) => s + m.expense, 0);

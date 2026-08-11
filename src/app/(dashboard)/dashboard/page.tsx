@@ -52,14 +52,11 @@ export default async function DashboardPage() {
   }
 
   // Alle Buchungen laden (alle Jahre) + offene Posten für die Überfällig-Anzeige
-  const [{ data: transactions }, { data: openInvoices }, { data: openIncoming }] = await Promise.all([
-    supabase
-      .from('transactions')
-      .select('booking_date, type, amount_net, vat_amount, amount_gross')
-      .eq('client_id', client.id)
-      // Privatumsätze zählen steuerlich nicht mit (F-5)
-      .eq('is_private', false)
-      .order('booking_date', { ascending: true }),
+  const [{ data: monatssummen }, { data: openInvoices }, { data: openIncoming }] = await Promise.all([
+    // Monatssummen kommen aggregiert aus der Datenbank. Vorher wurden
+    // hier alle Buchungen aller Jahre geladen – dieselbe stille
+    // Abschneidung wie bei der UVA.
+    supabase.rpc('monatssummen', { p_client_id: client.id }),
     supabase
       .from('invoices')
       .select('id, invoice_number, due_date, total_gross, customers(id, name, contact_person)')
@@ -75,7 +72,7 @@ export default async function DashboardPage() {
   return (
     <DashboardClient
       companyName={client.company_name}
-      transactions={transactions ?? []}
+      monatssummen={monatssummen ?? []}
       openInvoices={openInvoices ?? []}
       openIncoming={openIncoming ?? []}
     />

@@ -788,6 +788,19 @@ export type Database = {
         Args: { p_invoice_id: string; p_category_id: string; p_paid_date: string };
         Returns: string;
       };
+      // Migration 026 – Aggregation serverseitig statt im Browser
+      uva_summe: {
+        Args: { p_client_id: string; p_von: string; p_bis: string };
+        Returns: { typ: 'income' | 'expense'; vat_rate: number; bemessungsgrundlage: number; steuer: number; anzahl: number }[];
+      };
+      buchungsjahre: {
+        Args: { p_client_id: string };
+        Returns: { jahr: number }[];
+      };
+      monatssummen: {
+        Args: { p_client_id: string };
+        Returns: { jahr: number; monat: number; einnahmen: number; ausgaben: number; ust: number; vst: number }[];
+      };
       uva_uebermitteln: {
         Args: { p_tax_return_id: string };
         Returns: TaxReturn;

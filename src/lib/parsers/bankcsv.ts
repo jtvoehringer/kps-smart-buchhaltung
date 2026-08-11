@@ -8,6 +8,7 @@
 // ============================================================
 
 import type { ParsedBankEntry } from './camt053';
+import { parseBetrag } from './betrag';
 
 export type CsvParseResult = {
   entries:  ParsedBankEntry[];
@@ -29,15 +30,10 @@ function splitLine(line: string, sep: string): string[] {
   return result;
 }
 
-/** Deutschen Betrag parsen: "1.234,56" / "-1.234,56" / "1234.56" → number */
-function parseAmount(raw: string): number | null {
-  if (!raw) return null;
-  const cleaned = raw.replace(/\s/g, '')
-    .replace(/\.(?=\d{3}[,])/g, '')  // Tausender-Punkt weg
-    .replace(',', '.');
-  const n = parseFloat(cleaned);
-  return isNaN(n) ? null : n;
-}
+// Betragsparser liegt in ./betrag.ts und ist dort unter Test.
+// Die frühere Inline-Variante zerstörte Beträge ab einer Million und
+// ignorierte nachgestellte Minuszeichen.
+const parseAmount = parseBetrag;
 
 /** Deutsches Datum oder ISO → ISO "YYYY-MM-DD" */
 function parseDate(raw: string): string | null {

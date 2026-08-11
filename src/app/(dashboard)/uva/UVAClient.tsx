@@ -1,22 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { VAT_RATES, calculateUVA } from '@/lib/utils';
+import { VAT_RATES, calculateUVA, type UVATransaction } from '@/lib/utils';
 import {
   Printer, CalendarClock, Inbox, Info, Lock, CheckCircle2, AlertTriangle,
   Calculator, Send, Loader2,
 } from 'lucide-react';
-
-type Transaction = {
-  id: string;
-  type: 'income' | 'expense';
-  amount_net: number;
-  vat_rate: number;
-  vat_amount: number;
-  booking_date: string;
-};
 
 type TaxReturn = {
   id: string;
@@ -31,8 +22,18 @@ type Props = {
   companyName: string;
   vatLiable: boolean;
   vatPeriod: string; // 'monthly' | 'quarterly'
-  transactions: Transaction[];
+  /** Jahre mit Buchungen – aus buchungsjahre() */
+  jahre: number[];
   taxReturns: TaxReturn[];
+};
+
+/** Eine Zeile aus uva_summe() */
+type SummenZeile = {
+  typ: 'income' | 'expense';
+  vat_rate: number;
+  bemessungsgrundlage: number;
+  steuer: number;
+  anzahl: number;
 };
 
 const MONATE = ['Jän', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
@@ -56,7 +57,7 @@ function formatDateTime(ts: string | null) {
   return ts ? new Date(ts).toLocaleString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
 }
 
-export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod, transactions, taxReturns }: Props) {
+export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod, jahre, taxReturns }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const isQuarterly = vatPeriod !== 'monthly';
@@ -71,23 +72,58 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
   const [error, setError] = useState('');
 
   const availableYears = useMemo(() => {
-    const years = new Set<number>();
+    const years = new Set<number>(jahre);
     years.add(currentYear);
-    transactions.forEach(t => years.add(new Date(t.booking_date).getFullYear()));
     return Array.from(years).sort((a, b) => b - a);
-  }, [transactions, currentYear]);
+  }, [jahre, currentYear]);
 
   const periodMonth = isQuarterly ? periodNum * 3 : periodNum;
   const periodStartMonth = isQuarterly ? periodNum * 3 - 2 : periodNum;
   const dateFrom = `${year}-${pad(periodStartMonth)}-01`;
   const dateTo = `${year}-${pad(periodMonth)}-${pad(lastDayOfMonth(year, periodMonth))}`;
 
-  const periodTransactions = useMemo(
-    () => transactions.filter(t => t.booking_date >= dateFrom && t.booking_date <= dateTo),
-    [transactions, dateFrom, dateTo]
-  );
+  // Summen kommen aus der Datenbank, nicht mehr aus einer im Browser
+  // gefilterten Gesamtliste. Damit gibt es keine stille Obergrenze.
+  const [summen, setSummen] = useState<SummenZeile[]>([]);
+  const [ladeSummen, setLadeSummen] = useState(true);
+  const [ladeFehler, setLadeFehler] = useState('');
 
-  const uvaData = useMemo(() => calculateUVA(periodTransactions), [periodTransactions]);
+  const summenLaden = useCallback(async () => {
+    setLadeSummen(true);
+    setLadeFehler('');
+    const { data, error: err } = await supabase.rpc('uva_summe', {
+      p_client_id: clientId,
+      p_von: dateFrom,
+      p_bis: dateTo,
+    });
+    if (err) {
+      console.error('uva_summe fehlgeschlagen:', err);
+      setLadeFehler(`Die Summen konnten nicht geladen werden: ${err.message}`);
+      setSummen([]);
+    } else {
+      setSummen((data ?? []) as SummenZeile[]);
+    }
+    setLadeSummen(false);
+  }, [supabase, clientId, dateFrom, dateTo]);
+
+  useEffect(() => { void summenLaden(); }, [summenLaden]);
+
+  // Die Summenzeilen in dieselbe Form bringen, die calculateUVA erwartet.
+  // So bleibt die Kennzahlenzuordnung an einer Stelle und ist getestet.
+  const uvaData = useMemo(() => {
+    const alsBuchungen: UVATransaction[] = summen.map(s => ({
+      type: s.typ,
+      amount_net: Number(s.bemessungsgrundlage),
+      vat_rate: Number(s.vat_rate),
+      vat_amount: Number(s.steuer),
+    }));
+    return calculateUVA(alsBuchungen);
+  }, [summen]);
+
+  const anzahlBuchungen = useMemo(
+    () => summen.reduce((s, z) => s + Number(z.anzahl), 0),
+    [summen],
+  );
 
   const existingRow = taxReturns.find(tr => tr.period_year === year && tr.period_month === periodMonth) ?? null;
   const isSubmitted = existingRow?.status === 'submitted';
@@ -262,7 +298,7 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
           <div className="flex items-center gap-2">
             <button
               onClick={handleBerechnen}
-              disabled={saving || periodTransactions.length === 0}
+              disabled={saving || ladeSummen || anzahlBuchungen === 0}
               className="inline-flex items-center gap-1.5 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50"
             >
               {saving ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <Calculator size={14} strokeWidth={2} />}
@@ -285,7 +321,15 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
       {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg mb-6">{error}</p>}
 
       {/* Keine Buchungen */}
-      {periodTransactions.length === 0 ? (
+      {ladeSummen ? (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center text-gray-400 text-sm">
+          Summen werden geladen…
+        </div>
+      ) : ladeFehler ? (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-sm text-red-700">
+          {ladeFehler}
+        </div>
+      ) : anzahlBuchungen === 0 ? (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center">
           <Inbox size={32} strokeWidth={1.5} className="text-gray-300 mx-auto mb-3" />
           <p className="text-gray-500">Keine Buchungen im {periodLabel} vorhanden.</p>
