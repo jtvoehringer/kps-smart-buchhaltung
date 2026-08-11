@@ -25,6 +25,22 @@ type Match =
   | { kind: 'incoming'; invoice: OpenIncomingInvoice }
   | null;
 
+type TxInsert = {
+  client_id: string;
+  category_id: string;
+  type: 'income' | 'expense';
+  amount_net: number;
+  vat_rate: 0 | 10 | 13 | 20;
+  vat_amount: number;
+  booking_date: string;
+  description: string | null;
+  import_source?: string;
+  bank_ref?: string;
+  account_id?: string | null;
+  is_private?: boolean;
+  is_reconciled?: boolean;
+};
+
 type ImportRow = ParsedBankEntry & {
   selected:    boolean;
   categoryId:  string;
@@ -235,7 +251,7 @@ export default function ImportClient({
     for (const r of toImport) {
       const useMatch = r.linked && r.match;
 
-      let base: Record<string, unknown>;
+      let base: TxInsert;
       if (useMatch && r.match!.kind === 'invoice') {
         const inv = r.match!.invoice as OpenInvoice;
         const vatRate = Number(inv.amount_net) > 0
@@ -245,7 +261,7 @@ export default function ImportClient({
           : 20;
         base = {
           client_id:   clientId,
-          category_id: r.categoryId || categories.find(c => c.type === 'income')?.id,
+          category_id: r.categoryId || categories.find(c => c.type === 'income')?.id || '',
           type:        'income',
           amount_net:  Number(inv.amount_net),
           vat_rate:    vatRate,
@@ -257,17 +273,17 @@ export default function ImportClient({
         const inv = r.match!.invoice as OpenIncomingInvoice;
         base = {
           client_id:   clientId,
-          category_id: inv.category_id || r.categoryId,
+          category_id: inv.category_id || r.categoryId || '',
           type:        'expense',
           amount_net:  Number(inv.amount_net),
-          vat_rate:    inv.vat_rate,
+          vat_rate:    inv.vat_rate as 0 | 10 | 13 | 20,
           vat_amount:  Number(inv.vat_amount),
           booking_date: r.date,
           description: `Zahlungsausgang ${inv.vendor_name}${inv.invoice_number ? ` – ${inv.invoice_number}` : ''}`,
         };
       } else {
         const cat    = categories.find(c => c.id === r.categoryId);
-        const vatRate = cat?.vat_rate ?? 0;
+        const vatRate = (cat?.vat_rate ?? 0) as 0 | 10 | 13 | 20;
         const amtNet = parseFloat((r.amount / (1 + vatRate / 100)).toFixed(2));
         const vatAmt = parseFloat((r.amount - amtNet).toFixed(2));
         base = {
@@ -282,13 +298,13 @@ export default function ImportClient({
         };
       }
 
-      const extras = withExtras
-        ? { import_source: fileType || 'csv', bank_ref: r.bankRef, account_id: accountId || null, is_private: r.isPrivate, is_reconciled: false }
-        : {};
+      const payload: TxInsert = withExtras
+        ? { ...base, import_source: fileType || 'csv', bank_ref: r.bankRef, account_id: accountId || null, is_private: r.isPrivate, is_reconciled: false }
+        : base;
 
       const { data: newTx, error } = await supabase
         .from('transactions')
-        .insert({ ...base, ...extras })
+        .insert(payload)
         .select('id')
         .single();
 
