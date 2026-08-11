@@ -7,12 +7,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { istEmail, htmlEscape, appBasisUrl, versandProtokollieren } from '@/lib/mail/versand';
 
 export const runtime = 'nodejs';
-
-function isValidEmail(s: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
-}
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -41,7 +38,7 @@ export async function POST(req: NextRequest) {
   }
 
   const recipient = body.to?.trim() || '';
-  if (!recipient || !isValidEmail(recipient)) {
+  if (!recipient || !istEmail(recipient)) {
     return NextResponse.json({ error: 'Bitte eine gültige E-Mail-Adresse angeben.' }, { status: 400 });
   }
 
@@ -56,7 +53,7 @@ export async function POST(req: NextRequest) {
   // Herkunft aus dem tatsächlichen Request ableiten statt eine Domain zu raten –
   // funktioniert dadurch automatisch korrekt, egal ob Vercel-Standarddomain,
   // eigene Domain oder Preview-Deployment (behebt Vercel "DEPLOYMENT_NOT_FOUND").
-  const appUrl = req.nextUrl.origin;
+  const appUrl = appBasisUrl(req.nextUrl.origin);
   const belegeUrl = `${appUrl}/belege`;
 
   const { data: clientData } = await admin
@@ -65,6 +62,18 @@ export async function POST(req: NextRequest) {
     .eq('id', membership.client_id)
     .maybeSingle();
   const senderName = clientData?.company_name || 'KPS Smart Buchhaltung';
+
+  // Mengenbegrenzung und Nachweis – vor dem Versand, damit ein
+  // erreichtes Limit die Mail auch wirklich verhindert.
+  const erlaubt = await versandProtokollieren(admin, {
+    clientId: membership.client_id,
+    userId: user.id,
+    zweck: 'app_einladung',
+    empfaenger: recipient,
+  });
+  if (!erlaubt.ok) {
+    return NextResponse.json({ error: erlaubt.fehler }, { status: 429 });
+  }
 
   try {
     const resend = new Resend(apiKey);
@@ -100,11 +109,11 @@ export async function POST(req: NextRequest) {
       html: [
         `<p>Hallo,</p>`,
         `<p>hier ist der Link zu <strong>KPS Smart Buchhaltung</strong>, den du auf deinem Smartphone oder Tablet als App installieren kannst – ideal, um Belege direkt unterwegs zu fotografieren:</p>`,
-        `<p><a href="${belegeUrl}">${belegeUrl}</a></p>`,
+        `<p><a href="${htmlEscape(belegeUrl)}">${htmlEscape(belegeUrl)}</a></p>`,
         `<p><strong>iPhone/iPad (Safari):</strong><br>1. Link oben öffnen<br>2. Teilen-Symbol antippen (Quadrat mit Pfeil nach oben)<br>3. „Zum Home-Bildschirm" auswählen</p>`,
         `<p><strong>Android (Chrome):</strong><br>1. Link oben öffnen<br>2. Menü (drei Punkte) antippen<br>3. „App installieren" bzw. „Zum Startbildschirm hinzufügen" auswählen</p>`,
         `<p>Danach erscheint ein eigenes App-Symbol auf dem Homescreen – kein App-Store nötig.</p>`,
-        `<p>Freundliche Grüße<br>${senderName}</p>`,
+        `<p>Freundliche Grüße<br>${htmlEscape(senderName)}</p>`,
       ].join(''),
     });
 

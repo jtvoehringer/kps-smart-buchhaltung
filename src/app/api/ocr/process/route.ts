@@ -75,6 +75,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Kein Zugriff' }, { status: 403 });
   }
 
+  // Der Pfad im Storage muss im Ordner des eigenen Mandanten liegen.
+  // Geladen wird hier mit dem Service-Role-Schlüssel, der die
+  // Storage-Policies umgeht – ohne diese Prüfung könnte ein
+  // selbst angelegter receipts-Datensatz mit fremdem file_url den
+  // Beleg eines anderen Mandanten durch die Texterkennung schicken
+  // und das Ergebnis zurückliefern.
+  const pfad = String(receipt.file_url ?? '');
+  if (!pfad || !pfad.startsWith(`${receipt.client_id}/`) || pfad.includes('..')) {
+    return NextResponse.json({ error: 'Der Beleg liegt nicht im Ordner dieses Mandanten.' }, { status: 400 });
+  }
+
+  // Nur Formate, die die Texterkennung auch verarbeitet.
+  const ERLAUBT = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'] as const;
+  if (!ERLAUBT.includes(receipt.file_type as typeof ERLAUBT[number])) {
+    return NextResponse.json({
+      error: `Dateityp "${receipt.file_type}" wird nicht unterstützt. Bitte JPG, PNG, WEBP oder PDF hochladen.`,
+    }, { status: 400 });
+  }
+
   // Status → processing
   await admin.from('receipts').update({ status: 'processing' }).eq('id', receiptId);
 
@@ -82,7 +101,7 @@ export async function POST(req: NextRequest) {
     // Datei aus Supabase Storage als Blob laden
     const { data: fileData, error: storageErr } = await admin.storage
       .from('belege')
-      .download(receipt.file_url);
+      .download(pfad);
 
     if (storageErr || !fileData) {
       throw new Error(`Storage-Fehler: ${storageErr?.message ?? 'Datei nicht gefunden'}`);

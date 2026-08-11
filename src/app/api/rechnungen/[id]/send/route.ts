@@ -7,6 +7,7 @@ import { Resend } from 'resend';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { renderInvoicePdf } from '@/lib/pdf/invoiceReactPdf';
+import { istEmail, versandProtokollieren } from '@/lib/mail/versand';
 
 export const runtime = 'nodejs';
 
@@ -57,15 +58,30 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Rechnung nicht gefunden' }, { status: 404 });
   }
 
+  // Ein Entwurf hat noch keine Rechnungsnummer. Ohne die ist die
+  // Rechnung nach § 11 Abs. 1 Z 2 UStG unvollständig – und beim
+  // Empfänger nicht vorsteuerabzugsfähig.
+  if (invoice.status === 'draft' || !invoice.invoice_number) {
+    return NextResponse.json({
+      error: 'Diese Rechnung ist noch ein Entwurf und hat keine Rechnungsnummer. Bitte zuerst finalisieren.',
+    }, { status: 400 });
+  }
+  if (invoice.status === 'cancelled') {
+    return NextResponse.json({ error: 'Diese Rechnung ist storniert und kann nicht versendet werden.' }, { status: 400 });
+  }
+
   const customer = invoice.customers as {
     name: string; contact_person: string | null;
     street: string | null; zip: string | null; city: string | null;
     country: string; uid_number: string | null; email: string | null;
   } | null;
 
-  const recipient = body.to?.trim() || customer?.email || '';
+  const recipient = body.to?.trim() || customer?.email?.trim() || '';
   if (!recipient) {
     return NextResponse.json({ error: 'Keine Empfänger-E-Mail-Adresse vorhanden. Bitte beim Kunden hinterlegen oder manuell eingeben.' }, { status: 400 });
+  }
+  if (!istEmail(recipient)) {
+    return NextResponse.json({ error: `"${recipient}" ist keine gültige E-Mail-Adresse.` }, { status: 400 });
   }
 
   const apiKey = process.env.RESEND_API_KEY;
@@ -74,6 +90,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({
       error: 'E-Mail-Versand ist noch nicht konfiguriert (RESEND_API_KEY / RESEND_FROM_EMAIL fehlt in den Umgebungsvariablen).',
     }, { status: 500 });
+  }
+
+  const erlaubt = await versandProtokollieren(admin, {
+    clientId: membership.client_id,
+    userId: user.id,
+    zweck: 'rechnung',
+    empfaenger: recipient,
+  });
+  if (!erlaubt.ok) {
+    return NextResponse.json({ error: erlaubt.fehler }, { status: 429 });
   }
 
   try {

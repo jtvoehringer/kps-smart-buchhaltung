@@ -100,6 +100,15 @@ export type ClientBranding = {
   updated_at: string;
 };
 
+export type EmailLog = {
+  id: string;
+  client_id: string;
+  user_id: string | null;
+  zweck: string;
+  empfaenger: string;
+  created_at: string;
+};
+
 export type Category = {
   id: string;
   tenant_id: string | null;
@@ -835,6 +844,15 @@ export type Database = {
       monat_oeffnen: {
         Args: { p_client_id: string; p_year: number; p_month: number };
         Returns: MonthClosure;
+      };
+      // Migration 031 – Versandprotokoll und Mengenbegrenzung
+      email_versand_protokollieren: {
+        Args: {
+          p_client_id: string; p_user_id: string | null;
+          p_zweck: string; p_empfaenger: string;
+          p_limit?: number; p_fenster?: string;
+        };
+        Returns: void;
       };
     };
   };
