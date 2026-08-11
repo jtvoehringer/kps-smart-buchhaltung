@@ -49,7 +49,6 @@ export type Client = {
   vat_period: VatPeriod;
   fiscal_year_start: number;
   booking_mode: string;           // 'netto' | 'brutto' – Migration via Supabase Dashboard
-  attachments_enabled: boolean;   // Migration 003
   modules_enabled: string[];      // Migration 010: z.B. ['invoicing'] (seit Migration 015 informativ, App prüft nicht mehr darauf)
   ust_status: UstStatus;          // Migration 015
   regelbesteuerung_optiert: boolean;          // Migration 015
@@ -439,7 +438,6 @@ export type Database = {
           vat_period?: VatPeriod;
           fiscal_year_start?: number;
           booking_mode?: string;
-          attachments_enabled?: boolean;
           modules_enabled?: string[];
           ust_status?: UstStatus;
           regelbesteuerung_optiert?: boolean;

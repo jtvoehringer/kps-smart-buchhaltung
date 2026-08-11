@@ -80,6 +80,14 @@ Im Supabase-Dashboard unter **Database → Extensions** aktivieren:
 | 034 | `034_kontoeroeffnungssaldo.sql` | Eröffnungssaldo je Konto |
 | 035 | `035_verwaiste_zahlungen.sql` | Status nachziehen, wenn die Buchung wegfällt |
 | 036 | `036_users_auth_verknuepfung.sql` | `public.users` fest an `auth.users` gebunden |
+| 037 | `037_aufraeumen_fusszeile.sql` | alte einspaltige Fußzeile entfernt |
+| 038 | `038_booking_mode_nachtragen.sql` | `clients.booking_mode` nachgetragen (war nur im Dashboard angelegt) |
+| 039 | `039_attachments_enabled_entfernen.sql` | überholte Spalte `clients.attachments_enabled` entfernt |
+
+> **037 und 039 nehmen etwas weg.** Sonst gilt „erst Supabase, dann
+> deployen"; bei diesen beiden umgekehrt, sofern die laufende
+> Anwendungsversion die Spalte noch schreibt. Bei 037 war das der
+> Fall, bei 039 nicht (die Spalte wurde nirgends verwendet).
 
 ---
 
@@ -133,8 +141,23 @@ VALUES ('<client-id>', '<auth-user-id>');
 
 ## Prüfen, ob alles gelaufen ist
 
+Am schnellsten mit `supabase/DIAGNOSE_schema_abgleich.sql`: die Abfrage
+trägt die erwartete Struktur in sich und meldet beides – was fehlt und
+was zusätzlich vorhanden ist. Sie ändert nichts.
+
+```
+OK |  | Alles deckungsgleich.
+```
+
+`EXTRA` bedeutet: in der Datenbank angelegt, aber in keiner Migration
+beschrieben – so hat `clients.booking_mode` monatelang unbemerkt nur im
+Dashboard existiert. Solche Funde gehören in eine neue Migration
+nachgetragen, sonst fehlen sie beim nächsten Aufbau.
+
+### Von Hand
+
 ```sql
--- Muss 36 Zeilen ergeben, wenn alle Migrationen durch sind:
+-- Muss 22 ergeben, wenn alle Migrationen durch sind:
 SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';
 
 -- Stichproben auf die zuletzt ergänzten Spalten:
