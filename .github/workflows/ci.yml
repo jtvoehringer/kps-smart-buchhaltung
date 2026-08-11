@@ -22,11 +22,11 @@ jobs:
           node-version: 20
           cache: npm
 
-      # npm ci setzt eine committete package-lock.json voraus.
-      # Die liegt derzeit nicht im Repo – sobald sie eingecheckt ist,
-      # hier auf "npm ci" umstellen (reproduzierbare Builds).
+      # npm ci installiert exakt nach package-lock.json, statt die
+      # Abhängigkeiten neu aufzulösen. Damit prüft die CI dieselben
+      # Paketversionen, die auch lokal und auf Vercel laufen.
       - name: Abhängigkeiten installieren
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Typen prüfen
         run: npm run typecheck
