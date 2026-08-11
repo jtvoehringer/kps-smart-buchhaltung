@@ -14,6 +14,12 @@ const EAUTO_HOECHSTGRENZE = 40000;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 const MAX_SIZE_MB = 10;
 const BEWIRTUNG_KATEGORIE_NAME = 'Bewirtungsspesen (Geschäftsessen)';
+const REISEKOSTEN_KATEGORIE_NAME = 'Reisekosten';
+const KM_SATZ = 0.50;              // amtliches Kilometergeld PKW (Stand 2025/2026)
+const DIAETEN_TAGSSATZ = 30;       // Taggeld voll (ab 11 Std.)
+const DIAETEN_STUNDENSATZ = 2.5;   // 1/12 des Taggelds je angefangener Stunde (3–11 Std.)
+const DIAETEN_MIN_STUNDEN = 3;     // unter 3 Std. kein Taggeld
+const DIAETEN_VOLL_STUNDEN = 11;   // ab 11 Std. voller Tagessatz
 
 export default function BuchungForm({
   clientId,
@@ -43,6 +49,13 @@ export default function BuchungForm({
   const [isEAuto, setIsEAuto]         = useState(false);
   const [bewirtungAnlass, setBewirtungAnlass]         = useState('');
   const [bewirtungTeilnehmer, setBewirtungTeilnehmer] = useState('');
+  const [reiseTyp, setReiseTyp] = useState<'' | 'kilometergeld' | 'fahrtkosten' | 'naechtigung' | 'diaeten' | 'konsumation'>('');
+  const [reiseZiel, setReiseZiel]       = useState('');
+  const [reiseZweck, setReiseZweck]     = useState('');
+  const [reiseVon, setReiseVon]         = useState('');
+  const [reiseBis, setReiseBis]         = useState('');
+  const [reiseKm, setReiseKm]           = useState('');
+  const [reiseStunden, setReiseStunden] = useState('');
 
   // Belegauswahl (optional)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -50,6 +63,15 @@ export default function BuchungForm({
 
   const filteredCategories = categories.filter(c => c.type === type);
   const isBewirtung = categories.find(c => c.id === categoryId)?.name === BEWIRTUNG_KATEGORIE_NAME;
+  const isReisekosten = categories.find(c => c.id === categoryId)?.name === REISEKOSTEN_KATEGORIE_NAME;
+  const kmBetrag = reiseTyp === 'kilometergeld' ? Math.round((parseFloat(reiseKm) || 0) * KM_SATZ * 100) / 100 : 0;
+  const diaetenBetrag = (() => {
+    if (reiseTyp !== 'diaeten') return 0;
+    const std = parseFloat(reiseStunden) || 0;
+    if (std < DIAETEN_MIN_STUNDEN) return 0;
+    if (std >= DIAETEN_VOLL_STUNDEN) return DIAETEN_TAGSSATZ;
+    return Math.round(Math.ceil(std) * DIAETEN_STUNDENSATZ * 100) / 100;
+  })();
 
   useEffect(() => {
     const cat = categories.find(c => c.id === categoryId);
@@ -63,6 +85,17 @@ export default function BuchungForm({
   }, [type, categories]);
 
   useEffect(() => { if (isEAuto) setVatRate(20); }, [isEAuto]);
+
+  useEffect(() => {
+    if (!isReisekosten) return;
+    if (reiseTyp === 'kilometergeld') {
+      setVatRate(0);
+      setAmount(kmBetrag > 0 ? kmBetrag.toFixed(2) : '');
+    } else if (reiseTyp === 'diaeten') {
+      setVatRate(0);
+      setAmount(diaetenBetrag > 0 ? diaetenBetrag.toFixed(2) : '');
+    }
+  }, [isReisekosten, reiseTyp, kmBetrag, diaetenBetrag]);
 
   const inputNum = parseFloat(amount) || 0;
   const netNum   = isBrutto ? inputNum / (1 + vatRate / 100) : inputNum;
@@ -116,6 +149,21 @@ export default function BuchungForm({
       setError('Bei Bewirtungsspesen bitte Anlass und Teilnehmer angeben (Voraussetzung für die steuerliche Abzugsfähigkeit).');
       return;
     }
+    if (isReisekosten) {
+      if (!reiseTyp) { setError('Bitte die Art der Reisekosten auswählen.'); return; }
+      if (!reiseZiel.trim() || !reiseZweck.trim() || !reiseVon || !reiseBis) {
+        setError('Bei Reisekosten bitte Reiseziel, Zweck sowie Von/Bis-Datum angeben.');
+        return;
+      }
+      if (reiseTyp === 'kilometergeld' && (!reiseKm || parseFloat(reiseKm) <= 0)) {
+        setError('Bitte die gefahrenen Kilometer angeben.');
+        return;
+      }
+      if (reiseTyp === 'diaeten' && (!reiseStunden || parseFloat(reiseStunden) < DIAETEN_MIN_STUNDEN)) {
+        setError('Für Diäten sind mindestens 3 Stunden Reisedauer erforderlich.');
+        return;
+      }
+    }
     setLoading(true);
     setError('');
 
@@ -140,6 +188,13 @@ export default function BuchungForm({
         description:  descFinal,
         bewirtung_anlass:     isBewirtung ? bewirtungAnlass.trim() : null,
         bewirtung_teilnehmer: isBewirtung ? bewirtungTeilnehmer.trim() : null,
+        reise_typ:     isReisekosten && reiseTyp ? reiseTyp : null,
+        reise_ziel:    isReisekosten ? reiseZiel.trim() : null,
+        reise_zweck:   isReisekosten ? reiseZweck.trim() : null,
+        reise_von:     isReisekosten ? reiseVon : null,
+        reise_bis:     isReisekosten ? reiseBis : null,
+        reise_km:      isReisekosten && reiseTyp === 'kilometergeld' ? parseFloat(reiseKm) : null,
+        reise_stunden: isReisekosten && reiseTyp === 'diaeten' ? parseFloat(reiseStunden) : null,
       })
       .select('id')
       .single();
@@ -233,11 +288,13 @@ export default function BuchungForm({
           <label className="block text-sm font-medium text-gray-700 mb-1">{isBrutto ? 'Brutto (€)' : 'Netto (€)'}</label>
           <input type="number" required min="0.01" step="0.01" placeholder="0,00" value={amount}
             onChange={e => setAmount(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+            disabled={isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten')}
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] disabled:bg-gray-100 disabled:cursor-not-allowed" />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">USt %</label>
-          <select value={vatRate} onChange={e => setVatRate(Number(e.target.value))} disabled={isEAuto}
+          <select value={vatRate} onChange={e => setVatRate(Number(e.target.value))}
+            disabled={isEAuto || (isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten'))}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] disabled:bg-gray-100 disabled:cursor-not-allowed">
             <option value={0}>0 %</option>
             <option value={10}>10 %</option>
@@ -281,6 +338,95 @@ export default function BuchungForm({
               value={bewirtungTeilnehmer} onChange={e => setBewirtungTeilnehmer(e.target.value)}
               className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
           </div>
+        </div>
+
+      {/* Reisekosten: Typ, Pflichtangaben, Rechner für Kilometergeld/Diäten */}
+      {isReisekosten && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+          <p className="text-xs text-amber-800 leading-relaxed">
+            Reisekosten werden steuerlich unterschiedlich behandelt: Kilometergeld und Diäten sind
+            pauschale, vorsteuerfreie Aufwandsentschädigungen (§ 4 Abs. 5 / § 26 Z 4 EStG), Fahrtkosten,
+            Nächtigung und Konsumation werden mit dem tatsächlichen Belegbetrag gebucht. Ziel, Zweck und
+            Zeitraum der Reise sind für den Nachweis verpflichtend.
+          </p>
+          <div>
+            <label className="block text-xs font-medium text-amber-900 mb-1">Art der Reisekosten *</label>
+            <select required value={reiseTyp} onChange={e => setReiseTyp(e.target.value as typeof reiseTyp)}
+              className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+              <option value="">Bitte wählen…</option>
+              <option value="kilometergeld">Kilometergeld</option>
+              <option value="fahrtkosten">Fahrtkosten (Bahn/Flug/Taxi)</option>
+              <option value="naechtigung">Nächtigung/Hotel</option>
+              <option value="diaeten">Diäten (Verpflegungsmehraufwand)</option>
+              <option value="konsumation">Konsumation auf Reisen</option>
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-amber-900 mb-1">Reiseziel *</label>
+              <input type="text" required placeholder="z.B. Wien" value={reiseZiel}
+                onChange={e => setReiseZiel(e.target.value)}
+                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-amber-900 mb-1">Zweck der Reise *</label>
+              <input type="text" required placeholder="z.B. Kundentermin XY GmbH" value={reiseZweck}
+                onChange={e => setReiseZweck(e.target.value)}
+                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-amber-900 mb-1">Von *</label>
+              <input type="date" required value={reiseVon} onChange={e => setReiseVon(e.target.value)}
+                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-amber-900 mb-1">Bis *</label>
+              <input type="date" required value={reiseBis} onChange={e => setReiseBis(e.target.value)}
+                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+            </div>
+          </div>
+
+          {reiseTyp === 'kilometergeld' && (
+            <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
+              <label className="block text-xs font-medium text-amber-900 mb-1">Gefahrene Kilometer *</label>
+              <input type="number" required min="0.1" step="0.1" placeholder="z.B. 120" value={reiseKm}
+                onChange={e => setReiseKm(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
+              <p className="text-xs text-gray-500">
+                Amtliches Kilometergeld PKW: {eur(KM_SATZ)}/km · Betrag: <strong>{eur(kmBetrag)}</strong> · keine Vorsteuer (Pauschale)
+              </p>
+            </div>
+          )}
+
+          {reiseTyp === 'diaeten' && (
+            <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
+              <label className="block text-xs font-medium text-amber-900 mb-1">Reisedauer in Stunden *</label>
+              <input type="number" required min="0.5" step="0.5" placeholder="z.B. 9,5" value={reiseStunden}
+                onChange={e => setReiseStunden(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
+              <p className="text-xs text-gray-500">
+                Unter 3 Std. kein Taggeld · 3–11 Std.: {eur(DIAETEN_STUNDENSATZ)} je angefangener Stunde ·
+                ab 11 Std. voller Satz {eur(DIAETEN_TAGSSATZ)} · Betrag: <strong>{eur(diaetenBetrag)}</strong> · keine Vorsteuer (Pauschale)
+              </p>
+            </div>
+          )}
+
+          {reiseTyp === 'naechtigung' && (
+            <p className="text-xs text-amber-700 bg-white rounded-lg border border-amber-300 p-3">
+              Nächtigungspauschale ohne Beleg: {eur(17)}/Nacht (inkl. Frühstück). Liegt eine Hotelrechnung vor,
+              bitte den tatsächlichen Rechnungsbetrag inkl. ausgewiesener USt oben eintragen.
+            </p>
+          )}
+
+          {reiseTyp === 'konsumation' && (
+            <p className="text-xs text-amber-700 bg-white rounded-lg border border-amber-300 p-3">
+              Hinweis: Verpflegungskosten auf Dienstreisen sind idR bereits durch die Diäten-Pauschale
+              abgegolten – zusätzliche Konsumationsbelege sind meist nicht separat abzugsfähig. Bitte im
+              Zweifel mit der Kanzlei abstimmen.
+            </p>
+          )}
         </div>
       )}
 

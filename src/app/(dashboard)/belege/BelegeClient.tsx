@@ -63,6 +63,12 @@ function fmt(n: number | null | undefined, digits = 2) {
 }
 
 const BEWIRTUNG_KATEGORIE_NAME = 'Bewirtungsspesen (Geschäftsessen)';
+const REISEKOSTEN_KATEGORIE_NAME = 'Reisekosten';
+const KM_SATZ = 0.50;              // amtliches Kilometergeld PKW (Stand 2025/2026)
+const DIAETEN_TAGSSATZ = 30;       // Taggeld voll (ab 11 Std.)
+const DIAETEN_STUNDENSATZ = 2.5;   // 1/12 des Taggelds je angefangener Stunde (3–11 Std.)
+const DIAETEN_MIN_STUNDEN = 3;     // unter 3 Std. kein Taggeld
+const DIAETEN_VOLL_STUNDEN = 11;   // ab 11 Std. voller Tagessatz
 
 function fileSize(bytes: number | null) {
   if (!bytes) return '';
@@ -88,6 +94,13 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
   const [categoryId, setCategoryId] = useState('');
   const [bewirtungAnlass, setBewirtungAnlass]         = useState('');
   const [bewirtungTeilnehmer, setBewirtungTeilnehmer] = useState('');
+  const [reiseTyp, setReiseTyp] = useState<'' | 'kilometergeld' | 'fahrtkosten' | 'naechtigung' | 'diaeten' | 'konsumation'>('');
+  const [reiseZiel, setReiseZiel]       = useState('');
+  const [reiseZweck, setReiseZweck]     = useState('');
+  const [reiseVon, setReiseVon]         = useState('');
+  const [reiseBis, setReiseBis]         = useState('');
+  const [reiseKm, setReiseKm]           = useState('');
+  const [reiseStunden, setReiseStunden] = useState('');
   const [booking, setBooking]       = useState(false);
   const [bookErr, setBookErr]       = useState('');
 
@@ -184,10 +197,18 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
     setCategoryId(suggestCategoryId(r.ocr_data?.typ));
     setBewirtungAnlass('');
     setBewirtungTeilnehmer('');
+    setReiseTyp('');
+    setReiseZiel('');
+    setReiseZweck('');
+    setReiseVon('');
+    setReiseBis('');
+    setReiseKm('');
+    setReiseStunden('');
     setBookErr('');
   }
 
   const isBewirtung = categories.find(c => c.id === categoryId)?.name === BEWIRTUNG_KATEGORIE_NAME;
+  const isReisekosten = categories.find(c => c.id === categoryId)?.name === REISEKOSTEN_KATEGORIE_NAME;
 
   // ── Als Buchung übernehmen ────────────────────────────────────────────────
 
@@ -197,6 +218,21 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
     if (isBewirtung && (!bewirtungAnlass.trim() || !bewirtungTeilnehmer.trim())) {
       setBookErr('Bei Bewirtungsspesen bitte Anlass und Teilnehmer angeben (Voraussetzung für die steuerliche Abzugsfähigkeit).');
       return;
+    }
+    if (isReisekosten) {
+      if (!reiseTyp) { setBookErr('Bitte die Art der Reisekosten auswählen.'); return; }
+      if (!reiseZiel.trim() || !reiseZweck.trim() || !reiseVon || !reiseBis) {
+        setBookErr('Bei Reisekosten bitte Reiseziel, Zweck sowie Von/Bis-Datum angeben.');
+        return;
+      }
+      if (reiseTyp === 'kilometergeld' && (!reiseKm || parseFloat(reiseKm) <= 0)) {
+        setBookErr('Bitte die gefahrenen Kilometer angeben.');
+        return;
+      }
+      if (reiseTyp === 'diaeten' && (!reiseStunden || parseFloat(reiseStunden) < DIAETEN_MIN_STUNDEN)) {
+        setBookErr('Für Diäten sind mindestens 3 Stunden Reisedauer erforderlich.');
+        return;
+      }
     }
     setBooking(true);
     setBookErr('');
@@ -223,6 +259,13 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
         vat_rate:     Number(d.mwst_satz ?? 20) as 0 | 10 | 13 | 20,
         bewirtung_anlass:     isBewirtung ? bewirtungAnlass.trim() : null,
         bewirtung_teilnehmer: isBewirtung ? bewirtungTeilnehmer.trim() : null,
+        reise_typ:     isReisekosten && reiseTyp ? reiseTyp : null,
+        reise_ziel:    isReisekosten ? reiseZiel.trim() : null,
+        reise_zweck:   isReisekosten ? reiseZweck.trim() : null,
+        reise_von:     isReisekosten ? reiseVon : null,
+        reise_bis:     isReisekosten ? reiseBis : null,
+        reise_km:      isReisekosten && reiseTyp === 'kilometergeld' ? parseFloat(reiseKm) : null,
+        reise_stunden: isReisekosten && reiseTyp === 'diaeten' ? parseFloat(reiseStunden) : null,
       })
       .select('id')
       .single();
@@ -507,6 +550,106 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                           className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
                       </div>
                     </div>
+
+                  {/* Reisekosten: Typ, Pflichtangaben, Rechner für Kilometergeld/Diäten */}
+                  {isReisekosten && (
+                    <div className="col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+                      <p className="text-xs text-amber-800 leading-relaxed">
+                        Reisekosten werden steuerlich unterschiedlich behandelt: Kilometergeld und Diäten sind
+                        pauschale, vorsteuerfreie Aufwandsentschädigungen (§ 4 Abs. 5 / § 26 Z 4 EStG), Fahrtkosten,
+                        Nächtigung und Konsumation werden mit dem tatsächlichen Belegbetrag gebucht. Ziel, Zweck und
+                        Zeitraum der Reise sind für den Nachweis verpflichtend.
+                      </p>
+                      <div>
+                        <label className="block text-xs font-medium text-amber-900 mb-1">Art der Reisekosten *</label>
+                        <select required value={reiseTyp} onChange={e => setReiseTyp(e.target.value as typeof reiseTyp)}
+                          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+                          <option value="">Bitte wählen…</option>
+                          <option value="kilometergeld">Kilometergeld</option>
+                          <option value="fahrtkosten">Fahrtkosten (Bahn/Flug/Taxi)</option>
+                          <option value="naechtigung">Nächtigung/Hotel</option>
+                          <option value="diaeten">Diäten (Verpflegungsmehraufwand)</option>
+                          <option value="konsumation">Konsumation auf Reisen</option>
+                        </select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-amber-900 mb-1">Reiseziel *</label>
+                          <input type="text" required placeholder="z.B. Wien" value={reiseZiel}
+                            onChange={e => setReiseZiel(e.target.value)}
+                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-amber-900 mb-1">Zweck der Reise *</label>
+                          <input type="text" required placeholder="z.B. Kundentermin XY GmbH" value={reiseZweck}
+                            onChange={e => setReiseZweck(e.target.value)}
+                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-amber-900 mb-1">Von *</label>
+                          <input type="date" required value={reiseVon} onChange={e => setReiseVon(e.target.value)}
+                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-amber-900 mb-1">Bis *</label>
+                          <input type="date" required value={reiseBis} onChange={e => setReiseBis(e.target.value)}
+                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                        </div>
+                      </div>
+
+                      {reiseTyp === 'kilometergeld' && (
+                        <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
+                          <label className="block text-xs font-medium text-amber-900 mb-1">Gefahrene Kilometer *</label>
+                          <input type="number" required min="0.1" step="0.1" placeholder="z.B. 120" value={reiseKm}
+                            onChange={e => {
+                              const km = e.target.value;
+                              setReiseKm(km);
+                              const betrag = Math.round((parseFloat(km) || 0) * KM_SATZ * 100) / 100;
+                              setEditing(p => ({ ...p, betrag_brutto: betrag, mwst_satz: 0, mwst_betrag: 0, betrag_netto: betrag }));
+                            }}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                          <p className="text-xs text-gray-500">
+                            Amtliches Kilometergeld PKW: {KM_SATZ.toFixed(2)} €/km · keine Vorsteuer (Pauschale)
+                          </p>
+                        </div>
+                      )}
+
+                      {reiseTyp === 'diaeten' && (
+                        <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
+                          <label className="block text-xs font-medium text-amber-900 mb-1">Reisedauer in Stunden *</label>
+                          <input type="number" required min="0.5" step="0.5" placeholder="z.B. 9,5" value={reiseStunden}
+                            onChange={e => {
+                              const val = e.target.value;
+                              setReiseStunden(val);
+                              const std = parseFloat(val) || 0;
+                              const betrag = std < DIAETEN_MIN_STUNDEN ? 0 : std >= DIAETEN_VOLL_STUNDEN ? DIAETEN_TAGSSATZ : Math.round(Math.ceil(std) * DIAETEN_STUNDENSATZ * 100) / 100;
+                              setEditing(p => ({ ...p, betrag_brutto: betrag, mwst_satz: 0, mwst_betrag: 0, betrag_netto: betrag }));
+                            }}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                          <p className="text-xs text-gray-500">
+                            Unter 3 Std. kein Taggeld · 3–11 Std.: {DIAETEN_STUNDENSATZ.toFixed(2)} € je angefangener Stunde ·
+                            ab 11 Std. voller Satz {DIAETEN_TAGSSATZ.toFixed(2)} € · keine Vorsteuer (Pauschale)
+                          </p>
+                        </div>
+                      )}
+
+                      {reiseTyp === 'naechtigung' && (
+                        <p className="text-xs text-amber-700 bg-white rounded-lg border border-amber-300 p-3">
+                          Nächtigungspauschale ohne Beleg: 17,00 €/Nacht (inkl. Frühstück). Liegt eine Hotelrechnung vor,
+                          bitte den tatsächlichen Rechnungsbetrag inkl. ausgewiesener USt unten eintragen.
+                        </p>
+                      )}
+
+                      {reiseTyp === 'konsumation' && (
+                        <p className="text-xs text-amber-700 bg-white rounded-lg border border-amber-300 p-3">
+                          Hinweis: Verpflegungskosten auf Dienstreisen sind idR bereits durch die Diäten-Pauschale
+                          abgegolten – zusätzliche Konsumationsbelege sind meist nicht separat abzugsfähig. Bitte im
+                          Zweifel mit der Kanzlei abstimmen.
+                        </p>
+                      )}
+                    </div>
                   )}
 
                   {/* Datum */}
@@ -525,6 +668,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                     <label className="text-xs text-gray-500 font-medium block mb-1">MwSt-Satz</label>
                     <select
                       value={editing.mwst_satz ?? 20}
+                      disabled={isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten')}
                       onChange={e => {
                         const satz  = Number(e.target.value);
                         const gross = Number(editing.betrag_brutto ?? 0);
@@ -536,7 +680,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                           betrag_netto: Math.round((gross - vat) * 100) / 100,
                         }));
                       }}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 bg-white"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
                       {[0, 10, 13, 20].map(s => (
                         <option key={s} value={s}>{s} %</option>
@@ -551,6 +695,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                       type="number"
                       step="0.01"
                       value={editing.betrag_brutto ?? ''}
+                      disabled={isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten')}
                       onChange={e => {
                         const gross = Number(e.target.value);
                         const satz  = Number(editing.mwst_satz ?? 20);
@@ -562,7 +707,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                           betrag_netto:  Math.round((gross - vat) * 100) / 100,
                         }));
                       }}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                   </div>
 

@@ -122,6 +122,13 @@ export type Transaction = {
   is_reconciled: boolean;          // Migration 016
   bewirtung_anlass: string | null;      // Migration 017
   bewirtung_teilnehmer: string | null;  // Migration 017
+  reise_typ: string | null;             // Migration 018
+  reise_ziel: string | null;            // Migration 018
+  reise_zweck: string | null;           // Migration 018
+  reise_von: string | null;             // Migration 018
+  reise_bis: string | null;             // Migration 018
+  reise_km: number | null;              // Migration 018
+  reise_stunden: number | null;         // Migration 018
   created_at: string;
   updated_at: string;
   // Joins (optional)
@@ -481,6 +488,13 @@ export type Database = {
           is_reconciled?: boolean;
           bewirtung_anlass?: string | null;
           bewirtung_teilnehmer?: string | null;
+          reise_typ?: string | null;
+          reise_ziel?: string | null;
+          reise_zweck?: string | null;
+          reise_von?: string | null;
+          reise_bis?: string | null;
+          reise_km?: number | null;
+          reise_stunden?: number | null;
         };
         Update: Partial<Transaction>;
         Relationships: [
