@@ -1,11 +1,12 @@
 'use client';
 
-import { X } from 'lucide-react';
+import { X, Pause, Play, Repeat } from 'lucide-react';
 
 import { useState } from 'react';
 import { useServerState } from '@/lib/useServerState';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import EmptyState from '@/components/EmptyState';
 
 type RecurringTransaction = {
   id: string;
@@ -99,19 +100,13 @@ export default function DauerauftraegeClient({
       )}
 
       {items.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-          <div className="text-4xl mb-3"></div>
-          <h2 className="text-lg font-semibold text-gray-700 mb-1">Keine Daueraufträge</h2>
-          <p className="text-gray-400 text-sm mb-6">
-            Legen Sie wiederkehrende Buchungen an – sie werden automatisch täglich verarbeitet.
-          </p>
-          <Link
-            href="/dauerauftraege/neu"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand hover:bg-[#152d54] transition-colors"
-          >
-            Ersten Dauerauftrag anlegen
-          </Link>
-        </div>
+        <EmptyState
+          icon={Repeat}
+          text="Keine Daueraufträge"
+          hinweis="Wiederkehrende Buchungen werden automatisch täglich verarbeitet."
+          href="/dauerauftraege/neu"
+          cta="Ersten Dauerauftrag anlegen"
+        />
       ) : (
         <>
           {active.length > 0 && (
@@ -221,27 +216,24 @@ function RecurringRow({
         </div>
       </div>
 
-      {/* Aktionen */}
+      {/* Aktionen mit Text statt reiner Icons (Design-Review Welle 3) */}
       <div className="flex items-center gap-2 flex-shrink-0">
         <button
           onClick={() => onToggle(item)}
           disabled={loading}
-          title={item.is_active ? 'Deaktivieren' : 'Aktivieren'}
-          className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm transition-colors disabled:opacity-40 ${
-            item.is_active
-              ? 'bg-teal-50 text-teal-700 hover:bg-teal-100'
-              : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-          }`}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40"
         >
-          {loading ? '…' : item.is_active ? '⏸' : '▶'}
+          {item.is_active
+            ? <><Pause size={13} strokeWidth={2} />{loading ? '…' : 'Pausieren'}</>
+            : <><Play size={13} strokeWidth={2} />{loading ? '…' : 'Aktivieren'}</>}
         </button>
         <button
           onClick={() => onDelete(item)}
           disabled={loading}
-          title="Löschen"
-          className="w-9 h-9 rounded-lg flex items-center justify-center text-sm text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-500 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-40"
         >
-          <X size={15} strokeWidth={2} />
+          <X size={13} strokeWidth={2} />
+          Löschen
         </button>
       </div>
     </div>

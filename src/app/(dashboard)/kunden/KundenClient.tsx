@@ -1,12 +1,13 @@
 'use client';
 
-import { Pencil } from 'lucide-react';
+import { Pencil, X, User } from 'lucide-react';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { meldeFehler } from '@/lib/fehler';
+import EmptyState from '@/components/EmptyState';
 
 type Customer = {
   id: string;
@@ -54,16 +55,13 @@ export default function KundenClient({
 
   if (customers.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
-        <div className="text-4xl mb-3"></div>
-        <p className="text-gray-500 text-sm mb-4">Noch keine Kunden angelegt.</p>
-        <Link
-          href="/kunden/neu"
-          className="inline-block bg-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-accent transition-colors"
-        >
-          Ersten Kunden anlegen
-        </Link>
-      </div>
+      <EmptyState
+        icon={User}
+        text="Noch keine Kunden angelegt."
+        hinweis="Kunden brauchst du zum Schreiben von Rechnungen."
+        href="/kunden/neu"
+        cta="Ersten Kunden anlegen"
+      />
     );
   }
 
@@ -123,21 +121,22 @@ export default function KundenClient({
                     {c.uid_number ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
+                    {/* Aktionen mit Text statt reiner Icons (Design-Review Welle 3) */}
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/kunden/${c.id}`}
-                        className="text-gray-300 hover:text-brand transition-colors"
-                        title="Bearbeiten"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
                       >
-                        <Pencil size={14} strokeWidth={2} />
+                        <Pencil size={13} strokeWidth={2} />
+                        Bearbeiten
                       </Link>
                       <button
                         onClick={() => handleDeactivate(c.id)}
                         disabled={deletingId === c.id}
-                        className="text-gray-300 hover:text-red-500 transition-colors disabled:opacity-50 text-lg leading-none"
-                        title="Deaktivieren"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-500 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-50"
                       >
-                        &times;
+                        <X size={13} strokeWidth={2} />
+                        Deaktivieren
                       </button>
                     </div>
                   </td>

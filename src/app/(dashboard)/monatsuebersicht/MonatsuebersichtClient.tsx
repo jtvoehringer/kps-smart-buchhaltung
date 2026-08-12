@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
 import { CalendarRange } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
+import ZeitraumWaehler from '@/components/ZeitraumWaehler';
 
 /** Eine Zeile aus monatssummen() – bereits in der DB aggregiert */
 type Monatssumme = {
@@ -49,35 +51,13 @@ export default function MonatsuebersichtClient({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
-            <CalendarRange size={22} strokeWidth={1.75} className="text-accent-dark" />
-            Monatsübersicht
-          </h1>
-          <p className="text-gray-500 text-sm">Einnahmen, Ausgaben und USt-Saldo je Monat</p>
-        </div>
-        {/* Jahres-Selector */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setSelectedYear(y => {
-              const idx = availableYears.indexOf(y);
-              return availableYears[idx + 1] ?? y;
-            })}
-            disabled={selectedYear === availableYears[availableYears.length - 1]}
-            className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
-          >‹</button>
-          <span className="font-bold text-brand text-lg w-16 text-center">{selectedYear}</span>
-          <button
-            onClick={() => setSelectedYear(y => {
-              const idx = availableYears.indexOf(y);
-              return availableYears[idx - 1] ?? y;
-            })}
-            disabled={selectedYear === availableYears[0]}
-            className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
-          >›</button>
-        </div>
-      </div>
+      <PageHeader
+        title="Monatsübersicht"
+        subtitle="Einnahmen, Ausgaben und USt-Saldo je Monat"
+        icon={CalendarRange}
+      >
+        <ZeitraumWaehler<number> werte={availableYears} wert={selectedYear} onChange={setSelectedYear} />
+      </PageHeader>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <table className="w-full text-sm">

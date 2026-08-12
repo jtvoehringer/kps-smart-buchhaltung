@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 import {
   ClipboardList, Receipt, Wallet, Landmark, FileText, User, Truck,
   LayoutDashboard, Settings, Building2, Users, Upload, LogOut, X, Menu,
-  CreditCard, CalendarCheck,
+  CreditCard, CalendarCheck, CalendarRange, Tags, Repeat, ScanLine, Percent,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -17,64 +17,75 @@ type Props = {
   role: string;
 };
 
-type SubItem = { href: string; label: string };
-type NavEntry =
-  | { kind: 'link'; href: string; label: string; icon: LucideIcon }
-  | { kind: 'group'; href: string; label: string; icon: LucideIcon; children: SubItem[] };
+type NavItem  = { href: string; label: string; icon: LucideIcon };
+type NavGroup = { label: string; items: NavItem[] };
 
 // IC&P Corporate Design – Grau/Blau
 const NAV_BG     = '#0E2540'; // Navy dunkel (ICP-CD, Welle 2)
 const NAV_ACCENT = '#4F90E8'; // Blau (aktive Elemente)
 
-// Rechnungen, Belege (OCR) und Offene Posten sind seit dem Vollintegrations-
-// Update fixer Bestandteil der Lösung und nicht mehr über modules_enabled
-// zu- oder abschaltbar (siehe MandantDetail/ModulToggle).
-function buildNav(role: string): NavEntry[] {
-  // Die Überschrift ist selbst ein Menüpunkt und führt zur
-  // Monatsübersicht (Design-Review August 2026) – die Auswertung, die
-  // vorher im Dashboard steckte.
-  const buchungenGroup: NavEntry = {
-    kind: 'group',
-    href: '/monatsuebersicht',
-    label: 'EINNAHMEN & AUSGABEN',
-    icon: ClipboardList,
-    children: [
-      { href: '/buchungen',            label: 'Buchungen' },
-      { href: '/buchungen/kategorien', label: 'Kategorien' },
-      { href: '/dauerauftraege',       label: 'Daueraufträge' },
-      { href: '/belege',               label: 'Belege (OCR)' },
-    ],
-  };
-
-  // Reihenfolge: Buchungen → UVA → Rechnungen → Kunden → Lieferanten →
-  // Offene Posten → Bank-Import → Konten → Monatsabschluss (Rechnungen
-  // bewusst vor Offenen Posten, Lieferanten unterhalb Kunden).
-  const rest: NavEntry[] = [
-    { kind: 'link', href: '/uva',             label: 'UVA-Meldung',    icon: Receipt },
-    { kind: 'link', href: '/rechnungen',      label: 'Fakturieren',    icon: FileText },
-    { kind: 'link', href: '/kunden',          label: 'Kunden',         icon: User },
-    { kind: 'link', href: '/lieferanten',     label: 'Lieferanten',    icon: Truck },
-    { kind: 'link', href: '/offene-posten',   label: 'Offene Posten',  icon: Wallet },
-    { kind: 'link', href: '/import',          label: 'Bank-Import',    icon: Landmark },
-    { kind: 'link', href: '/konten',          label: 'Konten',         icon: CreditCard },
-    { kind: 'link', href: '/monatsabschluss', label: 'Monatsabschluss', icon: CalendarCheck },
-    // Entscheidung 12.08.2026: der Klient stößt den Export zur Kanzlei an.
-    { kind: 'link', href: '/bmd-export',      label: 'BMD-Export',      icon: Upload },
+// Navigation in 5 Gruppen (Design-Review Welle 3). Gruppen-Überschriften
+// sind reine Beschriftungen; jeder Eintrag darunter ist ein vollwertiger
+// Menüpunkt mit Icon – auch die Monatsübersicht (Wunsch vom 12.08.2026:
+// gleiche Darstellung wie z. B. "UVA-Meldung" statt kleiner Überschrift).
+function buildNav(role: string): NavGroup[] {
+  const gruppen: NavGroup[] = [
+    {
+      label: 'Überblick',
+      items: [
+        { href: '/dashboard',        label: 'Dashboard',       icon: LayoutDashboard },
+        { href: '/monatsuebersicht', label: 'Monatsübersicht', icon: CalendarRange },
+      ],
+    },
+    {
+      label: 'Einnahmen & Ausgaben',
+      items: [
+        { href: '/buchungen',            label: 'Buchungen',      icon: ClipboardList },
+        { href: '/buchungen/kategorien', label: 'Kategorien',     icon: Tags },
+        { href: '/dauerauftraege',       label: 'Daueraufträge',  icon: Repeat },
+        { href: '/belege',               label: 'Belege (OCR)',   icon: ScanLine },
+      ],
+    },
+    {
+      label: 'Fakturierung',
+      items: [
+        { href: '/rechnungen',    label: 'Fakturieren',   icon: FileText },
+        { href: '/kunden',        label: 'Kunden',        icon: User },
+        { href: '/lieferanten',   label: 'Lieferanten',   icon: Truck },
+        { href: '/offene-posten', label: 'Offene Posten', icon: Wallet },
+      ],
+    },
+    {
+      label: 'Bank & Konten',
+      items: [
+        { href: '/import', label: 'Bank-Import', icon: Landmark },
+        { href: '/konten', label: 'Konten',      icon: CreditCard },
+      ],
+    },
+    {
+      label: 'Abschluss & Meldungen',
+      items: [
+        { href: '/uva',             label: 'UVA-Meldung',     icon: Percent },
+        { href: '/monatsabschluss', label: 'Monatsabschluss', icon: CalendarCheck },
+        // Entscheidung 12.08.2026: der Klient stößt den Export zur Kanzlei an.
+        { href: '/bmd-export',      label: 'BMD-Export',      icon: Upload },
+      ],
+    },
   ];
 
   if (role === 'superadmin') {
     return [
-      { kind: 'link', href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      buchungenGroup,
-      ...rest,
-      { kind: 'link', href: '/einstellungen', label: 'Einstellungen', icon: Settings },
+      ...gruppen,
+      { label: 'System', items: [{ href: '/einstellungen', label: 'Einstellungen', icon: Settings }] },
     ];
   }
 
   if (role === 'klient') {
-    return [buchungenGroup, ...rest];
+    return gruppen;
   }
 
+  // Kanzlei/Admin bleiben bewusst auf ihren Bereich beschränkt
+  // (Entscheidung 2 vom 12.08.2026) – der Kanzlei-Block folgt unten.
   return [];
 }
 
@@ -106,7 +117,7 @@ export default function Sidebar({ companyName, role }: Props) {
     role === 'kanzlei'    ? 'Kanzlei'       :
     'Klient';
 
-  const mainItems = buildNav(role);
+  const gruppen = buildNav(role);
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -128,45 +139,28 @@ export default function Sidebar({ companyName, role }: Props) {
         </Link>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {mainItems.map(item =>
-          item.kind === 'group' ? (
-            <div key={item.href}>
-              <Link
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className={`block pt-1 pb-1.5 px-2 group/gruppe`}
-                title="Monatsübersicht öffnen"
-              >
-                <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${
-                  isActive(item.href) ? 'text-white' : 'text-white/40 group-hover/gruppe:text-white/70'
-                }`}>
-                  {item.label}
-                </span>
-              </Link>
-              <div className="space-y-0.5">
-                {item.children.map(child => (
-                  <NavSubLink
-                    key={child.href}
-                    href={child.href}
-                    label={child.label}
-                    active={isActive(child.href)}
-                    onClick={() => setMobileOpen(false)}
-                  />
-                ))}
-              </div>
+      <nav className="flex-1 px-3 py-3 overflow-y-auto">
+        {gruppen.map((gruppe, i) => (
+          <div key={gruppe.label} className={i > 0 ? 'mt-3' : ''}>
+            <div className="pb-1.5 px-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                {gruppe.label}
+              </span>
             </div>
-          ) : (
-            <NavLink
-              key={item.href}
-              href={item.href}
-              label={item.label}
-              icon={item.icon}
-              active={isActive(item.href)}
-              onClick={() => setMobileOpen(false)}
-            />
-          )
-        )}
+            <div className="space-y-0.5">
+              {gruppe.items.map(item => (
+                <NavLink
+                  key={item.href}
+                  href={item.href}
+                  label={item.label}
+                  icon={item.icon}
+                  active={isActive(item.href)}
+                  onClick={() => setMobileOpen(false)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
 
         {/* Kanzlei-Bereich (admin, kanzlei, superadmin) */}
         {['admin', 'kanzlei', 'superadmin'].includes(role) && (
@@ -210,7 +204,10 @@ export default function Sidebar({ companyName, role }: Props) {
             className="rounded-full opacity-80"
           />
           <p className="text-[9px] text-white/40">
-            &copy; ICP Solutions &middot; v0.9
+            {/* Release aus package.json, Build = Git-Commit des Vercel-Builds
+                (next.config.js) – hilft im Support, den Stand zu erkennen. */}
+            &copy; ICP Solutions &middot; Rel. {process.env.NEXT_PUBLIC_APP_VERSION ?? '0.9'}
+            {process.env.NEXT_PUBLIC_BUILD_SHA ? ` – ${process.env.NEXT_PUBLIC_BUILD_SHA}` : ''}
           </p>
         </div>
       </div>
@@ -265,7 +262,7 @@ function NavLink({
         ? { backgroundColor: NAV_ACCENT, color: '#ffffff' }
         : { color: 'rgba(255,255,255,0.75)' }
       }
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
         active
           ? 'font-semibold'
           : 'hover:bg-white/10'
@@ -273,28 +270,6 @@ function NavLink({
     >
       <Icon size={18} strokeWidth={1.75} className="flex-shrink-0" />
       <span className="flex-1">{label}</span>
-    </Link>
-  );
-}
-
-// Eingerückter Unterpunkt (z. B. Kategorien / Daueraufträge unter „Buchungen")
-function NavSubLink({
-  href, label, active, onClick,
-}: {
-  href: string; label: string; active: boolean; onClick: () => void;
-}) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={`flex items-center gap-2.5 pl-[3.15rem] pr-3 py-2 rounded-lg text-[13px] transition-colors ${
-        active
-          ? 'bg-white/10 text-white font-medium'
-          : 'text-white/55 hover:text-white/85 hover:bg-white/5'
-      }`}
-    >
-      <span className="w-1 h-1 rounded-full bg-current opacity-70 flex-shrink-0" />
-      <span>{label}</span>
     </Link>
   );
 }

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { meldeFehler } from '@/lib/fehler';
 import { Truck, Pencil, X } from 'lucide-react';
+import EmptyState from '@/components/EmptyState';
 
 type Supplier = {
   id: string;
@@ -54,16 +55,13 @@ export default function LieferantenClient({
 
   if (suppliers.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
-        <Truck size={32} strokeWidth={1.5} className="text-gray-300 mx-auto mb-3" />
-        <p className="text-gray-500 text-sm mb-4">Noch keine Lieferanten angelegt.</p>
-        <Link
-          href="/lieferanten/neu"
-          className="inline-block bg-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-accent transition-colors"
-        >
-          Ersten Lieferanten anlegen
-        </Link>
-      </div>
+      <EmptyState
+        icon={Truck}
+        text="Noch keine Lieferanten angelegt."
+        hinweis="Lieferanten helfen beim Erfassen von Eingangsrechnungen."
+        href="/lieferanten/neu"
+        cta="Ersten Lieferanten anlegen"
+      />
     );
   }
 
@@ -121,21 +119,22 @@ export default function LieferantenClient({
                     {s.uid_number ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
+                    {/* Aktionen mit Text statt reiner Icons (Design-Review Welle 3) */}
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/lieferanten/${s.id}`}
-                        className="text-gray-300 hover:text-brand transition-colors"
-                        title="Bearbeiten"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
                       >
-                        <Pencil size={15} strokeWidth={1.75} />
+                        <Pencil size={13} strokeWidth={2} />
+                        Bearbeiten
                       </Link>
                       <button
                         onClick={() => handleDeactivate(s.id)}
                         disabled={deletingId === s.id}
-                        className="text-gray-300 hover:text-red-500 transition-colors disabled:opacity-50"
-                        title="Deaktivieren"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-500 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-50"
                       >
-                        <X size={16} strokeWidth={2} />
+                        <X size={13} strokeWidth={2} />
+                        Deaktivieren
                       </button>
                     </div>
                   </td>
