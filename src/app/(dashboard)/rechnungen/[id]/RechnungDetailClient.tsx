@@ -456,7 +456,7 @@ export default function RechnungDetailClient({
           <div>
             {branding?.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={branding.logo_url} alt="Logo" className="h-28 object-contain mb-2" />
+              <img src={branding.logo_url} alt="Logo" className="h-28 object-contain object-left mb-2" />
             ) : (
               <div className="text-lg font-bold text-gray-700 mb-1">
                 {/* Firmenname aus Branding-Adresse fehlt – wird im PDF-Druck via /drucken angezeigt */}

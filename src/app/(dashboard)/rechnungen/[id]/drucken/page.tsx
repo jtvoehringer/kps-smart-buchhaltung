@@ -169,7 +169,7 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
             <div className="sender">
               {branding?.logo_url && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={branding.logo_url} alt="Logo" style={{ height: '104px', objectFit: 'contain', marginBottom: '8px' }} />
+                <img src={branding.logo_url} alt="Logo" style={{ height: '104px', objectFit: 'contain', objectPosition: 'left', marginBottom: '8px' }} />
               )}
               {/* Absenderzeilen sind abschaltbar (Migration 028). Ohne Logo
                   werden sie trotzdem gezeigt, sonst bliebe der Kopf leer.

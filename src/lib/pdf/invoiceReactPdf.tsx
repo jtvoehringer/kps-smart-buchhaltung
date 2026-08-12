@@ -91,7 +91,7 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
           <View>
             {branding?.logo_url ? (
               // eslint-disable-next-line jsx-a11y/alt-text
-              <Image src={branding.logo_url} style={{ width: 240, height: 100, objectFit: 'contain', marginBottom: 6 }} />
+              <Image src={branding.logo_url} style={{ width: 240, height: 100, objectFit: 'contain', objectPositionX: 0, marginBottom: 6 }} />
             ) : null}
             {/* Absenderzeilen abschaltbar (Migration 028); ohne Logo immer an.
                 Der Firmenwortlaut steht in jedem Fall in der Fußzeile. */}
