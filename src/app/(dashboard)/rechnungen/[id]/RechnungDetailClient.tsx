@@ -456,7 +456,7 @@ export default function RechnungDetailClient({
           <div>
             {branding?.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={branding.logo_url} alt="Logo" className="h-14 object-contain mb-2" />
+              <img src={branding.logo_url} alt="Logo" className="h-28 object-contain mb-2" />
             ) : (
               <div className="text-lg font-bold text-gray-700 mb-1">
                 {/* Firmenname aus Branding-Adresse fehlt – wird im PDF-Druck via /drucken angezeigt */}
@@ -617,19 +617,25 @@ export default function RechnungDetailClient({
             )}
             {branding?.invoice_footer_left && <p>{branding.invoice_footer_left}</p>}
           </div>
-          <div className="text-center">
-            {branding?.company_phone   && <p>Tel: {branding.company_phone}</p>}
-            {branding?.company_email   && <p>{branding.company_email}</p>}
-            {branding?.company_website && <p>{branding.company_website}</p>}
-            {branding?.invoice_footer_center && <p>{branding.invoice_footer_center}</p>}
+          {/* Block mittig platziert, Zeilen darin bündig links – "Tel:" ist der Anker. */}
+          <div className="flex justify-center">
+            <div className="text-left">
+              {branding?.company_phone   && <p>Tel: {branding.company_phone}</p>}
+              {branding?.company_email   && <p>{branding.company_email}</p>}
+              {branding?.company_website && <p>{branding.company_website}</p>}
+              {branding?.invoice_footer_center && <p>{branding.invoice_footer_center}</p>}
+            </div>
           </div>
-          <div className="text-right">
-            {branding?.iban && <p>IBAN: {branding.iban}</p>}
-            {(branding?.bic || branding?.bank_name) && (
-              <p>{[branding.bic, branding.bank_name].filter(Boolean).join(' · ')}</p>
-            )}
-            {senderUid && <p>UID: {senderUid}</p>}
-            {branding?.invoice_footer_right && <p>{branding.invoice_footer_right}</p>}
+          {/* Block rechts platziert, Zeilen darin bündig links – "IBAN:" ist der Anker. */}
+          <div className="flex justify-end">
+            <div className="text-left">
+              {branding?.iban && <p>IBAN: {branding.iban}</p>}
+              {(branding?.bic || branding?.bank_name) && (
+                <p>{[branding.bic, branding.bank_name].filter(Boolean).join(' · ')}</p>
+              )}
+              {senderUid && <p>UID: {senderUid}</p>}
+              {branding?.invoice_footer_right && <p>{branding.invoice_footer_right}</p>}
+            </div>
           </div>
         </div>
       </div>

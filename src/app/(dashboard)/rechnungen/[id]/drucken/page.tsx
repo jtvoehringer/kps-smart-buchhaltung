@@ -144,8 +144,13 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
                         letter-spacing: 0.5px; margin-bottom: 6px; }
           .payment p { font-size: 9.5pt; color: #555; line-height: 1.7; }
           .footer-cols { display: flex; gap: 24px; }
-          .footer-col { flex: 1; min-width: 0; line-height: 1.5; text-align: left; }
-          .footer-col strong { display: block; }
+          .footer-col { flex: 1; min-width: 0; display: flex; }
+          .footer-col.mitte  { justify-content: center; }
+          .footer-col.rechts { justify-content: flex-end; }
+          /* Blöcke werden positioniert (Mitte/rechts), die Zeilen darin stehen
+             bündig links – Anker "Tel:" bzw. "IBAN:" (Wunsch vom 12.08.2026). */
+          .footer-inner { line-height: 1.5; text-align: left; }
+          .footer-inner strong { display: block; }
           .footer { margin-top: auto; padding-top: 14px; border-top: 1px solid #eee;
                     font-size: 8pt; color: #aaa; }
           .paid-stamp { display: inline-block; border: 3px solid #16a34a; color: #16a34a;
@@ -164,7 +169,7 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
             <div className="sender">
               {branding?.logo_url && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={branding.logo_url} alt="Logo" style={{ height: '52px', objectFit: 'contain', marginBottom: '8px' }} />
+                <img src={branding.logo_url} alt="Logo" style={{ height: '104px', objectFit: 'contain', marginBottom: '8px' }} />
               )}
               {/* Absenderzeilen sind abschaltbar (Migration 028). Ohne Logo
                   werden sie trotzdem gezeigt, sonst bliebe der Kopf leer.
@@ -320,28 +325,34 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
             ) : (
               <div className="footer-cols">
                 <div className="footer-col">
-                  <strong>{clientData?.company_name ?? ''}</strong>
-                  {branding?.company_street && <div>{branding.company_street}</div>}
-                  {(branding?.company_zip || branding?.company_city) && (
-                    <div>{[branding?.company_zip, branding?.company_city].filter(Boolean).join(' ')}</div>
-                  )}
-                  {branding?.invoice_footer_left && <div>{branding.invoice_footer_left}</div>}
+                  <div className="footer-inner">
+                    <strong>{clientData?.company_name ?? ''}</strong>
+                    {branding?.company_street && <div>{branding.company_street}</div>}
+                    {(branding?.company_zip || branding?.company_city) && (
+                      <div>{[branding?.company_zip, branding?.company_city].filter(Boolean).join(' ')}</div>
+                    )}
+                    {branding?.invoice_footer_left && <div>{branding.invoice_footer_left}</div>}
+                  </div>
                 </div>
 
-                <div className="footer-col">
-                  {branding?.company_phone   && <div>Tel: {branding.company_phone}</div>}
-                  {branding?.company_email   && <div>{branding.company_email}</div>}
-                  {branding?.company_website && <div>{branding.company_website}</div>}
-                  {branding?.invoice_footer_center && <div>{branding.invoice_footer_center}</div>}
+                <div className="footer-col mitte">
+                  <div className="footer-inner">
+                    {branding?.company_phone   && <div>Tel: {branding.company_phone}</div>}
+                    {branding?.company_email   && <div>{branding.company_email}</div>}
+                    {branding?.company_website && <div>{branding.company_website}</div>}
+                    {branding?.invoice_footer_center && <div>{branding.invoice_footer_center}</div>}
+                  </div>
                 </div>
 
-                <div className="footer-col">
-                  {branding?.iban && <div>IBAN: {branding.iban}</div>}
-                  {(branding?.bic || branding?.bank_name) && (
-                    <div>{[branding?.bic, branding?.bank_name].filter(Boolean).join(' · ')}</div>
-                  )}
-                  {clientData?.uid_number && <div>UID: {clientData.uid_number}</div>}
-                  {branding?.invoice_footer_right && <div>{branding.invoice_footer_right}</div>}
+                <div className="footer-col rechts">
+                  <div className="footer-inner">
+                    {branding?.iban && <div>IBAN: {branding.iban}</div>}
+                    {(branding?.bic || branding?.bank_name) && (
+                      <div>{[branding?.bic, branding?.bank_name].filter(Boolean).join(' · ')}</div>
+                    )}
+                    {clientData?.uid_number && <div>UID: {clientData.uid_number}</div>}
+                    {branding?.invoice_footer_right && <div>{branding.invoice_footer_right}</div>}
+                  </div>
                 </div>
               </div>
             )}

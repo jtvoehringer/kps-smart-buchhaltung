@@ -60,8 +60,11 @@ const styles = StyleSheet.create({
             borderTopWidth: 1, borderTopColor: '#eeeeee', paddingTop: 8 },
   footerRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 16 },
   footerCol: { flex: 1, lineHeight: 1.4 },
-  footerColCenter: { flex: 1, lineHeight: 1.4, textAlign: 'center' },
-  footerColRight: { flex: 1, lineHeight: 1.4, textAlign: 'right' },
+  // Block mittig/rechts platziert, die Zeilen darin bündig links
+  // ("Tel:" bzw. "IBAN:" als Anker).
+  footerColCenter: { flex: 1, flexDirection: 'row', justifyContent: 'center' },
+  footerColRight: { flex: 1, flexDirection: 'row', justifyContent: 'flex-end' },
+  footerInner: { lineHeight: 1.4 },
   footerStrong: { fontWeight: 700, color: '#888' },
 });
 
@@ -88,7 +91,7 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
           <View>
             {branding?.logo_url ? (
               // eslint-disable-next-line jsx-a11y/alt-text
-              <Image src={branding.logo_url} style={{ width: 120, height: 50, objectFit: 'contain', marginBottom: 6 }} />
+              <Image src={branding.logo_url} style={{ width: 240, height: 100, objectFit: 'contain', marginBottom: 6 }} />
             ) : null}
             {/* Absenderzeilen abschaltbar (Migration 028); ohne Logo immer an.
                 Der Firmenwortlaut steht in jedem Fall in der Fußzeile. */}
@@ -211,20 +214,20 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
                 )}
                 {branding?.invoice_footer_left && <Text>{branding.invoice_footer_left}</Text>}
               </View>
-              <View style={styles.footerColCenter}>
+              <View style={styles.footerColCenter}><View style={styles.footerInner}>
                 {branding?.company_phone   && <Text>Tel: {branding.company_phone}</Text>}
                 {branding?.company_email   && <Text>{branding.company_email}</Text>}
                 {branding?.company_website && <Text>{branding.company_website}</Text>}
                 {branding?.invoice_footer_center && <Text>{branding.invoice_footer_center}</Text>}
               </View>
-              <View style={styles.footerColRight}>
+              </View><View style={styles.footerColRight}><View style={styles.footerInner}>
                 {branding?.iban && <Text>IBAN: {branding.iban}</Text>}
                 {(branding?.bic || branding?.bank_name) && (
                   <Text>{[branding?.bic, branding?.bank_name].filter(Boolean).join(' · ')}</Text>
                 )}
                 {senderUid && <Text>UID: {senderUid}</Text>}
                 {branding?.invoice_footer_right && <Text>{branding.invoice_footer_right}</Text>}
-              </View>
+              </View></View>
             </View>
           </View>
         )}
