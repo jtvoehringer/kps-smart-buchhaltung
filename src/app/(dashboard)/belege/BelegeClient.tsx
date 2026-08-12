@@ -8,6 +8,7 @@ import {
   berechneKilometergeld, berechneDiaeten, vorgeschlagenerSteuersatz, reiseSaetzeFuer,
 } from '@/lib/steuer';
 import { useRouter }    from 'next/navigation';
+import { Loader2, ScanLine } from 'lucide-react';
 
 // ── Typen ────────────────────────────────────────────────────────────────────
 
@@ -56,11 +57,12 @@ const STATUS_LABELS: Record<Receipt['status'], string> = {
   error:      'Fehler',
 };
 
+// Keine Ampelfarben (Design-Review M1) – Rot bleibt dem Fehler vorbehalten.
 const STATUS_COLORS: Record<Receipt['status'], string> = {
   pending:    'bg-gray-100 text-gray-600',
-  processing: 'bg-blue-100 text-blue-700',
-  processed:  'bg-amber-100 text-amber-700',
-  booked:     'bg-green-100 text-green-700',
+  processing: 'bg-gray-100 text-gray-600',
+  processed:  'bg-accent/15 text-accent-dark',
+  booked:     'bg-income/10 text-income',
   error:      'bg-red-100 text-red-700',
 };
 
@@ -402,11 +404,11 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
             <p className="text-xs text-gray-400 mt-0.5">Belege gesamt</p>
           </div>
           <div className="bg-white rounded-xl border border-gray-100 p-4 text-center">
-            <p className="text-2xl font-bold text-amber-600">{processedCount}</p>
+            <p className="text-2xl font-bold text-accent-dark">{processedCount}</p>
             <p className="text-xs text-gray-400 mt-0.5">Erkannt, offen</p>
           </div>
           <div className="bg-white rounded-xl border border-gray-100 p-4 text-center">
-            <p className="text-2xl font-bold text-green-600">
+            <p className="text-2xl font-bold text-income">
               {receipts.filter(r => r.status === 'booked').length}
             </p>
             <p className="text-xs text-gray-400 mt-0.5">Verbucht</p>
@@ -417,8 +419,9 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
       {/* Belegliste */}
       {receipts.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-100 py-16 text-center text-gray-400">
-          <div className="text-4xl mb-3"></div>
+          <ScanLine size={28} strokeWidth={1.5} className="mx-auto text-gray-300 mb-3" />
           <p className="text-sm">Noch keine Belege hochgeladen</p>
+          <p className="text-xs text-gray-300 mt-1">Oben ein Foto oder PDF hineinziehen – der Rest passiert automatisch.</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
@@ -447,7 +450,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                   {r.ocr_data && (
                     <p className="text-xs text-gray-400 truncate">
                       {r.ocr_data.lieferant ?? '—'} &middot; {r.ocr_data.datum ?? '—'} &middot;{' '}
-                      <span className={r.ocr_data.typ === 'einnahme' ? 'text-green-600' : 'text-red-600'}>
+                      <span className={r.ocr_data.typ === 'einnahme' ? 'text-income' : 'text-expense'}>
                         {fmt(r.ocr_data.betrag_brutto)} €
                       </span>
                     </p>
@@ -470,7 +473,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                 {/* Status-Badge */}
                 <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${STATUS_COLORS[r.status]}`}>
                   {r.status === 'processing'
-                    ? <span className="flex items-center gap-1"><span className="animate-spin">⏳</span> Läuft…</span>
+                    ? <span className="flex items-center gap-1"><Loader2 size={11} strokeWidth={2.5} className="animate-spin" /> Läuft…</span>
                     : STATUS_LABELS[r.status]
                   }
                 </span>

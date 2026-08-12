@@ -168,7 +168,7 @@ export default function BuchungslisteClient({
       </div>
 
       {/* Tabelle */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
         {filtered.length === 0 ? (
           <div className="text-center py-16 text-gray-400 flex flex-col items-center gap-2">
             <Inbox size={32} strokeWidth={1.5} className="text-gray-300" />
@@ -176,36 +176,90 @@ export default function BuchungslisteClient({
           </div>
         ) : (
           <>
-            <table className="w-full text-sm">
+            {/* Mobile: Kartenliste statt breiter Tabelle (Welle 3) */}
+            <ul className="md:hidden divide-y divide-gray-50">
+              {filtered.map(t => (
+                <li key={t.id} className="px-4 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">
+                        {t.categories?.name ?? '—'}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {t.is_private && <span className="font-semibold text-gray-600">Privat · </span>}
+                        {t.is_eauto && <span className="font-semibold text-accent-dark">E-Auto · </span>}
+                        {t.description ?? '—'}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {new Date(t.booking_date).toLocaleDateString('de-AT')}
+                        {' · '}{belegNr(t)}{' · '}{t.vat_rate} % USt
+                      </p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className={`text-sm font-semibold tabular-nums ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
+                        {formatCurrency(Number(t.amount_gross))}
+                      </p>
+                      <p className="text-[10px] text-gray-400">
+                        {t.type === 'income' ? 'Einnahme' : 'Ausgabe'}
+                      </p>
+                    </div>
+                  </div>
+                  {!t.is_locked ? (
+                    <div className="flex justify-end gap-2 mt-2">
+                      <Link
+                        href={`/buchungen/${t.id}/bearbeiten`}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                      >
+                        <Pencil size={13} strokeWidth={2} />
+                        Bearbeiten
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(t.id)}
+                        disabled={deletingId === t.id}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-500 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-50"
+                      >
+                        <X size={13} strokeWidth={2} />
+                        Löschen
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="flex items-center justify-end gap-1 mt-2 text-[11px] text-gray-300">
+                      <Lock size={11} strokeWidth={2} /> Gesperrt – UVA bereits übermittelt
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+
+            <table className="w-full min-w-[820px] text-sm hidden md:table">
               <thead>
                 <tr className="bg-gray-50 text-xs font-semibold text-gray-600 uppercase tracking-wide border-b border-gray-100">
-                  <th className="text-left px-4 py-3">Beleg-Nr</th>
-                  <th className="text-left px-4 py-3">Datum</th>
-                  <th className="text-left px-4 py-3">Kategorie</th>
-                  <th className="text-left px-4 py-3">Beschreibung</th>
-                  <th className="text-right px-4 py-3">Netto</th>
-                  <th className="text-right px-4 py-3">USt %</th>
-                  <th className="text-right px-4 py-3">Brutto</th>
-                  <th className="text-center px-4 py-3">Typ</th>
-                  <th className="px-4 py-3"></th>
+                  <th className="text-left px-3 py-3">Beleg-Nr</th>
+                  <th className="text-left px-3 py-3">Datum</th>
+                  <th className="text-left px-3 py-3">Kategorie</th>
+                  <th className="text-left px-3 py-3">Beschreibung</th>
+                  <th className="text-right px-3 py-3">Netto</th>
+                  <th className="text-right px-3 py-3">Brutto</th>
+                  <th className="text-center px-3 py-3">Typ</th>
+                  <th className="px-3 py-3"></th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(t => (
                   <tr key={t.id} className="border-t border-gray-50 hover:bg-gray-50/50">
                     <td
-                      className="px-4 py-3 text-gray-400 font-mono text-[11px] whitespace-nowrap"
+                      className="px-3 py-3 text-gray-400 font-mono text-[11px] whitespace-nowrap"
                       title={t.beleg_nr == null ? undefined : `Beleg ${t.beleg_jahr}/${String(t.beleg_nr).padStart(5, '0')} – so steht er auch im BMD-Export`}
                     >
                       {belegNr(t)}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                    <td className="px-3 py-3 text-gray-600 whitespace-nowrap">
                       {new Date(t.booking_date).toLocaleDateString('de-AT')}
                     </td>
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-3 py-3 text-gray-700">
                       {t.categories?.name ?? '—'}
                     </td>
-                    <td className="px-4 py-3 text-gray-500 max-w-xs">
+                    <td className="px-3 py-3 text-gray-500 max-w-[240px]">
                       <div className="flex items-center gap-1.5">
                         {t.is_private && (
                           <span
@@ -217,7 +271,7 @@ export default function BuchungslisteClient({
                         )}
                         {t.is_eauto && (
                           <span
-                            className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 flex-shrink-0"
+                            className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-accent/15 text-accent-dark flex-shrink-0"
                             title="E-Auto – Vorsteuer auf die Angemessenheitsgrenze gedeckelt"
                           >
                             E-Auto
@@ -226,50 +280,47 @@ export default function BuchungslisteClient({
                         <span className="truncate">{t.description ?? '—'}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right text-gray-700">
+                    <td className="px-3 py-3 text-right text-gray-700 whitespace-nowrap">
                       {formatCurrency(Number(t.amount_net))}
+                      <span className="block text-[11px] text-gray-400">{t.vat_rate} % USt</span>
                     </td>
-                    <td className="px-4 py-3 text-right text-gray-500">
-                      {t.vat_rate} %
-                    </td>
-                    <td className={`px-4 py-3 text-right font-medium ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
+                    <td className={`px-3 py-3 text-right font-medium ${t.type === 'income' ? 'text-income' : 'text-expense'}`}>
                       {formatCurrency(Number(t.amount_gross))}
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-3 py-3 text-center">
+                      {/* Token-Farben statt Ampel (Design-Review M1) */}
                       <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium ${
                         t.type === 'income'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-red-100 text-red-700'
+                          ? 'bg-income/10 text-income'
+                          : 'bg-expense/10 text-expense'
                       }`}>
-                        {t.type === 'income'
-                          ? <ArrowUpCircle size={12} strokeWidth={2} />
-                          : <ArrowDownCircle size={12} strokeWidth={2} />}
                         {t.type === 'income' ? 'Einnahme' : 'Ausgabe'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="px-3 py-3 text-right">
+                      {/* Aktionen mit Text statt reiner Icons (Design-Review Welle 3) */}
                       {!t.is_locked && (
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
                           <Link
                             href={`/buchungen/${t.id}/bearbeiten`}
-                            className="text-gray-300 hover:text-brand transition-colors"
-                            title="Buchung bearbeiten"
+                            className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
                           >
-                            <Pencil size={14} strokeWidth={2} />
+                            <Pencil size={13} strokeWidth={2} />
+                            Bearbeiten
                           </Link>
                           <button
                             onClick={() => handleDelete(t.id)}
                             disabled={deletingId === t.id}
-                            className="text-gray-300 hover:text-red-500 transition-colors disabled:opacity-50"
-                            title="Buchung löschen"
+                            className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-500 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-50 whitespace-nowrap"
                           >
-                            <X size={16} strokeWidth={2} />
+                            <X size={13} strokeWidth={2} />
+                            Löschen
                           </button>
                         </div>
                       )}
                       {t.is_locked && (
-                        <span className="text-gray-300 inline-flex" title="Gesperrt – UVA bereits übermittelt">
-                          <Lock size={14} strokeWidth={2} />
+                        <span className="text-gray-300 inline-flex items-center gap-1 text-[11px] whitespace-nowrap" title="Gesperrt – UVA bereits übermittelt">
+                          <Lock size={13} strokeWidth={2} /> Gesperrt
                         </span>
                       )}
                     </td>
@@ -279,7 +330,7 @@ export default function BuchungslisteClient({
             </table>
 
             {/* Summenzeile */}
-            <div className="border-t-2 border-gray-200 bg-gray-50 px-4 py-3 flex justify-end gap-8 text-sm font-semibold">
+            <div className="border-t-2 border-gray-200 bg-gray-50 px-4 py-3 flex flex-wrap justify-end gap-x-8 gap-y-1 text-sm font-semibold">
               <span className="text-income">Einnahmen: {formatCurrency(totalIncome)}</span>
               <span className="text-expense">Ausgaben: {formatCurrency(totalExpense)}</span>
               <span className={totalIncome - totalExpense >= 0 ? 'text-income' : 'text-expense'}>

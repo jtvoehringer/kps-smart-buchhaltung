@@ -8,7 +8,7 @@ const nextConfig = {
     // Fußzeile der Sidebar: "Rel. <Version> – <Build>". Der Build ist der
     // Git-Commit, aus dem Vercel gebaut hat – hilft im Support, den
     // laufenden Stand eindeutig zuzuordnen. Lokal (ohne Vercel) leer.
-    NEXT_PUBLIC_APP_VERSION: pkg.version.replace(/\.0$/, ''),
+    NEXT_PUBLIC_APP_VERSION: pkg.version,
     NEXT_PUBLIC_BUILD_SHA: (process.env.VERCEL_GIT_COMMIT_SHA ?? '').slice(0, 7),
   },
 };

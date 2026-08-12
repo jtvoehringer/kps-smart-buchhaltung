@@ -82,7 +82,7 @@ export default function LieferantenClient({
         />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
         {filtered.length === 0 ? (
           <div className="text-center py-10 text-gray-400 text-sm">Keine Treffer</div>
         ) : (
@@ -120,7 +120,7 @@ export default function LieferantenClient({
                   </td>
                   <td className="px-4 py-3 text-right">
                     {/* Aktionen mit Text statt reiner Icons (Design-Review Welle 3) */}
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
                       <Link
                         href={`/lieferanten/${s.id}`}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
