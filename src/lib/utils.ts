@@ -4,10 +4,12 @@
 
 /** Zahl als österreichisches Zahlenformat, z.B. 1.234,56 */
 export function formatCurrency(value: number): string {
+  // Design-Review: Beträge tragen ihre Einheit. Das Rechnungs-PDF
+  // formatiert weiterhin selbst ("Alle Beträge in Euro").
   return new Intl.NumberFormat('de-AT', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(value) + '\u00a0€';
 }
 
 /** Datum als österreichisches Format, z.B. 15.03.2026 */

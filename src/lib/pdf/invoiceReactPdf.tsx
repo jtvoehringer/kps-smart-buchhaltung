@@ -5,6 +5,10 @@ import { Document, Page, Text, View, Image, StyleSheet, renderToBuffer } from '@
 import { zahlungskondition } from '@/lib/utils';
 import type { Invoice, InvoiceItem, Customer, ClientBranding } from '@/lib/supabase/database.types';
 
+function fmtMenge(n: number) {
+  // Menge mit Komma (33,25), ohne erzwungene Nachkommastellen
+  return new Intl.NumberFormat('de-AT', { maximumFractionDigits: 3 }).format(n);
+}
 function fmt(n: number) {
   return new Intl.NumberFormat('de-AT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 }
@@ -29,13 +33,13 @@ const styles = StyleSheet.create({
   tableHead: { flexDirection: 'row', borderBottomWidth: 2, paddingBottom: 4, marginBottom: 4 },
   th: { fontSize: 8, color: '#666' },
   posRow: { flexDirection: 'row', paddingTop: 6 },
-  posNr: { width: 45, fontSize: 8.5, fontWeight: 700 },
-  posDesc: { flex: 1, paddingRight: 6 },
+  posNr: { width: 42, fontSize: 8.5, fontWeight: 700, flexShrink: 0 },
+  posDesc: { flexGrow: 1, flexShrink: 1, flexBasis: 0, paddingRight: 10 },
   posTitle: { fontSize: 9.5, fontWeight: 700 },
   posSub: { fontSize: 8, color: '#888', marginTop: 1 },
-  qty: { width: 60, fontSize: 9, textAlign: 'right' },
-  unitPrice: { width: 65, fontSize: 9, textAlign: 'right' },
-  amount: { width: 75, fontSize: 9, fontWeight: 700, textAlign: 'right' },
+  qty: { width: 62, fontSize: 9, textAlign: 'right', flexShrink: 0 },
+  unitPrice: { width: 68, fontSize: 9, textAlign: 'right', flexShrink: 0 },
+  amount: { width: 78, fontSize: 9, fontWeight: 700, textAlign: 'right', flexShrink: 0 },
   vatRow: { flexDirection: 'row', paddingBottom: 6, marginBottom: 2, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   vatLabel: { flex: 1, marginLeft: 45, fontSize: 8, color: '#999' },
   vatAmount: { width: 75, fontSize: 8, color: '#999', textAlign: 'right' },
@@ -50,6 +54,8 @@ const styles = StyleSheet.create({
             borderTopWidth: 1, borderTopColor: '#eeeeee', paddingTop: 8 },
   footerRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 16 },
   footerCol: { flex: 1, lineHeight: 1.4 },
+  footerColCenter: { flex: 1, lineHeight: 1.4, textAlign: 'center' },
+  footerColRight: { flex: 1, lineHeight: 1.4, textAlign: 'right' },
   footerStrong: { fontWeight: 700, color: '#888' },
 });
 
@@ -116,11 +122,11 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
         )}
 
         <View style={[styles.tableHead, { borderBottomColor: color }]}>
-          <Text style={[styles.th, { width: 45 }]}>Pos.</Text>
+          <Text style={[styles.th, { width: 42 }]}>Pos.</Text>
           <Text style={[styles.th, { flex: 1 }]}>Leistung</Text>
-          <Text style={[styles.th, { width: 60, textAlign: 'right' }]}>Menge</Text>
-          <Text style={[styles.th, { width: 65, textAlign: 'right' }]}>Einzelpreis</Text>
-          <Text style={[styles.th, { width: 75, textAlign: 'right' }]}>Betrag</Text>
+          <Text style={[styles.th, { width: 62, textAlign: 'right' }]}>Menge</Text>
+          <Text style={[styles.th, { width: 68, textAlign: 'right' }]}>Einzelpreis</Text>
+          <Text style={[styles.th, { width: 78, textAlign: 'right' }]}>Betrag</Text>
         </View>
 
         {items.map((item, i) => (
@@ -138,7 +144,7 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
                   </Text>
                 )}
               </View>
-              <Text style={styles.qty}>{item.quantity} {item.unit}</Text>
+              <Text style={styles.qty}>{fmtMenge(item.quantity)} {item.unit}</Text>
               <Text style={styles.unitPrice}>{fmt(item.unit_price)}</Text>
               <Text style={styles.amount}>{fmt(item.amount_net)}</Text>
             </View>
@@ -189,13 +195,13 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
                 )}
                 {branding?.invoice_footer_left && <Text>{branding.invoice_footer_left}</Text>}
               </View>
-              <View style={styles.footerCol}>
+              <View style={styles.footerColCenter}>
                 {branding?.company_phone   && <Text>Tel: {branding.company_phone}</Text>}
                 {branding?.company_email   && <Text>{branding.company_email}</Text>}
                 {branding?.company_website && <Text>{branding.company_website}</Text>}
                 {branding?.invoice_footer_center && <Text>{branding.invoice_footer_center}</Text>}
               </View>
-              <View style={styles.footerCol}>
+              <View style={styles.footerColRight}>
                 {branding?.iban && <Text>IBAN: {branding.iban}</Text>}
                 {(branding?.bic || branding?.bank_name) && (
                   <Text>{[branding?.bic, branding?.bank_name].filter(Boolean).join(' · ')}</Text>

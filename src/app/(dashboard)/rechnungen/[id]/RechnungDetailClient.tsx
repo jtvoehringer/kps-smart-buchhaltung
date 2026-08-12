@@ -277,7 +277,7 @@ export default function RechnungDetailClient({
         )}
         {invoice.sent_at && (
           <span className="text-xs px-3 py-1 rounded-full font-medium bg-surface-band text-accent-dark">
-            ✉ Versendet am {new Date(invoice.sent_at).toLocaleDateString('de-AT')}{invoice.sent_to ? ` an ${invoice.sent_to}` : ''}
+            Versendet am {new Date(invoice.sent_at).toLocaleDateString('de-AT')}{invoice.sent_to ? ` an ${invoice.sent_to}` : ''}
           </span>
         )}
         <div className="ml-auto flex gap-2 flex-wrap">
@@ -294,13 +294,13 @@ export default function RechnungDetailClient({
               rel="noopener noreferrer"
               className="px-4 py-2 text-sm bg-[#35609E] text-white rounded-lg hover:bg-[#4F90E8] transition-colors font-medium"
             >
-              📄 PDF / Drucken
+              PDF / Drucken
             </a>
           )}
           {invoice.status !== 'cancelled' && !showSend && (
             <button onClick={() => setShowSend(true)}
               className="px-4 py-2 text-sm border border-accent text-accent-dark rounded-lg hover:bg-surface-band transition-colors font-medium">
-              ✉ Per E-Mail senden
+              Per E-Mail senden
             </button>
           )}
           {invoice.status === 'open' && !showPay && (

@@ -109,7 +109,7 @@ export default function DauerauftragForm({
 
       {/* Modus-Hinweis */}
       <div className={`text-xs px-3 py-2 rounded-lg font-medium ${isBrutto ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'}`}>
-        {isBrutto ? '🧾 Brutto-Modus' : '📥 Netto-Modus'}
+        {isBrutto ? 'Brutto-Modus' : 'Netto-Modus'}
         <span className="ml-2 font-normal opacity-70">· in Einstellungen änderbar</span>
       </div>
 
@@ -268,7 +268,7 @@ export default function DauerauftragForm({
           disabled={loading}
           className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#35609E] hover:bg-[#152d54] transition-colors disabled:opacity-50"
         >
-          {loading ? 'Speichern…' : '🔄 Dauerauftrag anlegen'}
+          {loading ? 'Speichern…' : 'Dauerauftrag anlegen'}
         </button>
       </div>
     </form>

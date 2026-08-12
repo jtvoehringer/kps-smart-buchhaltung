@@ -182,7 +182,7 @@ export default function DashboardClient({
         </div>
         {overdueRows.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
-            <p className="text-sm">🎉 Keine überfälligen Rechnungen</p>
+            <p className="text-sm">Keine überfälligen Rechnungen</p>
           </div>
         ) : (
           <ul className="divide-y divide-gray-50">

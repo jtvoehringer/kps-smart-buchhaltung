@@ -522,7 +522,7 @@ function SummaryTile({ label, value, count, color }: { label: string; value: num
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
       <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">{label}</p>
       <p className={`text-xl font-bold ${color}`}>{formatCurrency(value)}</p>
-      <p className="text-xs text-gray-400 mt-0.5">{count} Rechnung(en)</p>
+      <p className="text-xs text-gray-400 mt-0.5">{count} {count === 1 ? 'Rechnung' : 'Rechnungen'}</p>
     </div>
   );
 }

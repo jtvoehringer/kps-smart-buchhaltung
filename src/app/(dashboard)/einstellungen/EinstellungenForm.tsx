@@ -206,7 +206,7 @@ export default function EinstellungenForm({
       // Migration 009 noch nicht ausgeführt → Buchhaltungseinstellungen wurden trotzdem gespeichert
       if (brandingError.message.includes('schema cache') || brandingError.message.includes('does not exist')) {
         setSaved(true);
-        setError('⚠️ Rechnungsdesign konnte nicht gespeichert werden – Migration 009 in Supabase noch nicht ausgeführt. Buchhaltungseinstellungen wurden gespeichert.');
+        setError('Rechnungsdesign konnte nicht gespeichert werden – Migration 009 in Supabase noch nicht ausgeführt. Buchhaltungseinstellungen wurden gespeichert.');
         setTimeout(() => router.refresh(), 2000);
       } else {
         setError(`Fehler (Rechnungsdesign): ${brandingError.message}`);
@@ -257,14 +257,12 @@ export default function EinstellungenForm({
           <ModeButton
             active={bookingMode === 'netto'}
             onClick={() => setBookingMode('netto')}
-            icon="📥"
             label="Netto-Eingabe"
             sub="Nettobetrag eingeben → Brutto wird berechnet"
           />
           <ModeButton
             active={bookingMode === 'brutto'}
             onClick={() => setBookingMode('brutto')}
-            icon="🧾"
             label="Brutto-Eingabe"
             sub="Rechnungsbetrag eingeben → Netto wird berechnet"
           />
@@ -291,14 +289,12 @@ export default function EinstellungenForm({
           <ModeButton
             active={ustStatus === 'kleinunternehmer'}
             onClick={() => setUstStatus('kleinunternehmer')}
-            icon="🏷️"
             label="Kleinunternehmer"
             sub="Umsatzsteuerbefreit, keine USt auf Rechnungen"
           />
           <ModeButton
             active={ustStatus === 'regelbesteuerung'}
             onClick={() => setUstStatus('regelbesteuerung')}
-            icon="📊"
             label="Regelbesteuerung"
             sub="Umsatzsteuerpflichtig, Vorsteuerabzug möglich"
           />
@@ -364,7 +360,7 @@ export default function EinstellungenForm({
           Das Anhängen von Belegen (PDF, JPG, PNG) ist bei jeder Buchung verfügbar.
         </p>
         <p className="text-xs text-blue-600 mt-2 bg-blue-50 px-3 py-1.5 rounded-lg inline-block">
-          📎 Belegverwaltung immer aktiv
+          Belegverwaltung immer aktiv
         </p>
       </div>
 
@@ -704,7 +700,7 @@ export default function EinstellungenForm({
         <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>
       )}
       {saved && (
-        <p className="text-green-700 text-sm bg-green-50 px-3 py-2 rounded-lg">✅ Einstellungen gespeichert!</p>
+        <p className="text-green-700 text-sm bg-green-50 px-3 py-2 rounded-lg">✓ Einstellungen gespeichert!</p>
       )}
 
       <button
@@ -735,8 +731,8 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }
   );
 }
 
-function ModeButton({ active, onClick, icon, label, sub }: {
-  active: boolean; onClick: () => void; icon: string; label: string; sub: string;
+function ModeButton({ active, onClick, label, sub }: {
+  active: boolean; onClick: () => void; label: string; sub: string;
 }) {
   return (
     <button
@@ -747,7 +743,6 @@ function ModeButton({ active, onClick, icon, label, sub }: {
         active ? '' : 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700'
       }`}
     >
-      <div className="text-2xl mb-1">{icon}</div>
       <div className="font-semibold">{label}</div>
       <div className={`text-xs mt-1 ${active ? 'opacity-80' : 'text-gray-400'}`}>{sub}</div>
     </button>

@@ -5,17 +5,17 @@
 
 const INKLUSIV_LEISTUNGEN = [
   {
-    icon:        '📄',
+    icon:        '',
     label:       'Rechnungsmodul',
     description: 'Ausgangsrechnungen, Kundenstamm, Lieferantenstamm, PDF-Export im Klientendesign',
   },
   {
-    icon:        '🔍',
+    icon:        '',
     label:       'OCR Belegverarbeitung',
     description: 'Belege fotografieren oder hochladen (auch mobil), KI-gestützte Datenerkennung, automatisch als Buchung übernehmen',
   },
   {
-    icon:        '💳',
+    icon:        '',
     label:       'Offene Posten',
     description: 'Ein- und Ausgangsrechnungen, Zahlungsabgleich, automatische Verbuchung bei Zahlungseingang/-ausgang',
   },

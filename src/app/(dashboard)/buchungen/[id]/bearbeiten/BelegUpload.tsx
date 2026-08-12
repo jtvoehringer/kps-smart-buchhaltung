@@ -21,9 +21,9 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf
 const MAX_SIZE_MB   = 10;
 
 function fileIcon(name: string): string {
-  if (name.endsWith('.pdf')) return '📄';
-  if (name.match(/\.(jpg|jpeg|png|webp)$/i)) return '🖼️';
-  return '📎';
+  if (name.endsWith('.pdf')) return 'PDF';
+  if (name.match(/\.(jpg|jpeg|png|webp)$/i)) return 'Bild';
+  return 'Datei';
 }
 
 export default function BelegUpload({ transactionId, clientId, initialAttachments }: Props) {
@@ -130,7 +130,7 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-gray-700">📎 Belege</span>
+        <span className="text-sm font-semibold text-gray-700">Belege</span>
         <span className="text-xs text-gray-400">(optional · PDF, JPG, PNG · max. {MAX_SIZE_MB} MB)</span>
       </div>
 
@@ -171,7 +171,7 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
       <div className="flex items-center gap-2">
         <button type="button" onClick={() => cameraInput.current?.click()}
           className="inline-flex items-center gap-1 text-xs text-white font-medium bg-[#35609E] hover:bg-[#4F90E8] px-3 py-1.5 rounded-lg transition-colors">
-          📷 Foto aufnehmen
+          Foto aufnehmen
         </button>
         <span className="text-xs text-gray-400">oder Datei unten hochladen</span>
       </div>

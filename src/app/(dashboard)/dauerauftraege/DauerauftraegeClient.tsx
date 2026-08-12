@@ -1,5 +1,7 @@
 'use client';
 
+import { X } from 'lucide-react';
+
 import { useState } from 'react';
 import { useServerState } from '@/lib/useServerState';
 import Link from 'next/link';
@@ -98,7 +100,7 @@ export default function DauerauftraegeClient({
 
       {items.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-          <div className="text-4xl mb-3">🔄</div>
+          <div className="text-4xl mb-3"></div>
           <h2 className="text-lg font-semibold text-gray-700 mb-1">Keine Daueraufträge</h2>
           <p className="text-gray-400 text-sm mb-6">
             Legen Sie wiederkehrende Buchungen an – sie werden automatisch täglich verarbeitet.
@@ -239,7 +241,7 @@ function RecurringRow({
           title="Löschen"
           className="w-9 h-9 rounded-lg flex items-center justify-center text-sm text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
         >
-          🗑
+          <X size={15} strokeWidth={2} />
         </button>
       </div>
     </div>

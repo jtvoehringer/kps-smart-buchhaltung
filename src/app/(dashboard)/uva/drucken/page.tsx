@@ -344,7 +344,7 @@ export default async function UVADruckenPage({
             </div>
             <div className="result-divider">=</div>
             <div className={`result-final ${isGutschrift ? 'gutschrift' : 'zahllast'}`}>
-              <div className="label">{isGutschrift ? '✓ Gutschrift' : '⚠ Zahllast'}</div>
+              <div className="label">{isGutschrift ? '✓ Gutschrift' : 'Zahllast'}</div>
               <div className="value">{eur(Math.abs(zahllast))}</div>
             </div>
           </div>

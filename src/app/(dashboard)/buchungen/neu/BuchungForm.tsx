@@ -566,7 +566,7 @@ export default function BuchungForm({
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => cameraInputRef.current?.click()}
               className="inline-flex items-center gap-1 text-xs text-white font-medium bg-[#35609E] hover:bg-[#4F90E8] px-3 py-1 rounded-lg transition-colors">
-              📷 Foto aufnehmen
+              Foto aufnehmen
             </button>
             <button type="button" onClick={() => fileInputRef.current?.click()}
               className="inline-flex items-center gap-1 text-xs text-[#35609E] hover:text-[#4F90E8] font-medium border border-[#35609E] hover:border-[#4F90E8] px-3 py-1 rounded-lg transition-colors">

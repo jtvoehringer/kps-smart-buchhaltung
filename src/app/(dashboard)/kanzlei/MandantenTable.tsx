@@ -47,14 +47,14 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
             href="/kanzlei/mandant-neu"
             className="bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
           >
-            ➕ Neuer Mandant
+            Neuer Mandant
           </Link>
         </div>
       </div>
 
       {rows.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
-          <div className="text-4xl mb-3">👥</div>
+          <div className="text-4xl mb-3"></div>
           <p className="text-sm">Noch keine Mandanten angelegt</p>
           <p className="text-xs mt-2">
             <Link href="/kanzlei/mandant-neu" className="text-[#35609E] hover:underline">
@@ -64,8 +64,7 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
-          <div className="text-4xl mb-3">🔍</div>
-          <p className="text-sm">Kein Mandant gefunden für „{query}"</p>
+                    <p className="text-sm">Kein Mandant gefunden für „{query}"</p>
         </div>
       ) : (
         <table className="w-full text-sm">
@@ -107,7 +106,7 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
                 </td>
                 <td className="px-4 py-3 text-right text-gray-600">{r.count}</td>
                 <td className="px-4 py-3 text-center text-gray-500">
-                  <span className="inline-flex items-center gap-1">👤 {r.memberCount}</span>
+                  <span className="inline-flex items-center gap-1">{r.memberCount}</span>
                 </td>
                 <td className="px-4 py-3 text-center">
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${

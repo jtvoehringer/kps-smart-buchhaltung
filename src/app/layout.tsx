@@ -21,7 +21,7 @@ export const viewport: Viewport = {
   themeColor: '#35609E',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  // maximumScale entfernt (Design-Review): Zoom auf dem Handy bleibt möglich.
 };
 
 export default function RootLayout({

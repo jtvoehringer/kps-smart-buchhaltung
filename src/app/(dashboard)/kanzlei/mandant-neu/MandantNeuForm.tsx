@@ -65,7 +65,7 @@ export default function MandantNeuForm({ tenantId }: { tenantId: string }) {
       </div>
 
       <div className="bg-blue-50 text-blue-700 text-sm px-4 py-3 rounded-lg">
-        📧 Der Mandant erhält eine Einladungs-E-Mail und kann sich damit ein Passwort setzen.
+        Der Mandant erhält eine Einladungs-E-Mail und kann sich damit ein Passwort setzen.
       </div>
 
       {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
@@ -77,7 +77,7 @@ export default function MandantNeuForm({ tenantId }: { tenantId: string }) {
         </button>
         <button type="submit" disabled={loading}
           className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#35609E] hover:bg-[#4F90E8] transition-colors disabled:opacity-50">
-          {loading ? 'Anlegen…' : '✉️ Mandant anlegen & einladen'}
+          {loading ? 'Anlegen…' : 'Mandant anlegen & einladen'}
         </button>
       </div>
     </form>

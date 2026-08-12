@@ -9,7 +9,7 @@ export default function AppEinladungCard({ defaultEmail }: { defaultEmail: strin
   const [msg, setMsg]         = useState('');
 
   async function handleSend() {
-    if (!email.trim()) { setMsg('❌ Bitte eine E-Mail-Adresse angeben.'); return; }
+    if (!email.trim()) { setMsg('Bitte eine E-Mail-Adresse angeben.'); return; }
     setSending(true);
     setMsg('');
     try {
@@ -20,9 +20,9 @@ export default function AppEinladungCard({ defaultEmail }: { defaultEmail: strin
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? 'Fehler beim Versand');
-      setMsg(`✅ Installationslink wurde an ${data.sentTo} gesendet. Falls nichts ankommt: bitte auch im Spam-/Werbeordner nachsehen.`);
+      setMsg(`✓ Installationslink wurde an ${data.sentTo} gesendet. Falls nichts ankommt: bitte auch im Spam-/Werbeordner nachsehen.`);
     } catch (e: unknown) {
-      setMsg(`❌ ${e instanceof Error ? e.message : 'Fehler beim Versand'}`);
+      setMsg(`${e instanceof Error ? e.message : 'Fehler beim Versand'}`);
     }
     setSending(false);
   }
@@ -60,7 +60,7 @@ export default function AppEinladungCard({ defaultEmail }: { defaultEmail: strin
         </button>
       </div>
       {msg && (
-        <p className={`text-sm px-3 py-2 rounded-lg ${msg.startsWith('✅') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+        <p className={`text-sm px-3 py-2 rounded-lg ${msg.startsWith('✓') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
           {msg}
         </p>
       )}

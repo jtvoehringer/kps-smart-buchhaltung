@@ -162,14 +162,14 @@ export default function BmdExportClient({ clients }: Props) {
             disabled={!clientId || loading}
             className="flex-1 sm:flex-none px-5 py-2 rounded-lg border border-[#35609E] text-[#35609E] text-sm font-medium hover:bg-[#35609E]/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Lädt…' : '🔍 Vorschau'}
+            {loading ? 'Lädt…' : 'Vorschau'}
           </button>
           <button
             onClick={downloadCsv}
             disabled={!clientId || loading}
             className="flex-1 sm:flex-none px-5 py-2 rounded-lg bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Exportiert…' : '📤 CSV herunterladen'}
+            {loading ? 'Exportiert…' : 'CSV herunterladen'}
           </button>
         </div>
 
@@ -192,8 +192,7 @@ export default function BmdExportClient({ clients }: Props) {
 
           {previewRows.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
-              <div className="text-3xl mb-2">📭</div>
-              <p className="text-sm">Keine Buchungen im gewählten Zeitraum</p>
+                            <p className="text-sm">Keine Buchungen im gewählten Zeitraum</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -250,7 +249,7 @@ export default function BmdExportClient({ clients }: Props) {
 
       {/* Hinweis */}
       <div className="rounded-xl border border-accent/40 bg-surface-band px-5 py-4 text-sm text-accent-dark">
-        <p className="font-semibold mb-1">ℹ️ BMD NTCS EA-Import</p>
+        <p className="font-semibold mb-1">BMD NTCS EA-Import</p>
         <p className="text-xs leading-relaxed opacity-80">
           Semikolon-getrennt, Zeichensatz Windows-1252, Textfelder nach RFC 4180 eingefasst.
           Die Belegnummer stammt aus der Buchung selbst und bleibt über alle Exporte

@@ -166,7 +166,7 @@ export default function BenutzerClient({
                           </select>
                         ) : (
                           <span className="text-xs text-gray-300">
-                            {isSelf ? '(eigene Rolle)' : '🔒'}
+                            {isSelf ? '(eigene Rolle)' : '(gesperrt)'}
                           </span>
                         )}
                       </td>
@@ -223,7 +223,7 @@ export default function BenutzerClient({
           </div>
 
           <div className="bg-blue-50 text-blue-700 text-sm px-4 py-3 rounded-lg">
-            📧 Der Benutzer erhält eine Einladungs-E-Mail und kann sich damit ein Passwort setzen.
+            Der Benutzer erhält eine Einladungs-E-Mail und kann sich damit ein Passwort setzen.
           </div>
 
           {formError   && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{formError}</p>}
@@ -233,7 +233,7 @@ export default function BenutzerClient({
             type="submit" disabled={isPending}
             className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-[#35609E] hover:bg-[#4F90E8] transition-colors disabled:opacity-50"
           >
-            {isPending ? 'Einladen…' : '✉️ Benutzer einladen'}
+            {isPending ? 'Einladen…' : 'Benutzer einladen'}
           </button>
         </form>
       </div>

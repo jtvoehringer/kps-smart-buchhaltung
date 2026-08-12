@@ -1,5 +1,7 @@
 'use client';
 
+import { Pencil } from 'lucide-react';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -53,7 +55,7 @@ export default function KundenClient({
   if (customers.length === 0) {
     return (
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
-        <div className="text-4xl mb-3">👥</div>
+        <div className="text-4xl mb-3"></div>
         <p className="text-gray-500 text-sm mb-4">Noch keine Kunden angelegt.</p>
         <Link
           href="/kunden/neu"
@@ -127,7 +129,7 @@ export default function KundenClient({
                         className="text-gray-300 hover:text-[#35609E] transition-colors"
                         title="Bearbeiten"
                       >
-                        ✏️
+                        <Pencil size={14} strokeWidth={2} />
                       </Link>
                       <button
                         onClick={() => handleDeactivate(c.id)}

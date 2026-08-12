@@ -27,7 +27,7 @@ export default async function EinstellungenPage() {
       <div className="p-6 max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold text-[#35609E] mb-6">Einstellungen</h1>
         <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-sm text-red-700 space-y-2">
-          <p className="font-semibold">⚠️ Kein Mandantenzugang gefunden</p>
+          <p className="font-semibold">Kein Mandantenzugang gefunden</p>
           <p><strong>User-ID:</strong> {user.id}</p>
           <p><strong>E-Mail:</strong> {user.email}</p>
           {membershipError && <p><strong>Fehler:</strong> {membershipError.message}</p>}
@@ -52,7 +52,7 @@ export default async function EinstellungenPage() {
       <div className="p-6 max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold text-[#35609E] mb-6">Einstellungen</h1>
         <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-sm text-red-700 space-y-2">
-          <p className="font-semibold">⚠️ Mandant nicht gefunden</p>
+          <p className="font-semibold">Mandant nicht gefunden</p>
           <p><strong>Client-ID:</strong> {membership.client_id}</p>
           {clientError && <p><strong>Fehler:</strong> {clientError.message}</p>}
           {!client && !clientError && <p>Kein Client in clients-Tabelle für diese ID.</p>}

@@ -35,7 +35,7 @@ export default async function RechnungenPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#35609E]">Rechnungen</h1>
-          <p className="text-gray-500 text-sm">{invoices?.length ?? 0} Rechnungen gesamt</p>
+          <p className="text-gray-500 text-sm">{(invoices?.length ?? 0) === 1 ? '1 Rechnung' : `${invoices?.length ?? 0} Rechnungen`} gesamt</p>
         </div>
         <Link
           href="/rechnungen/neu"

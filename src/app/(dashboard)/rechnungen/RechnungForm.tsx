@@ -375,7 +375,7 @@ export default function RechnungForm({
                       hinter die weitergetippt wurde ("033,25"). */}
                   <input id={`pos-${idx}-menge`}
                     type="text" inputMode="decimal" placeholder="1"
-                    value={item.menge_text ?? String(item.quantity ?? '')}
+                    value={item.menge_text ?? String(item.quantity ?? '').replace('.', ',')}
                     onChange={e => updateItem(idx, { menge_text: e.target.value, quantity: zahl(e.target.value) })}
                     onBlur={() => updateItem(idx, { menge_text: undefined })}
                     className={inputCls} />
@@ -390,7 +390,7 @@ export default function RechnungForm({
                   <label htmlFor={`pos-${idx}-preis`} className="text-xs text-gray-400 block mb-0.5">Einzelpreis (netto)</label>
                   <input id={`pos-${idx}-preis`}
                     type="text" inputMode="decimal" placeholder="0,00"
-                    value={item.preis_text ?? String(item.unit_price ?? '')}
+                    value={item.preis_text ?? String(item.unit_price ?? '').replace('.', ',')}
                     onChange={e => updateItem(idx, { preis_text: e.target.value, unit_price: zahl(e.target.value) })}
                     onBlur={() => updateItem(idx, { preis_text: undefined })}
                     className={inputCls} />

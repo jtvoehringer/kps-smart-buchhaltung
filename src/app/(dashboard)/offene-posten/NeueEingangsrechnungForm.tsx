@@ -138,7 +138,7 @@ export default function NeueEingangsrechnungForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 bg-expense hover:bg-expense-dark text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+        className="inline-flex items-center gap-1.5 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
       >
         <Plus size={16} strokeWidth={2} />
         Neue Eingangsrechnung

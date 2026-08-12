@@ -39,7 +39,7 @@ export default function PasswortVergessenPage() {
 
         {sent ? (
           <div className="text-center space-y-4">
-            <div className="text-4xl">📧</div>
+            <div className="text-4xl"></div>
             <p className="text-gray-700 font-medium">E-Mail gesendet!</p>
             <p className="text-sm text-gray-500">
               Schau in dein Postfach bei <strong>{email}</strong> und klicke auf den Link.

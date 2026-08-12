@@ -19,7 +19,7 @@ export default function DruckButtons({ invoiceId }: { invoiceId: string }) {
           padding: '8px 18px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
         }}
       >
-        🖨 Drucken / Als PDF speichern
+        Drucken / Als PDF speichern
       </button>
       <button
         onClick={() => window.close()}

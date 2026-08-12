@@ -101,8 +101,7 @@ export default function RechnungenClient({
   if (invoices.length === 0) {
     return (
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
-        <div className="text-4xl mb-3">📄</div>
-        <p className="text-gray-500 text-sm mb-4">Noch keine Rechnungen vorhanden.</p>
+                <p className="text-gray-500 text-sm mb-4">Noch keine Rechnungen vorhanden.</p>
         <Link
           href="/rechnungen/neu"
           className="inline-block bg-[#35609E] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#4F90E8] transition-colors"
@@ -125,7 +124,7 @@ export default function RechnungenClient({
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
           <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Offen</p>
           <p className="text-xl font-bold text-amber-600">{formatCurrency(totalOpen)}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{invoices.filter(i => i.status === 'open').length} Rechnung(en)</p>
+          <p className="text-xs text-gray-400 mt-0.5">{(() => { const n = invoices.filter(i => i.status === 'open').length; return `${n} ${n === 1 ? 'Rechnung' : 'Rechnungen'}`; })()}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
           <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Überfällig</p>
@@ -133,7 +132,7 @@ export default function RechnungenClient({
             {formatCurrency(totalOverdue)}
           </p>
           <p className="text-xs text-gray-400 mt-0.5">
-            {invoices.filter(i => i.status === 'open' && new Date(i.due_date) < today).length} Rechnung(en)
+            {(() => { const n = invoices.filter(i => i.status === 'open' && new Date(i.due_date) < today).length; return `${n} ${n === 1 ? 'Rechnung' : 'Rechnungen'}`; })()}
           </p>
         </div>
       </div>

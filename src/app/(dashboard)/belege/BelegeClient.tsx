@@ -368,8 +368,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
           </div>
         ) : (
           <>
-            <div className="text-4xl mb-3">📎</div>
-            <p className="font-semibold text-gray-700">Beleg hier ablegen</p>
+                        <p className="font-semibold text-gray-700">Beleg hier ablegen</p>
             <p className="text-xs text-gray-400 mt-1 mb-4">JPG · PNG · WEBP · PDF · max. 10 MB</p>
             <div className="flex items-center justify-center gap-3">
               <button
@@ -377,14 +376,14 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                 onClick={() => cameraInputRef.current?.click()}
                 className="inline-flex items-center gap-2 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
               >
-                📷 Foto aufnehmen
+                Foto aufnehmen
               </button>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-gray-300 text-gray-600 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
               >
-                📁 Datei wählen
+                Datei wählen
               </button>
             </div>
           </>
@@ -418,7 +417,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
       {/* Belegliste */}
       {receipts.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-100 py-16 text-center text-gray-400">
-          <div className="text-4xl mb-3">🗂️</div>
+          <div className="text-4xl mb-3"></div>
           <p className="text-sm">Noch keine Belege hochgeladen</p>
         </div>
       ) : (
@@ -438,8 +437,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                 }`}
               >
                 {/* Icon */}
-                <span className="text-xl flex-shrink-0">
-                  {r.file_type === 'application/pdf' ? '📄' : '🖼️'}
+                <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400 flex-shrink-0 w-8">
+                  {r.file_type === 'application/pdf' ? 'PDF' : 'Bild'}
                 </span>
 
                 {/* Dateiname + Erkennungsergebnis */}
@@ -557,7 +556,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                               : 'border-gray-200 text-gray-500'
                           }`}
                         >
-                          {t === 'ausgabe' ? '📤 Ausgabe' : '📥 Einnahme'}
+                          {t === 'ausgabe' ? 'Ausgabe' : 'Einnahme'}
                         </button>
                       ))}
                     </div>
@@ -809,11 +808,11 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                     disabled={booking || !editing.betrag_brutto || !categoryId}
                     className="w-full py-3 bg-[#35609E] hover:bg-[#4F90E8] text-white font-semibold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    {booking ? 'Wird verbucht…' : '✅ Als Buchung übernehmen'}
+                    {booking ? 'Wird verbucht…' : 'Als Buchung übernehmen'}
                   </button>
                 ) : (
                   <div className="text-center py-3 bg-green-50 rounded-xl text-green-700 font-semibold text-sm">
-                    ✅ Bereits verbucht
+                    ✓ Bereits verbucht
                   </div>
                 )}
               </div>
@@ -840,7 +839,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
       {/* Hinweis-Box */}
       <div className="rounded-xl border border-accent/40 bg-surface-band px-5 py-4 text-sm text-accent-dark">
-        <p className="font-semibold mb-1">ℹ️ Wie es funktioniert</p>
+        <p className="font-semibold mb-1">Wie es funktioniert</p>
         <p className="text-xs leading-relaxed opacity-80">
           Foto oder Scan hochladen (JPG, PNG, PDF) → KI erkennt automatisch Datum, Betrag, MwSt-Satz und Lieferant →
           Daten prüfen und ggf. korrigieren → „Als Buchung übernehmen" erstellt die Buchung und verknüpft den Beleg.

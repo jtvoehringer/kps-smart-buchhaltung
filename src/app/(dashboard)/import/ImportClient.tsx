@@ -392,7 +392,7 @@ export default function ImportClient({
     setFortschritt(null);
 
     if (fehler.length === 0) {
-      setImportMsg(`✅ ${imported} Buchung${imported !== 1 ? 'en' : ''} importiert.${!withExtras ? ' (Tipp: Migrationen ausführen für Duplikat-Schutz, Konto- und Privat-Kennzeichnung)' : ''}`);
+      setImportMsg(`✓ ${imported} Buchung${imported !== 1 ? 'en' : ''} importiert.${!withExtras ? ' (Tipp: Migrationen ausführen für Duplikat-Schutz, Konto- und Privat-Kennzeichnung)' : ''}`);
     } else {
       const ersteMeldungen = fehler.slice(0, 3).map(f => `„${f.zeile.counterpart || f.zeile.description}“: ${f.meldung}`);
       setImportMsg(
@@ -435,8 +435,7 @@ export default function ImportClient({
             dragOver ? 'border-[#35609E] bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
           }`}
         >
-          <div className="text-4xl mb-3">🏦</div>
-          <p className="text-gray-700 font-semibold mb-1">Kontoauszug hierher ziehen</p>
+                    <p className="text-gray-700 font-semibold mb-1">Kontoauszug hierher ziehen</p>
           <p className="text-sm text-gray-400 mb-4">CAMT.053 (.xml) oder Bank-CSV (.csv)</p>
           <p className="text-xs text-gray-300">Raiffeisen · Erste/Sparkasse · BAWAG · Bank Austria</p>
           <input
@@ -452,7 +451,7 @@ export default function ImportClient({
       {/* ── Parse-Fehler ── */}
       {parseErrs.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 space-y-1">
-          <p className="font-semibold">⚠️ Hinweise beim Einlesen:</p>
+          <p className="font-semibold">Hinweise beim Einlesen:</p>
           {parseErrs.map((e, i) => <p key={i} className="text-xs">{e}</p>)}
         </div>
       )}
@@ -499,14 +498,14 @@ export default function ImportClient({
           {/* ── Status-Meldung (oben, immer sichtbar) ── */}
           {importMsg && (
             <div className={`px-4 py-3 rounded-xl border ${
-              importMsg.startsWith('✅')
+              importMsg.startsWith('✓')
                 ? 'bg-green-50 text-green-700 border-green-200'
                 : /^\d+ von \d+/.test(importMsg)
                   ? 'bg-amber-50 text-amber-800 border-amber-200'
                   : 'bg-red-50 text-red-700 border-red-200'
             }`}>
               <p className="text-sm font-medium mb-2 whitespace-pre-line">{importMsg}</p>
-              {importMsg.startsWith('✅') && (
+              {importMsg.startsWith('✓') && (
                 <div className="flex gap-3 mt-2">
                   <button
                     onClick={() => router.push('/buchungen')}
@@ -565,7 +564,7 @@ export default function ImportClient({
                     >
                       <td className="px-4 py-2">
                         {row.isDuplicate ? (
-                          <span title="Bereits importiert" className="text-xs">🔁</span>
+                          <span title="Bereits importiert" className="text-xs"></span>
                         ) : (
                           <input
                             type="checkbox"
@@ -681,7 +680,7 @@ export default function ImportClient({
                 </button>
                 {noCat > 0 && (
                   <p className="text-xs text-amber-600">
-                    ⚠️ {noCat} ohne Kategorie – werden übersprungen
+                    {noCat} ohne Kategorie – werden übersprungen
                   </p>
                 )}
               </div>
