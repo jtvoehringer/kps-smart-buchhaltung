@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { useServerState } from '@/lib/useServerState';
 import { createClient } from '@/lib/supabase/client';
 import { formatCurrency } from '@/lib/utils';
-import { Check, EyeOff, Eye } from 'lucide-react';
+import { Check, EyeOff, Eye, ArrowLeftRight, X } from 'lucide-react';
 import { meldeFehler } from '@/lib/fehler';
 
 type Row = {
@@ -19,6 +19,11 @@ type Row = {
   beleg_jahr: number | null;
   beleg_nr: number | null;
   category: { name: string } | null;
+  /** 'buchung' = transactions-Zeile, 'umbuchung' = account_transfers (042) */
+  kind: 'buchung' | 'umbuchung';
+  /** Nur bei Umbuchungen: Sicht dieses Kontos (out = Quelle, in = Ziel) */
+  richtung?: 'out' | 'in';
+  gegenkonto?: string;
 };
 
 const belegNr = (r: Row) =>
@@ -65,14 +70,33 @@ export default function AbstimmungClient({
   const endBalance = withBalance[0]?.balance ?? (Number(openingBalance) || 0);
   const openCount = rows.filter(r => !r.is_reconciled).length;
 
-  async function toggleReconciled(id: string, current: boolean) {
+  async function toggleReconciled(row: Row) {
+    const { id } = row;
+    const current = row.is_reconciled;
     setBusyId(id);
     setFehler('');
-    const { error } = await supabase.from('transactions').update({ is_reconciled: !current }).eq('id', id);
+    // Umbuchungen haben je Seite ein eigenes Häkchen (Giro- und
+    // Kreditkartenauszug werden getrennt geprüft).
+    const { error } = row.kind === 'umbuchung'
+      ? await supabase.from('account_transfers')
+          .update(row.richtung === 'out' ? { is_reconciled_from: !current } : { is_reconciled_to: !current })
+          .eq('id', id)
+      : await supabase.from('transactions').update({ is_reconciled: !current }).eq('id', id);
     // Vorher wurde ein Fehler stillschweigend verschluckt: das Häkchen
     // erschien, verschwand aber beim nächsten Laden wieder.
     if (!meldeFehler('Abstimmung speichern', error, setFehler)) {
       setRows(prev => prev.map(r => r.id === id ? { ...r, is_reconciled: !current } : r));
+    }
+    setBusyId(null);
+  }
+
+  async function deleteUmbuchung(id: string) {
+    if (!confirm('Umbuchung wirklich löschen? Sie verschwindet aus den Abstimmungen beider Konten.')) return;
+    setBusyId(id);
+    setFehler('');
+    const { error } = await supabase.from('account_transfers').delete().eq('id', id);
+    if (!meldeFehler('Umbuchung löschen', error, setFehler)) {
+      setRows(prev => prev.filter(r => r.id !== id));
     }
     setBusyId(null);
   }
@@ -171,26 +195,49 @@ export default function AbstimmungClient({
                   <td className="px-4 py-3 text-gray-700 max-w-xs truncate" title={r.description ?? ''}>
                     {r.description ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">{r.category?.name ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                    {r.kind === 'umbuchung' ? (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded bg-accent/15 text-accent-dark"
+                        title="Umbuchung – keine Einnahme/Ausgabe, zählt nicht in UVA, E/A-Rechnung oder BMD-Export">
+                        <ArrowLeftRight size={11} strokeWidth={2} />
+                        {r.richtung === 'out' ? `an ${r.gegenkonto}` : `von ${r.gegenkonto}`}
+                      </span>
+                    ) : (
+                      r.category?.name ?? '—'
+                    )}
+                  </td>
                   <td className={`px-4 py-3 text-right font-semibold whitespace-nowrap ${r.type === 'income' ? 'text-income' : 'text-expense'}`}>
                     {r.type === 'income' ? '+' : '−'}{formatCurrency(Number(r.amount_gross))}
                   </td>
                   <td className="px-4 py-3 text-right text-gray-500 whitespace-nowrap">{formatCurrency(r.balance)}</td>
                   <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => togglePrivate(r.id, r.is_private)}
-                      disabled={busyId === r.id}
-                      className={`w-5 h-5 rounded-md border inline-flex items-center justify-center transition-colors disabled:opacity-50 ${
-                        r.is_private ? 'bg-gray-400 border-gray-400 text-white' : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                      title="Als Privatumsatz markieren"
-                    >
-                      {r.is_private && <Check size={12} strokeWidth={2.5} />}
-                    </button>
+                    {r.kind === 'umbuchung' ? (
+                      // Umbuchungen können nicht privat sein – stattdessen löschen
+                      <button
+                        onClick={() => deleteUmbuchung(r.id)}
+                        disabled={busyId === r.id}
+                        className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-md border border-gray-200 text-gray-400 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-50"
+                        title="Umbuchung löschen (aus beiden Abstimmungen)"
+                      >
+                        <X size={11} strokeWidth={2} />
+                        Löschen
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => togglePrivate(r.id, r.is_private)}
+                        disabled={busyId === r.id}
+                        className={`w-5 h-5 rounded-md border inline-flex items-center justify-center transition-colors disabled:opacity-50 ${
+                          r.is_private ? 'bg-gray-400 border-gray-400 text-white' : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                        title="Als Privatumsatz markieren"
+                      >
+                        {r.is_private && <Check size={12} strokeWidth={2.5} />}
+                      </button>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
-                      onClick={() => toggleReconciled(r.id, r.is_reconciled)}
+                      onClick={() => toggleReconciled(r)}
                       disabled={busyId === r.id}
                       className={`w-5 h-5 rounded-md border inline-flex items-center justify-center transition-colors disabled:opacity-50 ${
                         r.is_reconciled ? 'bg-brand border-brand text-white' : 'border-gray-300 hover:border-gray-400'
@@ -202,8 +249,10 @@ export default function AbstimmungClient({
                   </td>
                 </tr>
               ))}
+              {/* colSpan 4: Beleg-Nr, Datum, Beschreibung, Kategorie – der
+                  Eröffnungssaldo steht damit in der Saldo-Spalte. */}
               <tr className="border-t-2 border-gray-200 bg-gray-50/60 text-gray-500">
-                <td className="px-4 py-3 text-[11px]" colSpan={3}>
+                <td className="px-4 py-3 text-[11px]" colSpan={4}>
                   Eröffnungssaldo{openingDate && ` per ${new Date(openingDate).toLocaleDateString('de-AT')}`}
                 </td>
                 <td className="px-4 py-3 text-right text-gray-400">—</td>

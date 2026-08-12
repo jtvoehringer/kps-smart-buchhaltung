@@ -45,14 +45,56 @@ export default async function KontoabstimmungPage({ params }: { params: Promise<
     abfrage = abfrage.gt('booking_date', account.opening_date);
   }
 
-  const { data: transactions } = await abfrage
-    .order('booking_date', { ascending: false })
-    .order('created_at',   { ascending: false });
+  // Umbuchungen (Migration 042) betreffen dieses Konto als Quelle ODER
+  // Ziel – gleiche Stichtagslogik wie bei den Buchungen.
+  let umbAbfrage = admin
+    .from('account_transfers')
+    .select('*')
+    .eq('client_id', membership.client_id)
+    .or(`from_account_id.eq.${id},to_account_id.eq.${id}`);
+
+  if (account.opening_date) {
+    umbAbfrage = umbAbfrage.gt('transfer_date', account.opening_date);
+  }
+
+  const [{ data: transactions }, { data: transfers }, { data: alleKonten }] = await Promise.all([
+    abfrage
+      .order('booking_date', { ascending: false })
+      .order('created_at',   { ascending: false }),
+    umbAbfrage.order('transfer_date', { ascending: false }),
+    admin.from('accounts').select('id, name').eq('client_id', membership.client_id),
+  ]);
+
+  const kontoName = new Map((alleKonten ?? []).map(k => [k.id, k.name]));
 
   const rows = (transactions ?? []).map(t => ({
+    kind: 'buchung' as const,
     ...t,
     category: Array.isArray(t.category) ? (t.category[0] ?? null) : t.category,
   }));
+
+  // Umbuchungen in dieselbe Zeilenform bringen: aus Sicht DIESES Kontos
+  // ist die Quelle ein Abgang (expense) und das Ziel ein Zugang (income).
+  const umbuchungen = (transfers ?? []).map(u => {
+    const istQuelle = u.from_account_id === id;
+    const gegenName = kontoName.get(istQuelle ? u.to_account_id : u.from_account_id) ?? 'anderes Konto';
+    return {
+      kind: 'umbuchung' as const,
+      id: u.id,
+      booking_date: u.transfer_date,
+      created_at: u.created_at,
+      description: u.description ?? 'Umbuchung',
+      type: (istQuelle ? 'expense' : 'income') as 'income' | 'expense',
+      amount_gross: Number(u.amount),
+      is_private: false,
+      is_reconciled: istQuelle ? u.is_reconciled_from : u.is_reconciled_to,
+      beleg_jahr: null,
+      beleg_nr: null,
+      category: null,
+      richtung: (istQuelle ? 'out' : 'in') as 'out' | 'in',
+      gegenkonto: gegenName,
+    };
+  });
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -69,7 +111,7 @@ export default async function KontoabstimmungPage({ params }: { params: Promise<
       <AbstimmungClient
         accountId={account.id}
         accountName={account.name}
-        rows={rows}
+        rows={[...rows, ...umbuchungen]}
         openingBalance={Number(account.opening_balance ?? 0)}
         openingDate={account.opening_date ?? null}
       />

@@ -372,6 +372,21 @@ export type Account = {
   updated_at: string;
 };
 
+// Migration 042 – Umbuchung zwischen Konten (z. B. Kreditkartenausgleich).
+// Keine Einnahme/Ausgabe: zählt nicht in UVA, Monatssummen oder BMD-Export.
+export type AccountTransfer = {
+  id: string;
+  client_id: string;
+  from_account_id: string;
+  to_account_id: string;
+  transfer_date: string;
+  amount: number;
+  description: string | null;
+  is_reconciled_from: boolean;
+  is_reconciled_to: boolean;
+  created_at: string;
+};
+
 export type BankLearningRule = {
   id: string;
   client_id: string;
@@ -790,6 +805,21 @@ export type Database = {
           opening_date?: string | null;
         };
         Update: Partial<Account>;
+        Relationships: [];
+      };
+      account_transfers: {
+        Row: AccountTransfer;
+        Insert: {
+          client_id: string;
+          from_account_id: string;
+          to_account_id: string;
+          transfer_date: string;
+          amount: number;
+          description?: string | null;
+          is_reconciled_from?: boolean;
+          is_reconciled_to?: boolean;
+        };
+        Update: Partial<AccountTransfer>;
         Relationships: [];
       };
       bank_learning_rules: {

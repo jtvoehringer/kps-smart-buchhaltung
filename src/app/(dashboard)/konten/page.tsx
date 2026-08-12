@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { CreditCard } from 'lucide-react';
+import { ArrowLeftRight, CreditCard } from 'lucide-react';
 import KontenClient from './KontenClient';
 
 export default async function KontenPage() {
@@ -41,12 +41,21 @@ export default async function KontenPage() {
           </h1>
           <p className="text-gray-500 text-sm">Kontokorrent, Kreditkarte, Kreditkonto – Grundlage für Bank-Import und Kontoabstimmung</p>
         </div>
-        <Link
-          href="/konten/neu"
-          className="bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
-        >
-          + Neues Konto
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/konten/umbuchung"
+            className="inline-flex items-center gap-1.5 border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+          >
+            <ArrowLeftRight size={15} strokeWidth={2} />
+            Umbuchung erfassen
+          </Link>
+          <Link
+            href="/konten/neu"
+            className="bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+          >
+            + Neues Konto
+          </Link>
+        </div>
       </div>
       <KontenClient accounts={accounts ?? []} />
     </div>
