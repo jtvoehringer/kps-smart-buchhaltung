@@ -37,12 +37,12 @@ const styles = StyleSheet.create({
   posDesc: { flexGrow: 1, flexShrink: 1, flexBasis: 0, paddingRight: 10 },
   posTitle: { fontSize: 9.5, fontWeight: 700 },
   posSub: { fontSize: 8, color: '#888', marginTop: 1 },
-  qty: { width: 62, fontSize: 9, textAlign: 'right', flexShrink: 0 },
-  unitPrice: { width: 68, fontSize: 9, textAlign: 'right', flexShrink: 0 },
-  amount: { width: 78, fontSize: 9, fontWeight: 700, textAlign: 'right', flexShrink: 0 },
+  qty: { width: 60, fontSize: 9, textAlign: 'left', flexShrink: 0 },
+  unitPrice: { width: 78, fontSize: 9, textAlign: 'left', flexShrink: 0 },
+  amount: { width: 90, fontSize: 9, fontWeight: 700, textAlign: 'right', flexShrink: 0 },
   vatRow: { flexDirection: 'row', paddingBottom: 6, marginBottom: 2, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   vatLabel: { flex: 1, marginLeft: 45, fontSize: 8, color: '#999' },
-  vatAmount: { width: 75, fontSize: 8, color: '#999', textAlign: 'right' },
+  vatAmount: { width: 90, fontSize: 8, color: '#999', textAlign: 'right' },
   // Summen laufen in derselben Spaltenflucht wie die Positionen:
   // Label beginnt an der Mengenspalte, Betrag endet in der Betragsspalte.
   totalsBlock: { marginTop: 12 },
@@ -130,9 +130,9 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
         <View style={[styles.tableHead, { borderBottomColor: color }]}>
           <Text style={[styles.th, { width: 42 }]}>Pos.</Text>
           <Text style={[styles.th, { flex: 1 }]}>Leistung</Text>
-          <Text style={[styles.th, { width: 62, textAlign: 'right' }]}>Menge</Text>
-          <Text style={[styles.th, { width: 68, textAlign: 'right' }]}>Einzelpreis</Text>
-          <Text style={[styles.th, { width: 78, textAlign: 'right' }]}>Betrag</Text>
+          <Text style={[styles.th, { width: 60 }]}>Menge</Text>
+          <Text style={[styles.th, { width: 78 }]}>Preis</Text>
+          <Text style={[styles.th, { width: 90, textAlign: 'right' }]}>Betrag</Text>
         </View>
 
         {items.map((item, i) => (

@@ -90,10 +90,13 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
                   min-height: 297mm; }
           .no-print { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 10px 20px;
                        display: flex; gap: 10px; align-items: center; }
+          /* margin: 0 nimmt dem Browser den Randbereich, in den er Datum
+             und URL druckt – die Seitenränder liefert stattdessen .page. */
+          @page { size: A4; margin: 0; }
           @media print {
             body { background: white; }
             .no-print { display: none !important; }
-            .page { margin: 0; padding: 14mm 14mm 12mm 14mm; max-width: none; box-shadow: none; }
+            .page { margin: 0; padding: 16mm 16mm 14mm 16mm; max-width: none; box-shadow: none; }
           }
           h1.invoice-title { font-size: 22pt; font-weight: 700; color: ${color}; letter-spacing: 1px; }
           .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
@@ -112,11 +115,13 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
           table.items { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
           table.items thead tr { border-bottom: 2px solid ${color}; }
           table.items thead th { font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5px;
-                                  color: #666; padding: 6px 4px 6px 0; text-align: right; font-weight: 600; }
-          table.items thead th:first-child { text-align: left; }
+                                  color: #666; padding: 6px 4px 6px 0; text-align: left; font-weight: 600; }
+          table.items thead th:last-child { text-align: right; }
           table.items tbody td { padding: 7px 4px 7px 0; border-bottom: 1px solid #f0f0f0;
-                                  font-size: 10pt; vertical-align: top; text-align: right; }
-          table.items tbody td:first-child { text-align: left; }
+                                  font-size: 10pt; vertical-align: top; text-align: left; }
+          table.items tbody td:last-child { text-align: right; }
+          table.items tfoot td { padding: 3px 4px 3px 0; font-size: 10pt; }
+          table.items tfoot td:last-child { text-align: right; }
           table.items tbody td.desc { max-width: 260px; text-align: left; }
           table.items tbody tr.pos-row td { border-bottom: none; padding-top: 10px; }
           table.items tbody tr.pos-row td.pos-nr { color: ${color}; font-weight: 700; font-size: 9pt; text-align: left; white-space: nowrap; }
@@ -138,19 +143,11 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
           .payment h3 { font-size: 9pt; font-weight: 700; color: #444; text-transform: uppercase;
                         letter-spacing: 0.5px; margin-bottom: 6px; }
           .payment p { font-size: 9.5pt; color: #555; line-height: 1.7; }
-          .footer-cols {
-      display: flex;
-      gap: 24px;
-      justify-content: space-between;
-    }
-    .footer-col {
-      flex: 1;
-      min-width: 0;
-      line-height: 1.5;
-    }
-    .footer-col strong { display: block; }
-    .footer { margin-top: auto; padding-top: 14px; border-top: 1px solid #eee;
-                    font-size: 8pt; color: #aaa; text-align: center; }
+          .footer-cols { display: flex; gap: 24px; }
+          .footer-col { flex: 1; min-width: 0; line-height: 1.5; text-align: left; }
+          .footer-col strong { display: block; }
+          .footer { margin-top: auto; padding-top: 14px; border-top: 1px solid #eee;
+                    font-size: 8pt; color: #aaa; }
           .paid-stamp { display: inline-block; border: 3px solid #16a34a; color: #16a34a;
                         font-weight: 800; font-size: 14pt; padding: 6px 18px; transform: rotate(-3deg);
                         letter-spacing: 2px; margin-top: 12px; }
@@ -217,11 +214,11 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
           <table className="items">
             <thead>
               <tr>
-                <th style={{ width: '10%' }}>Pos.</th>
-                <th style={{ width: '48%' }}>Leistung</th>
-                <th>Menge</th>
-                <th>Einzelpreis</th>
-                <th>Betrag</th>
+                <th style={{ width: '9%' }}>Pos.</th>
+                <th style={{ width: '43%' }}>Leistung</th>
+                <th style={{ width: '13%' }}>Menge</th>
+                <th style={{ width: '15%' }}>Preis</th>
+                <th style={{ width: '20%' }}>Betrag</th>
               </tr>
             </thead>
             <tbody>
@@ -240,7 +237,7 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
                         {item.berater && <span>{(item.leistung_von || item.leistung_bis) ? ' · ' : ''}Berater: {item.berater}</span>}
                       </div>
                     </td>
-                    <td>{item.quantity} {item.unit}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{String(item.quantity).replace('.', ',')} {item.unit}</td>
                     <td>{fmt(item.unit_price)}</td>
                     <td style={{ fontWeight: 600 }}>{fmt(item.amount_net)}</td>
                   </tr>
@@ -252,35 +249,39 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
                 </Fragment>
               ))}
             </tbody>
-          </table>
-
-          {/* Summen */}
-          <div className="totals">
-            <div className="totals-box">
-              <div className="totals-row">
-                <span>Netto gesamt</span>
-                <span>{fmt(Number(invoice.total_net))}</span>
-              </div>
-              {/* USt-Aufschlüsselung nach Steuersätzen */}
+            {/* Summen als tfoot: Labels beginnen an der Mengenspalte,
+                Beträge stehen in der Betragsspalte. */}
+            <tfoot>
+              <tr>
+                <td style={{ borderBottom: 'none' }}></td><td style={{ borderBottom: 'none' }}></td>
+                <td colSpan={2} style={{ borderBottom: 'none', paddingTop: '12px', color: '#555' }}>Netto gesamt</td>
+                <td style={{ borderBottom: 'none', paddingTop: '12px', color: '#555' }}>{fmt(Number(invoice.total_net))}</td>
+              </tr>
               {Object.entries(vatGroups).map(([rate, vals]) => (
-                <div className="totals-row vat-summary" key={rate}>
-                  <span>USt {rate} % auf {fmt(vals.net)}</span>
-                  <span>{fmt(vals.vat)}</span>
-                </div>
+                <tr key={rate}>
+                  <td style={{ borderBottom: 'none' }}></td><td style={{ borderBottom: 'none' }}></td>
+                  <td colSpan={2} style={{ borderBottom: 'none', fontSize: '8.5pt', color: '#888' }}>
+                    USt {rate} % auf {fmt(vals.net)}
+                  </td>
+                  <td style={{ borderBottom: 'none', fontSize: '8.5pt', color: '#888' }}>{fmt(vals.vat)}</td>
+                </tr>
               ))}
-              <div className="totals-row" style={{ borderTop: '1px solid #ddd', marginTop: '4px', paddingTop: '4px' }}>
-                <span>USt gesamt</span>
-                <span>{fmt(Number(invoice.total_vat))}</span>
-              </div>
-              <div className="totals-row total">
-                <span>Gesamtbetrag</span>
-                <span>{fmt(Number(invoice.total_gross))}</span>
-              </div>
-              <div style={{ fontSize: '7.5pt', color: '#999', textAlign: 'right', marginTop: '3px' }}>
-                Alle Beträge in Euro
-              </div>
-            </div>
-          </div>
+              <tr>
+                <td style={{ borderBottom: 'none' }}></td><td style={{ borderBottom: 'none' }}></td>
+                <td colSpan={2} style={{ borderBottom: 'none', borderTop: '1px solid #ddd', color: '#555', paddingTop: '4px' }}>USt gesamt</td>
+                <td style={{ borderBottom: 'none', borderTop: '1px solid #ddd', color: '#555', paddingTop: '4px' }}>{fmt(Number(invoice.total_vat))}</td>
+              </tr>
+              <tr>
+                <td style={{ borderBottom: 'none' }}></td><td style={{ borderBottom: 'none' }}></td>
+                <td colSpan={2} style={{ borderBottom: 'none', borderTop: `2px solid ${color}`, fontSize: '13pt', fontWeight: 700, color, paddingTop: '6px' }}>Gesamtbetrag</td>
+                <td style={{ borderBottom: 'none', borderTop: `2px solid ${color}`, fontSize: '13pt', fontWeight: 700, color, paddingTop: '6px' }}>{fmt(Number(invoice.total_gross))}</td>
+              </tr>
+              <tr>
+                <td colSpan={4} style={{ borderBottom: 'none' }}></td>
+                <td style={{ borderBottom: 'none', fontSize: '7.5pt', color: '#999' }}>Alle Beträge in Euro</td>
+              </tr>
+            </tfoot>
+          </table>
 
           {/* Notiz */}
           {invoice.notes && (

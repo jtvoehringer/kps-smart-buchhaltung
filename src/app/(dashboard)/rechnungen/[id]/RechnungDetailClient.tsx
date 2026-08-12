@@ -520,7 +520,7 @@ export default function RechnungDetailClient({
               <th className="text-left pb-2 w-16">Pos.</th>
               <th className="text-left pb-2">Leistung</th>
               <th className="text-left pb-2 w-24">Menge</th>
-              <th className="text-left pb-2 w-28">Einzel (netto)</th>
+              <th className="text-left pb-2 w-28">Preis</th>
               <th className="text-right pb-2 w-32">Betrag</th>
             </tr>
           </thead>
