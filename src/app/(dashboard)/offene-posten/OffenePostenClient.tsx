@@ -314,9 +314,14 @@ export default function OffenePostenClient({
                                     {incomeCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                   </select>
                                 </div>
-                                {accounts.length > 0 && (
-                                  <div>
-                                    <label htmlFor={`op-${inv.id}-aus-konto`} className="block text-xs font-medium text-gray-600 mb-1">Bezahlt über</label>
+                                <div>
+                                  <label htmlFor={`op-${inv.id}-aus-konto`} className="block text-xs font-medium text-gray-600 mb-1">Bezahlt über</label>
+                                  {accounts.length === 0 ? (
+                                    <p className="text-xs text-gray-400 py-2">
+                                      Noch keine Konten angelegt –{' '}
+                                      <Link href="/konten/neu" className="text-[#35609E] underline underline-offset-2">Konto anlegen</Link>
+                                    </p>
+                                  ) : (
                                     <select id={`op-${inv.id}-aus-konto`} value={outAccountId} onChange={e => setOutAccountId(e.target.value)}
                                       className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
                                       <option value="">Kein Konto</option>
@@ -324,8 +329,8 @@ export default function OffenePostenClient({
                                         <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>
                                       ))}
                                     </select>
-                                  </div>
-                                )}
+                                  )}
+                                </div>
 
                                 <div>
                                   <p className="block text-xs font-medium text-gray-600 mb-1">Umsatzsteuer</p>
@@ -467,9 +472,14 @@ export default function OffenePostenClient({
                                     {expenseCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                   </select>
                                 </div>
-                                {accounts.length > 0 && (
-                                  <div>
-                                    <label htmlFor={`op-${inv.id}-ein-konto`} className="block text-xs font-medium text-gray-600 mb-1">Bezahlt über</label>
+                                <div>
+                                  <label htmlFor={`op-${inv.id}-ein-konto`} className="block text-xs font-medium text-gray-600 mb-1">Bezahlt über</label>
+                                  {accounts.length === 0 ? (
+                                    <p className="text-xs text-gray-400 py-2">
+                                      Noch keine Konten angelegt –{' '}
+                                      <Link href="/konten/neu" className="text-[#35609E] underline underline-offset-2">Konto anlegen</Link>
+                                    </p>
+                                  ) : (
                                     <select id={`op-${inv.id}-ein-konto`} value={inAccountId} onChange={e => setInAccountId(e.target.value)}
                                       className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
                                       <option value="">Kein Konto</option>
@@ -477,8 +487,8 @@ export default function OffenePostenClient({
                                         <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>
                                       ))}
                                     </select>
-                                  </div>
-                                )}
+                                  )}
+                                </div>
 
                                 <span className="text-xs text-gray-400 pb-2">USt {inv.vat_rate}% (bei Erfassung festgelegt)</span>
                                 <button onClick={() => handleInBuchen(inv)} disabled={inSaving}

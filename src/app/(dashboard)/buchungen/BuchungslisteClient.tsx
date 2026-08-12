@@ -29,7 +29,9 @@ type Transaction = {
 
 /** Belegnummer wie im BMD-Export – die Klammer zum Papierbeleg. */
 const belegNr = (t: { beleg_jahr: number | null; beleg_nr: number | null }) =>
-  t.beleg_nr == null ? '—' : `${t.beleg_jahr}/${String(t.beleg_nr).padStart(5, '0')}`;
+  // Kurzform B-1, B-2 … – klar von Rechnungsnummern (AR-001/26)
+  // unterscheidbar. Volle Form (2026/00001) traegt der BMD-Export.
+  t.beleg_nr == null ? '—' : `B-${t.beleg_nr}`;
 
 const MONTHS = ['Alle','Jän','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
 
@@ -193,7 +195,7 @@ export default function BuchungslisteClient({
                   <tr key={t.id} className="border-t border-gray-50 hover:bg-gray-50/50">
                     <td
                       className="px-4 py-3 text-gray-400 font-mono text-[11px] whitespace-nowrap"
-                      title="Belegnummer – dieselbe Nummer steht im BMD-Export"
+                      title={t.beleg_nr == null ? undefined : `Beleg ${t.beleg_jahr}/${String(t.beleg_nr).padStart(5, '0')} – so steht er auch im BMD-Export`}
                     >
                       {belegNr(t)}
                     </td>

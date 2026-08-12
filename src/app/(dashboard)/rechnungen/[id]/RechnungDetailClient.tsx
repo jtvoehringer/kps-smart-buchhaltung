@@ -420,9 +420,14 @@ export default function RechnungDetailClient({
                 ))}
               </select>
             </div>
-            {accounts.length > 0 && (
-              <div className="min-w-[180px]">
-                <label htmlFor="pay-konto" className="text-xs font-medium text-green-700 block mb-1">Eingegangen auf</label>
+            <div className="min-w-[180px]">
+              <label htmlFor="pay-konto" className="text-xs font-medium text-green-700 block mb-1">Eingegangen auf</label>
+              {accounts.length === 0 ? (
+                <p className="text-xs text-green-700/70 py-2">
+                  Noch keine Konten angelegt –{' '}
+                  <Link href="/konten/neu" className="underline underline-offset-2">Konto anlegen</Link>
+                </p>
+              ) : (
                 <select id="pay-konto" value={payAccountId} onChange={e => setPayAccountId(e.target.value)}
                   className="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
                   <option value="">Kein Konto</option>
@@ -430,8 +435,8 @@ export default function RechnungDetailClient({
                     <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>
                   ))}
                 </select>
-              </div>
-            )}
+              )}
+            </div>
             <button onClick={handleMarkPaid} disabled={loading}
               className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50">
               {loading ? 'Wird gebucht…' : 'Buchen'}

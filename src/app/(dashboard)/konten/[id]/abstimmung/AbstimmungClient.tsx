@@ -22,7 +22,9 @@ type Row = {
 };
 
 const belegNr = (r: Row) =>
-  r.beleg_nr == null ? '—' : `${r.beleg_jahr}/${String(r.beleg_nr).padStart(5, '0')}`;
+  // Kurzform B-1, B-2 … – klar von Rechnungsnummern (AR-001/26)
+  // unterscheidbar. Volle Form (2026/00001) traegt der BMD-Export.
+  r.beleg_nr == null ? '—' : `B-${r.beleg_nr}`;
 
 export default function AbstimmungClient({
   accountId, accountName, rows: initialRows, openingBalance, openingDate,
