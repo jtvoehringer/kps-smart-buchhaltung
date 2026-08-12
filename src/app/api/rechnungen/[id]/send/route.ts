@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { renderInvoicePdf } from '@/lib/pdf/invoiceReactPdf';
 import { istEmail, versandProtokollieren } from '@/lib/mail/versand';
+import { anrede } from '@/lib/mail/anrede';
 
 export const runtime = 'nodejs';
 
@@ -123,14 +124,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const resend = new Resend(apiKey);
     const senderName = clientData?.company_name || 'Ihre Buchhaltung';
-    const greetingName = customer?.name ?? '';
+    // Angesprochen wird der Kontakt ("z.H." der Rechnung, sonst der
+    // aus dem Kundenstamm) – nicht die Firmenbezeichnung.
+    const gruss = anrede(invoice.contact_person || customer?.contact_person);
 
     const { error: sendErr } = await resend.emails.send({
       from: fromAddress,
       to: recipient,
       subject: `Rechnung ${invoice.invoice_number || ''} von ${senderName}`.trim(),
       text: [
-        greetingName ? `Sehr geehrte Damen und Herren, ${greetingName},` : 'Sehr geehrte Damen und Herren,',
+        gruss,
         '',
         body.message?.trim() || `anbei erhalten Sie die Rechnung ${invoice.invoice_number || ''}.`,
         '',
