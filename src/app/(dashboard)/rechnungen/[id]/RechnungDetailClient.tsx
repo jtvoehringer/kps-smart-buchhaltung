@@ -457,9 +457,12 @@ export default function RechnungDetailClient({
         <div className="flex justify-between items-stretch mb-8">
           <div className="flex flex-col">
             {branding?.logo_url ? (
-              <div className="flex-1 min-h-0 mb-2">
+              // Absolut positioniert, damit das Logo die Zeilenhöhe NICHT
+              // mitbestimmt – sonst misst der Browser zirkulär und fällt auf
+              // die natürliche Bildgröße zurück (Logo wurde riesig).
+              <div className="relative flex-1 min-h-0 w-[420px] max-w-full mb-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={branding.logo_url} alt="Logo" className="h-full w-auto max-w-[400px] object-contain object-left" />
+                <img src={branding.logo_url} alt="Logo" className="absolute inset-y-0 left-0 h-full w-auto max-w-full object-contain object-left" />
               </div>
             ) : (
               <div className="text-lg font-bold text-gray-700 mb-1">

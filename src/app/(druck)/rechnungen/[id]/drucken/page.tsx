@@ -104,9 +104,13 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
           h1.invoice-title { font-size: 22pt; font-weight: 700; color: ${color}; letter-spacing: 1px; }
           .header { display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 30px; }
           .sender { line-height: 1.6; display: flex; flex-direction: column; }
-          .logo-wrap { flex: 1; min-height: 0; margin-bottom: 8px; }
-          .logo-wrap img { height: 100%; width: auto; max-width: 320px;
-                           object-fit: contain; object-position: left; }
+          /* Absolut positioniert, damit das Logo die Kopfhöhe nicht selbst
+             mitbestimmt (Zirkelmessung -> Logo erschien in Originalgröße). */
+          .logo-wrap { flex: 1; min-height: 0; position: relative;
+                       width: 340px; max-width: 100%; margin-bottom: 8px; }
+          .logo-wrap img { position: absolute; top: 0; left: 0; bottom: 0;
+                           height: 100%; width: auto; max-width: 100%;
+                           object-fit: contain; object-position: left top; }
           .sender .company { font-size: 13pt; font-weight: 700; color: #111; margin-bottom: 2px; }
           .sender .detail { font-size: 9.5pt; color: #555; }
           .invoice-meta { text-align: right; }
