@@ -90,8 +90,10 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
         <View style={styles.header}>
           <View>
             {branding?.logo_url ? (
+              // Höhe = Meta-Block rechts (RECHNUNG bis inkl. reservierter
+              // UID-Zeile), damit alle Mandanten-Logos gleich hoch ausfallen.
               // eslint-disable-next-line jsx-a11y/alt-text
-              <Image src={branding.logo_url} style={{ width: 240, height: 100, objectFit: 'contain', objectPositionX: 0, marginBottom: 6 }} />
+              <Image src={branding.logo_url} style={{ width: 240, height: 82, objectFit: 'contain', objectPositionX: 0, objectPositionY: 0, marginBottom: 6 }} />
             ) : null}
             {/* Absenderzeilen abschaltbar (Migration 028); ohne Logo immer an.
                 Der Firmenwortlaut steht in jedem Fall in der Fußzeile. */}
@@ -112,7 +114,10 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
               {[branding?.company_city, fmtDate(invoice.invoice_date)].filter(Boolean).join(', ')}
             </Text>
             <Text style={styles.metaText}>Fälligkeit: {fmtDate(invoice.due_date)}</Text>
-            {customer?.uid_number && <Text style={[styles.metaText, { marginTop: 4 }]}>Ihre UID: {customer.uid_number}</Text>}
+            {/* Zeile wird auch ohne UID reserviert (gleiche Kopfhöhe für alle) */}
+            <Text style={[styles.metaText, { marginTop: 4 }]}>
+              {customer?.uid_number ? `Ihre UID: ${customer.uid_number}` : ' '}
+            </Text>
           </View>
         </View>
 

@@ -143,15 +143,16 @@ export default async function UVADruckenPage({
     label: `${z.label} (Kz ${z.kz})`, bgl: z.bemessungsgrundlage, steuer: z.steuer, rate: 0,
   }));
 
+  // Kein eigenes <html>/<body> mehr – siehe Rechnungs-Druckseite:
+  // verschachteltes <html> löst seit Next 16 / React 19 den
+  // Hydration-Fehler #418 aus und die Seite bleibt leer.
   return (
-    <html lang="de">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>UVA {periodLabel} – {client.company_name}</title>
-        <style>{`
+    <>
+      <title>{`UVA ${periodLabel} – ${client.company_name}`}</title>
+      <style>{`
           * { box-sizing: border-box; margin: 0; padding: 0; }
-          body {
+          html, body { background: white; }
+          .sheet {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             font-size: 12px;
             color: #1a1a1a;
@@ -214,12 +215,11 @@ export default async function UVADruckenPage({
           .empty-note { padding: 16px; text-align: center; color: #9ca3af; font-size: 11px; }
           @media print {
             .no-print { display: none !important; }
-            body { padding: 0; }
+            .sheet { padding: 0; }
             @page { margin: 18mm 14mm; }
           }
         `}</style>
-      </head>
-      <body>
+      <div className="sheet">
         <DruckButtons />
 
         <div className="header">
@@ -360,7 +360,7 @@ export default async function UVADruckenPage({
             KPS Smart Buchhaltung
           </div>
         </div>
-      </body>
-    </html>
+      </div>
+    </>
   );
 }

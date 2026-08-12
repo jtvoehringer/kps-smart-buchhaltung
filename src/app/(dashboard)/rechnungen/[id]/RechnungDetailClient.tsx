@@ -451,12 +451,16 @@ export default function RechnungDetailClient({
 
       {/* Rechnungsvorschau */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
-        {/* Kopf */}
-        <div className="flex justify-between items-start mb-8">
-          <div>
+        {/* Kopf – das Logo läuft immer auf die Höhe des rechten Meta-Blocks
+            (RECHNUNG bis inkl. UID-Zeile; die wird auch ohne UID reserviert,
+            damit alle Mandanten-Logos gleich hoch ausfallen). */}
+        <div className="flex justify-between items-stretch mb-8">
+          <div className="flex flex-col">
             {branding?.logo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={branding.logo_url} alt="Logo" className="h-28 object-contain object-left mb-2" />
+              <div className="flex-1 min-h-0 mb-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={branding.logo_url} alt="Logo" className="h-full w-auto max-w-[400px] object-contain object-left" />
+              </div>
             ) : (
               <div className="text-lg font-bold text-gray-700 mb-1">
                 {/* Firmenname aus Branding-Adresse fehlt – wird im PDF-Druck via /drucken angezeigt */}
@@ -485,9 +489,9 @@ export default function RechnungDetailClient({
             <p className="text-xs text-gray-500">
               Fälligkeit: {new Date(invoice.due_date).toLocaleDateString('de-AT')}
             </p>
-            {invoice.customers?.uid_number && (
-              <p className="text-xs text-gray-500 mt-1">Ihre UID: {invoice.customers.uid_number}</p>
-            )}
+            <p className="text-xs text-gray-500 mt-1">
+              {invoice.customers?.uid_number ? `Ihre UID: ${invoice.customers.uid_number}` : ' '}
+            </p>
           </div>
         </div>
 

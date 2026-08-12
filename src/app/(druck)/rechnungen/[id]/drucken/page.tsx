@@ -76,18 +76,21 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
   // Rechnungskopf leer.
   const absenderImKopf = !branding?.logo_url || branding?.show_sender_in_header !== false;
 
+  // Kein eigenes <html>/<body> mehr: seit Next 16 / React 19 führt ein
+  // verschachteltes <html> unterhalb des Root-Layouts zum Hydration-Fehler
+  // #418 – der Browser verwirft dann den kompletten Seiteninhalt ("die
+  // Anfrage läuft ins Leere"). <title> und <style> hebt React selbst in
+  // den <head>; die Route liegt in der Gruppe (druck) und damit außerhalb
+  // der Dashboard-Hülle (keine Sidebar auf dem Ausdruck).
   return (
-    <html lang="de">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Rechnung {invoice.invoice_number || 'Entwurf'}</title>
-        <style>{`
+    <>
+      <title>{`Rechnung ${invoice.invoice_number || 'Entwurf'}`}</title>
+      <style>{`
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-                 font-size: 11pt; color: #222; background: #f5f5f5; }
+          html, body { background: #f5f5f5; }
+          .page, .no-print { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
           .page { background: white; max-width: 210mm; margin: 0 auto; padding: 18mm 18mm 14mm 18mm;
-                  min-height: 297mm; }
+                  min-height: 297mm; font-size: 11pt; color: #222; }
           .no-print { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 10px 20px;
                        display: flex; gap: 10px; align-items: center; }
           /* margin: 0 nimmt dem Browser den Randbereich, in den er Datum
@@ -99,8 +102,11 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
             .page { margin: 0; padding: 16mm 16mm 14mm 16mm; max-width: none; box-shadow: none; }
           }
           h1.invoice-title { font-size: 22pt; font-weight: 700; color: ${color}; letter-spacing: 1px; }
-          .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
-          .sender { line-height: 1.6; }
+          .header { display: flex; justify-content: space-between; align-items: stretch; margin-bottom: 30px; }
+          .sender { line-height: 1.6; display: flex; flex-direction: column; }
+          .logo-wrap { flex: 1; min-height: 0; margin-bottom: 8px; }
+          .logo-wrap img { height: 100%; width: auto; max-width: 320px;
+                           object-fit: contain; object-position: left; }
           .sender .company { font-size: 13pt; font-weight: 700; color: #111; margin-bottom: 2px; }
           .sender .detail { font-size: 9.5pt; color: #555; }
           .invoice-meta { text-align: right; }
@@ -157,19 +163,22 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
                         font-weight: 800; font-size: 14pt; padding: 6px 18px; transform: rotate(-3deg);
                         letter-spacing: 2px; margin-top: 12px; }
         `}</style>
-      </head>
-      <body>
-        <div className="no-print">
-          <DruckButtons invoiceId={id} />
-        </div>
+      <div className="no-print">
+        <DruckButtons invoiceId={id} />
+      </div>
 
         <div className="page">
           {/* Kopfzeile */}
+          {/* Das Logo läuft auf die Höhe des Meta-Blocks rechts (RECHNUNG bis
+              inkl. UID-Zeile – die wird auch ohne UID reserviert), damit alle
+              Mandanten-Logos gleich hoch ausfallen. */}
           <div className="header">
             <div className="sender">
               {branding?.logo_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={branding.logo_url} alt="Logo" style={{ height: '104px', objectFit: 'contain', objectPosition: 'left', marginBottom: '8px' }} />
+                <div className="logo-wrap">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={branding.logo_url} alt="Logo" />
+                </div>
               )}
               {/* Absenderzeilen sind abschaltbar (Migration 028). Ohne Logo
                   werden sie trotzdem gezeigt, sonst bliebe der Kopf leer.
@@ -197,7 +206,7 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
               <div className="date">
                 <div>{[branding?.company_city, fmtDate(invoice.invoice_date)].filter(Boolean).join(', ')}</div>
                 <div>Fälligkeit: {fmtDate(invoice.due_date)}</div>
-                {c?.uid_number && <div style={{ marginTop: '4px' }}>Ihre UID: {c.uid_number}</div>}
+                <div style={{ marginTop: '4px' }}>{c?.uid_number ? `Ihre UID: ${c.uid_number}` : ' '}</div>
               </div>
             </div>
           </div>
@@ -358,7 +367,6 @@ export default async function RechnungDruckenPage({ params }: { params: Promise<
             )}
           </div>
         </div>
-      </body>
-    </html>
+    </>
   );
 }
