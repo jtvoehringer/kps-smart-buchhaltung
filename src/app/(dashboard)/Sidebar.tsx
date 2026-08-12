@@ -30,9 +30,12 @@ const NAV_ACCENT = '#4F90E8'; // Blau (aktive Elemente)
 // Update fixer Bestandteil der Lösung und nicht mehr über modules_enabled
 // zu- oder abschaltbar (siehe MandantDetail/ModulToggle).
 function buildNav(role: string): NavEntry[] {
+  // Die Überschrift ist selbst ein Menüpunkt und führt zur
+  // Monatsübersicht (Design-Review August 2026) – die Auswertung, die
+  // vorher im Dashboard steckte.
   const buchungenGroup: NavEntry = {
     kind: 'group',
-    href: '/buchungen',
+    href: '/monatsuebersicht',
     label: 'EINNAHMEN & AUSGABEN',
     icon: ClipboardList,
     children: [
@@ -128,11 +131,18 @@ export default function Sidebar({ companyName, role }: Props) {
         {mainItems.map(item =>
           item.kind === 'group' ? (
             <div key={item.href}>
-              <div className="pt-1 pb-1.5 px-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+              <Link
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                className={`block pt-1 pb-1.5 px-2 group/gruppe`}
+                title="Monatsübersicht öffnen"
+              >
+                <span className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${
+                  isActive(item.href) ? 'text-white' : 'text-white/40 group-hover/gruppe:text-white/70'
+                }`}>
                   {item.label}
                 </span>
-              </div>
+              </Link>
               <div className="space-y-0.5">
                 {item.children.map(child => (
                   <NavSubLink
@@ -199,7 +209,7 @@ export default function Sidebar({ companyName, role }: Props) {
             className="rounded-full opacity-80"
           />
           <p className="text-[9px] text-white/40">
-            &copy; ICP Solutions GmbH &middot; v0.9
+            &copy; ICP Solutions &middot; v0.9
           </p>
         </div>
       </div>
