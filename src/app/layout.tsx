@@ -22,7 +22,9 @@ export const metadata: Metadata = {
   description: 'Digitale Buchführung für österreichische EA-Rechner',
   manifest: '/manifest.json',
   icons: {
-    icon: '/kps-logo.png',
+    // Produktzeichen (ICP-CD) als Favicon – das Kanzleilogo bleibt
+    // Login-Seite und Sidebar-Kopf vorbehalten.
+    icon: '/icons/icon-192.png',
     apple: '/icons/apple-touch-icon.png',
   },
   appleWebApp: {
