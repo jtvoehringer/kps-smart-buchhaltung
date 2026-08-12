@@ -51,11 +51,17 @@ export default async function DashboardPage() {
     );
   }
 
-  // Alle Buchungen laden (alle Jahre) + offene Posten für die Überfällig-Anzeige
-  const [{ data: monatssummen }, { data: openInvoices }, { data: openIncoming }] = await Promise.all([
-    // Monatssummen kommen aggregiert aus der Datenbank. Vorher wurden
-    // hier alle Buchungen aller Jahre geladen – dieselbe stille
-    // Abschneidung wie bei der UVA.
+  // Monatssummen (aggregiert), offene Posten, Rechnungsentwürfe und der
+  // UVA-Einreichstatus – Grundlage für Kennzahlen UND Aufgabenliste
+  // (Design-Review Welle 3: Dashboard auf Monat + Aufgaben).
+  const jahr = new Date().getFullYear();
+  const [
+    { data: monatssummen },
+    { data: openInvoices },
+    { data: openIncoming },
+    { count: draftCount },
+    { data: taxReturns },
+  ] = await Promise.all([
     supabase.rpc('monatssummen', { p_client_id: client.id }),
     supabase
       .from('invoices')
@@ -67,6 +73,16 @@ export default async function DashboardPage() {
       .select('id, vendor_name, invoice_number, due_date, amount_gross')
       .eq('client_id', client.id)
       .eq('status', 'open'),
+    supabase
+      .from('invoices')
+      .select('id', { count: 'exact', head: true })
+      .eq('client_id', client.id)
+      .eq('status', 'draft'),
+    supabase
+      .from('tax_returns')
+      .select('period_year, period_month, status')
+      .eq('client_id', client.id)
+      .gte('period_year', jahr - 1),
   ]);
 
   return (
@@ -75,6 +91,10 @@ export default async function DashboardPage() {
       monatssummen={monatssummen ?? []}
       openInvoices={openInvoices ?? []}
       openIncoming={openIncoming ?? []}
+      draftCount={draftCount ?? 0}
+      vatLiable={client.vat_liable !== false}
+      vatPeriod={(client.vat_period ?? 'quarterly') === 'monthly' ? 'monthly' : 'quarterly'}
+      taxReturns={taxReturns ?? []}
     />
   );
 }
