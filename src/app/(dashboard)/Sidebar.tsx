@@ -58,6 +58,8 @@ function buildNav(role: string): NavEntry[] {
     { kind: 'link', href: '/import',          label: 'Bank-Import',    icon: Landmark },
     { kind: 'link', href: '/konten',          label: 'Konten',         icon: CreditCard },
     { kind: 'link', href: '/monatsabschluss', label: 'Monatsabschluss', icon: CalendarCheck },
+    // Entscheidung 12.08.2026: der Klient stößt den Export zur Kanzlei an.
+    { kind: 'link', href: '/bmd-export',      label: 'BMD-Export',      icon: Upload },
   ];
 
   if (role === 'superadmin') {
@@ -79,7 +81,6 @@ function buildNav(role: string): NavEntry[] {
 const kanzleiItems: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/kanzlei',             label: 'Kanzlei-Übersicht', icon: Building2 },
   { href: '/kanzlei/benutzer',    label: 'Benutzer',           icon: Users },
-  { href: '/kanzlei/bmd-export',  label: 'BMD-Export',         icon: Upload },
 ];
 
 export default function Sidebar({ companyName, role }: Props) {

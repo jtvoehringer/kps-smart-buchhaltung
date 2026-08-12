@@ -837,7 +837,8 @@ export type Database = {
         Returns: string;
       };
       rechnung_bezahlt_buchen: {
-        Args: { p_invoice_id: string; p_category_id: string; p_paid_date: string };
+        // Migration 041: optional das Konto, mit dem bezahlt wurde
+        Args: { p_invoice_id: string; p_category_id: string; p_paid_date: string; p_account_id?: string | null };
         Returns: string;
       };
       // Migration 026 – Aggregation serverseitig statt im Browser

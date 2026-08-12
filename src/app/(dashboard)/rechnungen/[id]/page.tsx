@@ -46,6 +46,13 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
 
   if (!invoice) notFound();
 
+  const { data: accounts } = await supabase
+    .from('accounts')
+    .select('id, name, type')
+    .eq('client_id', membership.client_id)
+    .eq('is_active', true)
+    .order('name');
+
   const { data: attachments } = await admin
     .from('invoice_attachments')
     .select('id, file_name, storage_path, mime_type, file_size, created_at')
@@ -66,6 +73,7 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
       </div>
       <RechnungDetailClient
         attachments={attachments ?? []}
+        accounts={accounts ?? []}
         invoice={invoice}
         branding={branding ?? null}
         incomeCategories={incomeCategories ?? []}

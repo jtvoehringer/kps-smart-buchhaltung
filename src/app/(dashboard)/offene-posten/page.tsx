@@ -62,6 +62,14 @@ export default async function OffenePostenPage() {
     .eq('is_active', true)
     .order('name');
 
+  // Konten für die Zahlungszuordnung (Migration 041): womit wurde bezahlt?
+  const { data: accounts } = await supabase
+    .from('accounts')
+    .select('id, name, type')
+    .eq('client_id', client.id)
+    .eq('is_active', true)
+    .order('name');
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="mb-6">
@@ -77,6 +85,7 @@ export default async function OffenePostenPage() {
         hasInvoicing={true}
         outgoingInvoices={outgoingInvoices}
         incomingInvoices={incomingInvoices ?? []}
+        accounts={accounts ?? []}
         incomeCategories={(categories ?? []).filter(c => c.type === 'income')}
         expenseCategories={(categories ?? []).filter(c => c.type === 'expense')}
         suppliers={suppliers ?? []}

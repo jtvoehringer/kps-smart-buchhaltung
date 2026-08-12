@@ -39,9 +39,10 @@ export async function GET(req: NextRequest) {
     .eq('id', user.id)
     .maybeSingle();
 
-  if (!me || !['admin', 'kanzlei', 'superadmin'].includes(me.role)) {
+  if (!me) {
     return NextResponse.json({ error: 'Kein Zugriff' }, { status: 403 });
   }
+  const istKanzleiRolle = ['admin', 'kanzlei', 'superadmin'].includes(me.role);
 
   const { searchParams } = req.nextUrl;
   const clientId  = searchParams.get('clientId');
@@ -73,8 +74,23 @@ export async function GET(req: NextRequest) {
   if (!client) {
     return NextResponse.json({ error: 'Mandant nicht gefunden' }, { status: 404 });
   }
-  if (me.role !== 'superadmin' && client.tenant_id !== me.tenant_id) {
-    return NextResponse.json({ error: 'Kein Zugriff auf diesen Mandanten' }, { status: 403 });
+
+  if (istKanzleiRolle) {
+    if (me.role !== 'superadmin' && client.tenant_id !== me.tenant_id) {
+      return NextResponse.json({ error: 'Kein Zugriff auf diesen Mandanten' }, { status: 403 });
+    }
+  } else {
+    // Klient: nur der eigene Betrieb (Entscheidung vom 12.08.2026 –
+    // der Export zur Kanzlei wird vom Klienten angestoßen).
+    const { data: mitglied } = await admin
+      .from('client_memberships')
+      .select('client_id')
+      .eq('user_id', user.id)
+      .eq('client_id', clientId)
+      .maybeSingle();
+    if (!mitglied) {
+      return NextResponse.json({ error: 'Kein Zugriff auf diesen Mandanten' }, { status: 403 });
+    }
   }
 
   // Buchungen laden

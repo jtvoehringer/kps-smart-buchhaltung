@@ -58,6 +58,11 @@ type Branding = {
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
 
+type Konto = { id: string; name: string; type: string };
+const KONTO_ART: Record<string, string> = {
+  kontokorrent: 'Girokonto', kreditkarte: 'Kreditkarte', kreditkonto: 'Kreditkonto',
+};
+
 type Anhang = {
   id: string;
   file_name: string;
@@ -91,10 +96,11 @@ function heuteLokal() {
 }
 
 export default function RechnungDetailClient({
-  invoice, branding, incomeCategories, senderCompanyName, senderUid, attachments,
+  invoice, branding, incomeCategories, senderCompanyName, senderUid, attachments, accounts,
 }: {
   invoice: Invoice; branding: Branding; incomeCategories: Category[];
   senderCompanyName: string; senderUid: string | null; attachments: Anhang[];
+  accounts: Konto[];
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -103,6 +109,7 @@ export default function RechnungDetailClient({
   const [paidDate, setPaidDate] = useState(heuteLokal());
   const [showPay, setShowPay]   = useState(false);
   const [payCategoryId, setPayCategoryId] = useState(incomeCategories[0]?.id ?? '');
+  const [payAccountId, setPayAccountId] = useState(accounts.length === 1 ? accounts[0].id : '');
   const [error, setError]       = useState('');
 
   const [showSend, setShowSend]     = useState(false);
@@ -202,6 +209,8 @@ export default function RechnungDetailClient({
       p_invoice_id:  invoice.id,
       p_category_id: payCategoryId,
       p_paid_date:   paidDate,
+      // Migration 041: womit wurde bezahlt?
+      p_account_id:  payAccountId || null,
     });
 
     if (err) {
@@ -411,6 +420,18 @@ export default function RechnungDetailClient({
                 ))}
               </select>
             </div>
+            {accounts.length > 0 && (
+              <div className="min-w-[180px]">
+                <label htmlFor="pay-konto" className="text-xs font-medium text-green-700 block mb-1">Eingegangen auf</label>
+                <select id="pay-konto" value={payAccountId} onChange={e => setPayAccountId(e.target.value)}
+                  className="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+                  <option value="">Kein Konto</option>
+                  {accounts.map(k => (
+                    <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <button onClick={handleMarkPaid} disabled={loading}
               className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50">
               {loading ? 'Wird gebucht…' : 'Buchen'}

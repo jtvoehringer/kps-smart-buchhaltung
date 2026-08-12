@@ -78,8 +78,8 @@ export default function BmdExportClient({ clients }: Props) {
         </h2>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {/* Mandant */}
-          <div className="sm:col-span-3">
+          {/* Mandant – bei genau einem (Klienten-Sicht) keine Auswahl */}
+          <div className={clients.length === 1 ? 'hidden' : 'sm:col-span-3'}>
             <label htmlFor="bmdExportClient-0" className="block text-xs font-medium text-gray-500 mb-1">Mandant</label>
             <select id="bmdExportClient-0"
               value={clientId}

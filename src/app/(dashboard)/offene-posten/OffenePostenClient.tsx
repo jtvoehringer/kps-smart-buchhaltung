@@ -13,6 +13,11 @@ import NeueEingangsrechnungForm from './NeueEingangsrechnungForm';
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
 type Supplier = { id: string; name: string; contact_person: string | null };
+type Konto = { id: string; name: string; type: string };
+
+const KONTO_ART: Record<string, string> = {
+  kontokorrent: 'Girokonto', kreditkarte: 'Kreditkarte', kreditkonto: 'Kreditkonto',
+};
 
 type OutgoingInvoice = {
   id: string;
@@ -53,7 +58,7 @@ type IncomingInvoice = {
 function isOverdue(dueDate: string, today: Date) { return new Date(dueDate) < today; }
 
 export default function OffenePostenClient({
-  clientId, hasInvoicing, outgoingInvoices, incomingInvoices, incomeCategories, expenseCategories, suppliers,
+  clientId, hasInvoicing, outgoingInvoices, incomingInvoices, incomeCategories, expenseCategories, suppliers, accounts,
 }: {
   clientId: string;
   hasInvoicing: boolean;
@@ -62,6 +67,7 @@ export default function OffenePostenClient({
   incomeCategories: Category[];
   expenseCategories: Category[];
   suppliers: Supplier[];
+  accounts: Konto[];
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -75,6 +81,7 @@ export default function OffenePostenClient({
   const [outCategoryId, setOutCategoryId] = useState('');
   const [outSaving, setOutSaving] = useState(false);
   const [outError, setOutError] = useState('');
+  const [outAccountId, setOutAccountId] = useState('');
 
   function openOutBooking(inv: OutgoingInvoice) {
     setOutBookingId(inv.id);
@@ -84,6 +91,7 @@ export default function OffenePostenClient({
     // UVA-Zeitraum.
     setOutPaymentDate(new Date().toLocaleDateString('en-CA'));
     setOutCategoryId(incomeCategories[0]?.id ?? '');
+    setOutAccountId(accounts.length === 1 ? accounts[0].id : '');
     setOutError('');
   }
 
@@ -102,6 +110,9 @@ export default function OffenePostenClient({
       p_invoice_id:  inv.id,
       p_category_id: outCategoryId,
       p_paid_date:   outPaymentDate,
+      // Migration 041: womit wurde bezahlt? Ordnet die Buchung dem
+      // Konto zu und macht die Kontoabstimmung erst möglich.
+      p_account_id:  outAccountId || null,
     });
 
     if (rpcError) {
@@ -137,11 +148,13 @@ export default function OffenePostenClient({
   const [inCategoryId, setInCategoryId] = useState('');
   const [inSaving, setInSaving] = useState(false);
   const [inError, setInError] = useState('');
+  const [inAccountId, setInAccountId] = useState('');
 
   function openInBooking(inv: IncomingInvoice) {
     setInBookingId(inv.id);
     setInPaymentDate(heute());
     setInCategoryId(inv.category_id ?? expenseCategories[0]?.id ?? '');
+    setInAccountId(accounts.length === 1 ? accounts[0].id : '');
     setInError('');
   }
 
@@ -163,6 +176,7 @@ export default function OffenePostenClient({
         vat_amount:   Number(inv.vat_amount),
         booking_date: inPaymentDate,
         description:  beschreibung,
+        account_id:   inAccountId || null,
       })
       .select('id')
       .single();
@@ -300,6 +314,19 @@ export default function OffenePostenClient({
                                     {incomeCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                   </select>
                                 </div>
+                                {accounts.length > 0 && (
+                                  <div>
+                                    <label htmlFor={`op-${inv.id}-aus-konto`} className="block text-xs font-medium text-gray-600 mb-1">Bezahlt über</label>
+                                    <select id={`op-${inv.id}-aus-konto`} value={outAccountId} onChange={e => setOutAccountId(e.target.value)}
+                                      className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+                                      <option value="">Kein Konto</option>
+                                      {accounts.map(k => (
+                                        <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                )}
+
                                 <div>
                                   <p className="block text-xs font-medium text-gray-600 mb-1">Umsatzsteuer</p>
                                   <p className="text-sm text-gray-600 px-1 py-1.5">
@@ -440,6 +467,19 @@ export default function OffenePostenClient({
                                     {expenseCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                   </select>
                                 </div>
+                                {accounts.length > 0 && (
+                                  <div>
+                                    <label htmlFor={`op-${inv.id}-ein-konto`} className="block text-xs font-medium text-gray-600 mb-1">Bezahlt über</label>
+                                    <select id={`op-${inv.id}-ein-konto`} value={inAccountId} onChange={e => setInAccountId(e.target.value)}
+                                      className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+                                      <option value="">Kein Konto</option>
+                                      {accounts.map(k => (
+                                        <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                )}
+
                                 <span className="text-xs text-gray-400 pb-2">USt {inv.vat_rate}% (bei Erfassung festgelegt)</span>
                                 <button onClick={() => handleInBuchen(inv)} disabled={inSaving}
                                   className="inline-flex items-center gap-1.5 bg-expense hover:bg-expense-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
