@@ -51,7 +51,7 @@ export default async function KontoBearbeitenPage({ params }: { params: Promise<
           ← Konten
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#35609E]">{account.name}</h1>
+        <h1 className="text-2xl font-bold text-brand">{account.name}</h1>
       </div>
       <KontoForm clientId={membership.client_id} initial={initial} />
     </div>

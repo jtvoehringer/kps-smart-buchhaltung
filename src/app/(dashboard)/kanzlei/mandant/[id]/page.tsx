@@ -69,7 +69,7 @@ export default async function MandantDetailPage({
           ← Kanzlei
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#35609E]">{client.company_name}</h1>
+        <h1 className="text-2xl font-bold text-brand">{client.company_name}</h1>
         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
           client.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
         }`}>

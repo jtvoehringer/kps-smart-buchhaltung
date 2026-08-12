@@ -61,7 +61,7 @@ export default async function KontoabstimmungPage({ params }: { params: Promise<
           ← Konten
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#35609E] flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
           <Scale size={22} strokeWidth={1.75} className="text-accent-dark" />
           Kontoabstimmung – {account.name}
         </h1>

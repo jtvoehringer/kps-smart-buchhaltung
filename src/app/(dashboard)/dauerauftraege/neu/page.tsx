@@ -27,7 +27,7 @@ export default async function DauerauftragNeuPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#35609E]">Neuer Dauerauftrag</h1>
+        <h1 className="text-2xl font-bold text-brand">Neuer Dauerauftrag</h1>
         <p className="text-gray-500 text-sm mt-0.5">
           Wiederkehrende Buchung anlegen – wird automatisch täglich verarbeitet
         </p>

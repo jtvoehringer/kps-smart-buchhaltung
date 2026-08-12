@@ -138,7 +138,7 @@ export default function NeueEingangsrechnungForm({
     return (
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+        className="inline-flex items-center gap-1.5 bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
       >
         <Plus size={16} strokeWidth={2} />
         Neue Eingangsrechnung
@@ -160,7 +160,7 @@ export default function NeueEingangsrechnungForm({
           <label htmlFor="neueEingangsrechnungForm-0" className="block text-xs font-medium text-gray-600 mb-1">Lieferant</label>
           {suppliers.length > 0 && (
             <select id="neueEingangsrechnungForm-0" value={supplierId} onChange={e => handleSupplierSelect(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-1.5 focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-1.5 focus:outline-none focus:ring-2 focus:ring-brand">
               <option value="">— aus Lieferantenstamm wählen —</option>
               {suppliers.map(s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
@@ -168,12 +168,12 @@ export default function NeueEingangsrechnungForm({
             </select>
           )}
           <input type="text" value={vendorName} onChange={e => { setVendorName(e.target.value); setSupplierId(''); }} placeholder="z. B. Musterfirma GmbH"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
         </div>
         <div className="sm:col-span-2">
           <label htmlFor="neueEingangsrechnungForm-1" className="block text-xs font-medium text-gray-600 mb-1">Rechnungsnummer <span className="text-gray-400 font-normal">(optional)</span></label>
           <input id="neueEingangsrechnungForm-1" type="text" value={invoiceNumber} onChange={e => setInvoiceNumber(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
         </div>
       </div>
 
@@ -181,22 +181,22 @@ export default function NeueEingangsrechnungForm({
         <div>
           <label htmlFor="neueEingangsrechnungForm-2" className="block text-xs font-medium text-gray-600 mb-1">Rechnungsdatum</label>
           <input id="neueEingangsrechnungForm-2" type="date" value={invoiceDate} onChange={e => setInvoiceDate(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
         </div>
         <div>
           <label htmlFor="neueEingangsrechnungForm-3" className="block text-xs font-medium text-gray-600 mb-1">Fälligkeit</label>
           <input id="neueEingangsrechnungForm-3" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
         </div>
         <div>
           <label htmlFor="neueEingangsrechnungForm-4" className="block text-xs font-medium text-gray-600 mb-1">Netto (€)</label>
           <input id="neueEingangsrechnungForm-4" type="number" min="0.01" step="0.01" value={amountNet} onChange={e => setAmountNet(e.target.value)} placeholder="0,00"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
         </div>
         <div>
           <label htmlFor="neueEingangsrechnungForm-5" className="block text-xs font-medium text-gray-600 mb-1">USt %</label>
           <select id="neueEingangsrechnungForm-5" value={vatRate} onChange={e => setVatRate(Number(e.target.value))}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
             {VAT_RATES.map(r => <option key={r} value={r}>{r}%</option>)}
           </select>
         </div>
@@ -206,7 +206,7 @@ export default function NeueEingangsrechnungForm({
         <div>
           <label htmlFor="neueEingangsrechnungForm-6" className="block text-xs font-medium text-gray-600 mb-1">Kategorie <span className="text-gray-400 font-normal">(optional, Vorbelegung)</span></label>
           <select id="neueEingangsrechnungForm-6" value={categoryId} onChange={e => setCategoryId(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
             <option value="">Bei Zahlung auswählen</option>
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
@@ -214,7 +214,7 @@ export default function NeueEingangsrechnungForm({
         <div>
           <p className="block text-xs font-medium text-gray-600 mb-1">Beleg <span className="text-gray-400 font-normal">(optional)</span></p>
           <button type="button" onClick={() => fileInput.current?.click()}
-            className="w-full inline-flex items-center gap-1.5 justify-center text-xs text-[#35609E] hover:text-[#4F90E8] font-medium border border-[#35609E] hover:border-[#4F90E8] px-3 py-2 rounded-lg transition-colors">
+            className="w-full inline-flex items-center gap-1.5 justify-center text-xs text-brand hover:text-accent font-medium border border-brand hover:border-accent px-3 py-2 rounded-lg transition-colors">
             <Paperclip size={13} strokeWidth={2} />
             {file ? file.name : 'Datei wählen'}
           </button>

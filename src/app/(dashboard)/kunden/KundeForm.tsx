@@ -80,7 +80,7 @@ export default function KundeForm({
     setLoading(false);
   }
 
-  const inputCls = 'w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]';
+  const inputCls = 'w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
@@ -117,10 +117,10 @@ export default function KundeForm({
         <div className="flex gap-3">
           <input type="text" placeholder="PLZ" value={form.zip}
             onChange={e => set('zip', e.target.value)}
-            className="w-28 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+            className="w-28 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
           <input type="text" placeholder="Ort" value={form.city}
             onChange={e => set('city', e.target.value)}
-            className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+            className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
         </div>
 
         <input type="text" placeholder="Land" value={form.country}
@@ -150,7 +150,7 @@ export default function KundeForm({
           <input id="kundeForm-5" type="number" required min={0} max={365} step={1}
             value={form.payment_days}
             onChange={e => set('payment_days', e.target.value === '' ? 0 : Number(e.target.value))}
-            className="w-40 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+            className="w-40 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
           <p className="text-xs text-gray-400 mt-1">
             {Number(form.payment_days) === 0
               ? 'Zahlbar bei Erhalt – die Rechnung ist ab dem Folgetag überfällig.'
@@ -163,7 +163,7 @@ export default function KundeForm({
         <h2 className="font-semibold text-gray-800 mb-3">Notiz (intern)</h2>
         <textarea rows={3} placeholder="Interne Anmerkungen…" value={form.notes}
           onChange={e => set('notes', e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] resize-none" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none" />
       </div>
 
       {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
@@ -179,7 +179,7 @@ export default function KundeForm({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 py-3 rounded-xl bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold transition-colors disabled:opacity-50"
+          className="flex-1 py-3 rounded-xl bg-brand hover:bg-accent text-white text-sm font-semibold transition-colors disabled:opacity-50"
         >
           {loading ? 'Speichern…' : form.id ? 'Änderungen speichern' : 'Kunden anlegen'}
         </button>

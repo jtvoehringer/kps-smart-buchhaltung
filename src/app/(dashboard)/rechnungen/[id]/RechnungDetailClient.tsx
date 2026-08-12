@@ -292,7 +292,7 @@ export default function RechnungDetailClient({
               href={`/rechnungen/${invoice.id}/drucken`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-2 text-sm bg-[#35609E] text-white rounded-lg hover:bg-[#4F90E8] transition-colors font-medium"
+              className="px-4 py-2 text-sm bg-brand text-white rounded-lg hover:bg-accent transition-colors font-medium"
             >
               PDF / Drucken
             </a>
@@ -340,7 +340,7 @@ export default function RechnungDetailClient({
               <p className="text-xs font-medium text-gray-500">
                 Weitere Anhänge <span className="text-gray-400 font-normal">(z.B. Leistungs-/Zeitnachweis – PDF oder Bild, max. 10 MB)</span>
               </p>
-              <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#35609E] hover:text-[#4F90E8] cursor-pointer">
+              <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-accent cursor-pointer">
                 {anhangLaedt ? 'Lädt…' : '+ Datei hinzufügen'}
                 <input
                   type="file" multiple className="hidden"
@@ -359,7 +359,7 @@ export default function RechnungDetailClient({
                     <button
                       type="button"
                       onClick={() => void anhangOeffnen(a)}
-                      className="text-gray-700 hover:text-[#35609E] hover:underline underline-offset-2 truncate text-left"
+                      className="text-gray-700 hover:text-brand hover:underline underline-offset-2 truncate text-left"
                       title="Anhang öffnen"
                     >
                       {a.file_name}

@@ -78,7 +78,7 @@ export default function StammsatzRechnungen({
                   <tr key={z.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
                     <td className="px-2 py-2 font-mono text-xs text-gray-700">
                       {z.href ? (
-                        <Link href={z.href} className="hover:text-[#35609E] hover:underline">
+                        <Link href={z.href} className="hover:text-brand hover:underline">
                           {zelleNummer}
                         </Link>
                       ) : zelleNummer}

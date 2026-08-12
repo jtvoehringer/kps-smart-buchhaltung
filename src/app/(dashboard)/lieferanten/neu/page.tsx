@@ -29,7 +29,7 @@ export default async function NeuerLieferantPage() {
           ← Lieferanten
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#35609E]">Neuer Lieferant</h1>
+        <h1 className="text-2xl font-bold text-brand">Neuer Lieferant</h1>
       </div>
       <LieferantForm clientId={membership.client_id} />
     </div>

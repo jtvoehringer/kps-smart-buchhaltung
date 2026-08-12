@@ -116,7 +116,7 @@ export default function BuchungslisteClient({
             className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30">
             <ChevronLeft size={14} strokeWidth={2} />
           </button>
-          <span className="font-bold text-[#35609E] w-12 text-center text-sm">{year}</span>
+          <span className="font-bold text-brand w-12 text-center text-sm">{year}</span>
           <button onClick={() => setFilterYear(availableYears[availableYears.indexOf(year) - 1] ?? year)}
             disabled={year === availableYears[0]}
             className="w-7 h-7 flex items-center justify-center rounded border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30">
@@ -128,7 +128,7 @@ export default function BuchungslisteClient({
           <select id="buchungslisteClient-0"
             value={filterMonth}
             onChange={e => setFilterMonth(Number(e.target.value))}
-            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
           >
             {MONTHS.map((m, i) => <option key={i} value={i}>{m}</option>)}
           </select>
@@ -142,7 +142,7 @@ export default function BuchungslisteClient({
                 filterType === t
                   ? t === 'income' ? 'bg-income text-white'
                   : t === 'expense' ? 'bg-expense text-white'
-                  : 'bg-[#35609E] text-white'
+                  : 'bg-brand text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -252,7 +252,7 @@ export default function BuchungslisteClient({
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`/buchungen/${t.id}/bearbeiten`}
-                            className="text-gray-300 hover:text-[#35609E] transition-colors"
+                            className="text-gray-300 hover:text-brand transition-colors"
                             title="Buchung bearbeiten"
                           >
                             <Pencil size={14} strokeWidth={2} />

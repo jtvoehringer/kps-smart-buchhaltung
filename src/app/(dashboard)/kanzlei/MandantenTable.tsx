@@ -40,12 +40,12 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Mandant suchen…"
-              className="w-full sm:w-56 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+              className="w-full sm:w-56 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
             />
           )}
           <Link
             href="/kanzlei/mandant-neu"
-            className="bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+            className="bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
           >
             Neuer Mandant
           </Link>
@@ -57,7 +57,7 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
           <div className="text-4xl mb-3"></div>
           <p className="text-sm">Noch keine Mandanten angelegt</p>
           <p className="text-xs mt-2">
-            <Link href="/kanzlei/mandant-neu" className="text-[#35609E] hover:underline">
+            <Link href="/kanzlei/mandant-neu" className="text-brand hover:underline">
               Ersten Mandanten anlegen →
             </Link>
           </p>
@@ -86,7 +86,7 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
               <tr key={r.id} className="border-t border-gray-50 hover:bg-gray-50/50">
                 <td className="px-6 py-3">
                   <Link href={`/kanzlei/mandant/${r.id}`} className="group block">
-                    <div className="font-medium text-gray-800 group-hover:text-[#35609E] group-hover:underline">
+                    <div className="font-medium text-gray-800 group-hover:text-brand group-hover:underline">
                       {r.company_name}
                     </div>
                     {r.uid_number && <div className="text-xs text-gray-400">{r.uid_number}</div>}
@@ -98,10 +98,10 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
                 <td className="px-4 py-3 text-gray-500">
                   {r.vat_period === 'monthly' ? 'Monatlich' : 'Vierteljährlich'}
                 </td>
-                <td className="px-4 py-3 text-right text-[#00897B]">
+                <td className="px-4 py-3 text-right text-income">
                   {r.income > 0 ? formatCurrency(r.income) : '—'}
                 </td>
-                <td className="px-4 py-3 text-right text-[#C62828]">
+                <td className="px-4 py-3 text-right text-expense">
                   {r.expense > 0 ? formatCurrency(r.expense) : '—'}
                 </td>
                 <td className="px-4 py-3 text-right text-gray-600">{r.count}</td>
@@ -118,7 +118,7 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
                 <td className="px-4 py-3 text-center">
                   <Link
                     href={`/kanzlei/mandant/${r.id}`}
-                    className="text-xs text-[#35609E] hover:text-[#4F90E8] font-medium hover:underline"
+                    className="text-xs text-brand hover:text-accent font-medium hover:underline"
                   >
                     Bearbeiten
                   </Link>

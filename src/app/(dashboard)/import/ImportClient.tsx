@@ -432,7 +432,7 @@ export default function ImportClient({
           onDrop={onDrop}
           onClick={() => fileInput.current?.click()}
           className={`border-2 border-dashed rounded-2xl px-8 py-12 text-center cursor-pointer transition-colors ${
-            dragOver ? 'border-[#35609E] bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+            dragOver ? 'border-brand bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
           }`}
         >
                     <p className="text-gray-700 font-semibold mb-1">Kontoauszug hierher ziehen</p>
@@ -469,7 +469,7 @@ export default function ImportClient({
               <p className="text-sm text-gray-500">
                 {rows.length} Zeilen · {incomeRows.length} Einnahmen · {expenseRows.length} Ausgaben
                 {dupCount > 0 && <span className="ml-2 text-amber-600">{dupCount} bereits importiert</span>}
-                {matchCount > 0 && <span className="ml-2 text-[#35609E]">{matchCount} mit Offenen Posten verknüpft</span>}
+                {matchCount > 0 && <span className="ml-2 text-brand">{matchCount} mit Offenen Posten verknüpft</span>}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -479,7 +479,7 @@ export default function ImportClient({
                   <select id="importClient-0"
                     value={accountId}
                     onChange={e => setAccountId(e.target.value)}
-                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#35609E]"
+                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand"
                   >
                     <option value="">– kein Konto –</option>
                     {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -509,7 +509,7 @@ export default function ImportClient({
                 <div className="flex gap-3 mt-2">
                   <button
                     onClick={() => router.push('/buchungen')}
-                    className="px-4 py-1.5 bg-[#35609E] text-white text-xs font-semibold rounded-lg hover:bg-[#4F90E8] transition-colors"
+                    className="px-4 py-1.5 bg-brand text-white text-xs font-semibold rounded-lg hover:bg-accent transition-colors"
                   >
                     → Buchungsübersicht
                   </button>
@@ -531,7 +531,7 @@ export default function ImportClient({
                 type="checkbox"
                 checked={selectedCount > 0 && selectedCount === rows.filter(r => !r.isDuplicate).length}
                 onChange={e => toggleAll(e.target.checked)}
-                className="w-4 h-4 accent-[#35609E]"
+                className="w-4 h-4 accent-brand"
               />
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                 {selectedCount} von {rows.filter(r => !r.isDuplicate).length} ausgewählt
@@ -570,7 +570,7 @@ export default function ImportClient({
                             type="checkbox"
                             checked={row.selected}
                             onChange={() => toggleRow(idx)}
-                            className="w-4 h-4 accent-[#35609E]"
+                            className="w-4 h-4 accent-brand"
                           />
                         )}
                       </td>
@@ -586,15 +586,15 @@ export default function ImportClient({
                         </p>
                       </td>
                       <td className={`px-3 py-2 text-right font-semibold whitespace-nowrap ${
-                        row.type === 'income' ? 'text-[#00897B]' : 'text-[#C62828]'
+                        row.type === 'income' ? 'text-income' : 'text-expense'
                       }`}>
                         {row.type === 'income' ? '+' : '−'}{formatCurrency(row.amount)}
                       </td>
                       <td className="px-3 py-2">
                         {!row.isDuplicate && row.match && row.linked ? (
                           <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1.5">
-                            <Link2 size={13} strokeWidth={2} className="text-[#35609E] flex-shrink-0" />
-                            <span className="text-xs text-[#35609E] font-medium truncate flex-1">
+                            <Link2 size={13} strokeWidth={2} className="text-brand flex-shrink-0" />
+                            <span className="text-xs text-brand font-medium truncate flex-1">
                               {row.match.kind === 'invoice'
                                 ? `${row.match.invoice.invoice_number} · ${row.match.invoice.customer_name}`
                                 : `${row.match.invoice.vendor_name}${row.match.invoice.invoice_number ? ` · ${row.match.invoice.invoice_number}` : ''}`}
@@ -613,7 +613,7 @@ export default function ImportClient({
                             <select
                               value={row.categoryId}
                               onChange={e => setCat(idx, e.target.value)}
-                              className={`w-full border rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#35609E] ${
+                              className={`w-full border rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-brand ${
                                 !row.categoryId ? 'border-amber-300 bg-amber-50' : 'border-gray-200'
                               }`}
                             >
@@ -634,7 +634,7 @@ export default function ImportClient({
                                 type="button"
                                 onClick={() => toggleLinked(idx)}
                                 title="Vorgeschlagene Verknüpfung wieder übernehmen"
-                                className="text-gray-300 hover:text-[#35609E] flex-shrink-0"
+                                className="text-gray-300 hover:text-brand flex-shrink-0"
                               >
                                 <Link2 size={13} strokeWidth={2} />
                               </button>
@@ -669,7 +669,7 @@ export default function ImportClient({
                 <button
                   onClick={handleImport}
                   disabled={importing || importable === 0}
-                  className="px-6 py-3 bg-[#35609E] hover:bg-[#4F90E8] text-white font-semibold rounded-xl transition-colors disabled:opacity-40"
+                  className="px-6 py-3 bg-brand hover:bg-accent text-white font-semibold rounded-xl transition-colors disabled:opacity-40"
                 >
                   {importing
                     ? (fortschritt

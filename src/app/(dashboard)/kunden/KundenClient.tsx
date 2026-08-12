@@ -59,7 +59,7 @@ export default function KundenClient({
         <p className="text-gray-500 text-sm mb-4">Noch keine Kunden angelegt.</p>
         <Link
           href="/kunden/neu"
-          className="inline-block bg-[#35609E] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#4F90E8] transition-colors"
+          className="inline-block bg-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-accent transition-colors"
         >
           Ersten Kunden anlegen
         </Link>
@@ -105,7 +105,7 @@ export default function KundenClient({
                 <tr key={c.id} className="border-t border-gray-50 hover:bg-gray-50/50">
                   <td className="px-4 py-3">
                     <Link href={`/kunden/${c.id}`} className="group block">
-                      <div className="font-medium text-gray-800 group-hover:text-[#35609E] transition-colors">{c.name}</div>
+                      <div className="font-medium text-gray-800 group-hover:text-brand transition-colors">{c.name}</div>
                       {c.contact_person && (
                         <div className="text-xs text-gray-400">{c.contact_person}</div>
                       )}
@@ -126,7 +126,7 @@ export default function KundenClient({
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/kunden/${c.id}`}
-                        className="text-gray-300 hover:text-[#35609E] transition-colors"
+                        className="text-gray-300 hover:text-brand transition-colors"
                         title="Bearbeiten"
                       >
                         <Pencil size={14} strokeWidth={2} />

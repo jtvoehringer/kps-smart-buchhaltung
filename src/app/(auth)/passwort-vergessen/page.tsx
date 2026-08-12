@@ -32,8 +32,8 @@ export default function PasswortVergessenPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#E3F2FD]">
       <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="inline-block bg-[#35609E] text-white text-sm font-bold px-3 py-1 rounded mb-3">KPS</div>
-          <h1 className="text-2xl font-bold text-[#35609E]">Passwort zurücksetzen</h1>
+          <div className="inline-block bg-brand text-white text-sm font-bold px-3 py-1 rounded mb-3">KPS</div>
+          <h1 className="text-2xl font-bold text-brand">Passwort zurücksetzen</h1>
           <p className="text-gray-500 text-sm mt-1">Wir senden dir einen Reset-Link per E-Mail</p>
         </div>
 
@@ -44,7 +44,7 @@ export default function PasswortVergessenPage() {
             <p className="text-sm text-gray-500">
               Schau in dein Postfach bei <strong>{email}</strong> und klicke auf den Link.
             </p>
-            <Link href="/login" className="block text-sm text-[#35609E] hover:underline mt-4">
+            <Link href="/login" className="block text-sm text-brand hover:underline mt-4">
               ← Zurück zum Login
             </Link>
           </div>
@@ -56,12 +56,12 @@ export default function PasswortVergessenPage() {
                 type="email" name="email" required autoComplete="email"
                 value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="max@mustermann.at"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
             {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
             <button type="submit" disabled={loading}
-              className="w-full bg-[#35609E] hover:bg-[#4F90E8] text-white font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-50">
+              className="w-full bg-brand hover:bg-accent text-white font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-50">
               {loading ? 'Senden…' : 'Reset-Link senden'}
             </button>
             <Link href="/login" className="block text-center text-sm text-gray-400 hover:text-gray-600">

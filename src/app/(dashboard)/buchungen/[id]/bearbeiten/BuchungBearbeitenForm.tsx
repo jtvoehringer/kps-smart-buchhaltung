@@ -217,14 +217,14 @@ export default function BuchungBearbeitenForm({
       <div>
         <label htmlFor="buchungBearbeitenForm-0" className="block text-sm font-medium text-gray-700 mb-1">Buchungsdatum</label>
         <input id="buchungBearbeitenForm-0" type="date" required value={bookingDate} onChange={e => setBookingDate(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
       </div>
 
       {/* Kategorie */}
       <div>
         <label htmlFor="buchungBearbeitenForm-1" className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
         <select id="buchungBearbeitenForm-1" required value={categoryId} onChange={e => setCategoryId(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
           {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </div>
@@ -235,13 +235,13 @@ export default function BuchungBearbeitenForm({
           <label htmlFor="buchungBearbeitenForm-2" className="block text-sm font-medium text-gray-700 mb-1">{isBrutto ? 'Brutto (€)' : 'Netto (€)'}</label>
           <input id="buchungBearbeitenForm-2" type="number" required min="0.01" step="0.01" value={amount} onChange={e => setAmount(e.target.value)}
             disabled={isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten')}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] disabled:bg-gray-100 disabled:cursor-not-allowed" />
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand disabled:bg-gray-100 disabled:cursor-not-allowed" />
         </div>
         <div>
           <label htmlFor="buchungBearbeitenForm-3" className="block text-sm font-medium text-gray-700 mb-1">USt %</label>
           <select id="buchungBearbeitenForm-3" value={vatRate} onChange={e => setVatRate(Number(e.target.value))}
             disabled={isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten')}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] disabled:bg-gray-100 disabled:cursor-not-allowed">
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand disabled:bg-gray-100 disabled:cursor-not-allowed">
             {[0, 10, 13, 20].map(r => <option key={r} value={r}>{r} %</option>)}
           </select>
         </div>
@@ -264,7 +264,7 @@ export default function BuchungBearbeitenForm({
           id="ust-kz"
           value={ustKennzeichen}
           onChange={e => setUstKennzeichen(e.target.value as UstKennzeichen)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
         >
           {kennzeichenFuer(type).map(k => (
             <option key={k.wert} value={k.wert}>{k.label}</option>
@@ -285,7 +285,7 @@ export default function BuchungBearbeitenForm({
       {type === 'expense' && (
         <label className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-3 cursor-pointer">
           <input type="checkbox" checked={isEAuto} onChange={e => setIsEAuto(e.target.checked)}
-            className="mt-0.5 w-4 h-4 accent-[#35609E]" />
+            className="mt-0.5 w-4 h-4 accent-brand" />
           <span className="text-sm">
             <span className="inline-flex items-center gap-1.5 font-medium text-blue-900">
               <BatteryCharging size={15} strokeWidth={2} />
@@ -470,7 +470,7 @@ export default function BuchungBearbeitenForm({
         </label>
         <input id="buchungBearbeitenForm-13" type="text" placeholder="z.B. Rechnung Nr. 2024-001 …" value={description}
           onChange={e => setDescription(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
       </div>
 
       {/* Belegverwaltung */}

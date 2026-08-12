@@ -51,7 +51,7 @@ export default function MonatsuebersichtClient({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#35609E] flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
             <CalendarRange size={22} strokeWidth={1.75} className="text-accent-dark" />
             Monatsübersicht
           </h1>
@@ -67,7 +67,7 @@ export default function MonatsuebersichtClient({
             disabled={selectedYear === availableYears[availableYears.length - 1]}
             className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
           >‹</button>
-          <span className="font-bold text-[#35609E] text-lg w-16 text-center">{selectedYear}</span>
+          <span className="font-bold text-brand text-lg w-16 text-center">{selectedYear}</span>
           <button
             onClick={() => setSelectedYear(y => {
               const idx = availableYears.indexOf(y);
@@ -94,26 +94,26 @@ export default function MonatsuebersichtClient({
             {monthly.map((m, i) => (
               <tr key={m.label} className={`border-t border-gray-50 hover:bg-gray-50 ${i % 2 === 0 ? '' : 'bg-gray-50/30'}`}>
                 <td className="px-6 py-3 font-medium text-gray-700">{m.label}</td>
-                <td className="px-4 py-3 text-right text-[#00897B]">{m.income > 0 ? formatCurrency(m.income) : '—'}</td>
-                <td className="px-4 py-3 text-right text-[#C62828]">{m.expense > 0 ? formatCurrency(m.expense) : '—'}</td>
-                <td className={`px-4 py-3 text-right font-medium ${m.balance >= 0 ? 'text-[#00897B]' : 'text-[#C62828]'}`}>
+                <td className="px-4 py-3 text-right text-income">{m.income > 0 ? formatCurrency(m.income) : '—'}</td>
+                <td className="px-4 py-3 text-right text-expense">{m.expense > 0 ? formatCurrency(m.expense) : '—'}</td>
+                <td className={`px-4 py-3 text-right font-medium ${m.balance >= 0 ? 'text-income' : 'text-expense'}`}>
                   {m.income > 0 || m.expense > 0 ? formatCurrency(Math.abs(m.balance)) : '—'}
                 </td>
-                <td className={`px-6 py-3 text-right ${m.vat >= 0 ? 'text-[#C62828]' : 'text-[#00897B]'}`}>
+                <td className={`px-6 py-3 text-right ${m.vat >= 0 ? 'text-expense' : 'text-income'}`}>
                   {m.income > 0 || m.expense > 0 ? formatCurrency(Math.abs(m.vat)) : '—'}
                 </td>
               </tr>
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t-2 border-gray-200 bg-[#35609E]/5 font-semibold">
-              <td className="px-6 py-3 text-[#35609E]">Jahrestotal</td>
-              <td className="px-4 py-3 text-right text-[#00897B]">{formatCurrency(totalIncome)}</td>
-              <td className="px-4 py-3 text-right text-[#C62828]">{formatCurrency(totalExpense)}</td>
-              <td className={`px-4 py-3 text-right ${totalIncome - totalExpense >= 0 ? 'text-[#00897B]' : 'text-[#C62828]'}`}>
+            <tr className="border-t-2 border-gray-200 bg-brand/5 font-semibold">
+              <td className="px-6 py-3 text-brand">Jahrestotal</td>
+              <td className="px-4 py-3 text-right text-income">{formatCurrency(totalIncome)}</td>
+              <td className="px-4 py-3 text-right text-expense">{formatCurrency(totalExpense)}</td>
+              <td className={`px-4 py-3 text-right ${totalIncome - totalExpense >= 0 ? 'text-income' : 'text-expense'}`}>
                 {formatCurrency(Math.abs(totalIncome - totalExpense))}
               </td>
-              <td className={`px-6 py-3 text-right ${totalVat >= 0 ? 'text-[#C62828]' : 'text-[#00897B]'}`}>
+              <td className={`px-6 py-3 text-right ${totalVat >= 0 ? 'text-expense' : 'text-income'}`}>
                 {formatCurrency(Math.abs(totalVat))}
               </td>
             </tr>

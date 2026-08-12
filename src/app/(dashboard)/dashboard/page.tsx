@@ -33,13 +33,13 @@ export default async function DashboardPage() {
     return (
       <div className="h-full flex items-center justify-center p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 w-full max-w-lg text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#35609E] text-white text-sm font-black mb-5">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand text-white text-sm font-black mb-5">
             KPS
           </div>
-          <h1 className="text-2xl font-bold text-[#35609E] mb-2">Willkommen!</h1>
+          <h1 className="text-2xl font-bold text-brand mb-2">Willkommen!</h1>
           <p className="text-gray-500 mb-6 leading-relaxed">
             Der Login funktioniert.{' '}
-            <span className="text-[#00897B] font-medium">&#x2713;</span>
+            <span className="text-income font-medium">&#x2713;</span>
             <br />
             Ihr Buchführungs-Profil wird von der Kanzlei eingerichtet.
           </p>

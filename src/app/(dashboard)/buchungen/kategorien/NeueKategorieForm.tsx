@@ -62,7 +62,7 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
     return (
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+        className="inline-flex items-center gap-1.5 bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
       >
         <Plus size={16} strokeWidth={2} />
         Neue Kategorie
@@ -94,7 +94,7 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="z. B. Büromaterial"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
           />
         </div>
 
@@ -133,7 +133,7 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
           <select id="neueKategorieForm-1"
             value={vatRate}
             onChange={e => setVatRate(Number(e.target.value) as VatRate)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
           >
             {VAT_RATES.map(r => <option key={r} value={r}>{r}%</option>)}
           </select>
@@ -148,7 +148,7 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
             value={kontoNr}
             onChange={e => setKontoNr(e.target.value)}
             placeholder="z. B. 7300"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
           />
         </div>
       </div>
@@ -159,7 +159,7 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex items-center gap-1.5 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <Plus size={14} strokeWidth={2} />}
           Speichern

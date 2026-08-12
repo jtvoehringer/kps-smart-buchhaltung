@@ -47,13 +47,13 @@ export default function AppEinladungCard({ defaultEmail }: { defaultEmail: strin
           value={email}
           onChange={e => setEmail(e.target.value)}
           placeholder="name@beispiel.at"
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
         />
         <button
           type="button"
           onClick={handleSend}
           disabled={sending}
-          className="inline-flex items-center justify-center gap-2 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 bg-brand hover:bg-accent text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-50"
         >
           {sending ? <Loader2 size={15} strokeWidth={2} className="animate-spin" /> : <Send size={15} strokeWidth={2} />}
           Link senden

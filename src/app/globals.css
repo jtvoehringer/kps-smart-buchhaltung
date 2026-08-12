@@ -3,18 +3,24 @@
 @tailwind utilities;
 
 :root {
-  /* IC&P Corporate Design (Grau/Blau) */
-  --brand:        #707883;  /* Primärfarbe – Grau */
-  --brand-dark:   #3F454C;  /* Grau dunkel – Sidebar/Headlines */
-  --brand-light:  #AEB4BC;  /* Grau hell */
-  --accent:       #4F90E8;  /* Sekundärfarbe – Blau (Buttons, aktive Elemente) */
-  --accent-dark:  #35609E;  /* Blau dunkel (Hover, Rechnungs-Akzent) */
-  --surface:      #F6F7F9;  /* Hintergrund */
-  --surface-band: #E7F0FC;  /* Akzent-Band (Hinweisboxen) */
-  --surface-card: #CFD9E6;  /* Grafik-Karten */
+  /* ICP Corporate Design (August 2026) – Welle 2 des Design-Reviews.
+     Navy konstant; Signal ist DIE Aktionsfarbe und die einzige Größe,
+     die eine Kanzlei austauschen kann (branding.brand_color setzt
+     --signal-rgb im Dashboard-Layout). */
+  --navy:         #14355C;
+  --navy-dark:    #0E2540;
+  --signal-rgb:   71 166 204;   /* #47A6CC – als RGB für Tailwind-Opacity */
+  --flaeche:      #F5F7F9;
+  --kontrast:     #17181A;
+  --text-body:    #45566B;
+  --text-label:   #8794A5;
   --white:        #FFFFFF;
 
-  /* Funktionsfarben (unabhängig vom Brand) */
-  --color-income:  #00897B;  /* Einnahmen – Grün */
-  --color-expense: #C62828;  /* Ausgaben – Rot */
+  /* Aliasnamen der alten Token-Generation – zeigen auf das neue CD,
+     bis auch die letzte Stelle direkt die Tailwind-Tokens nutzt. */
+  --brand:        var(--navy);
+  --brand-dark:   var(--navy-dark);
+  --accent:       #47A6CC;
+  --accent-dark:  var(--navy);
+  --surface:      var(--flaeche);
 }

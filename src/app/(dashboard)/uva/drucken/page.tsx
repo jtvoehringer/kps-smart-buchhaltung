@@ -160,9 +160,9 @@ export default async function UVADruckenPage({
             max-width: 800px;
             margin: 0 auto;
           }
-          .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; border-bottom: 2px solid #3F454C; padding-bottom: 16px; }
+          .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; border-bottom: 2px solid #14355C; padding-bottom: 16px; }
           .logo-block { display: flex; align-items: center; gap: 12px; }
-          .logo { width: 36px; height: 36px; background: #3F454C; color: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 10px; letter-spacing: 0.5px; }
+          .logo { width: 36px; height: 36px; background: #14355C; color: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 10px; letter-spacing: 0.5px; }
           .brand-name { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #888; }
           .company-name { font-size: 15px; font-weight: 700; color: #35609E; margin-top: 2px; }
           .header-right { text-align: right; }

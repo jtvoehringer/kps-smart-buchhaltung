@@ -101,7 +101,7 @@ export default function MonatsabschlussClient({
                       canReopen && (
                         <button
                           onClick={() => handleReopen(m)}
-                          className="text-xs font-semibold text-gray-500 hover:text-[#35609E] transition-colors"
+                          className="text-xs font-semibold text-gray-500 hover:text-brand transition-colors"
                         >
                           Wieder öffnen
                         </button>
@@ -110,7 +110,7 @@ export default function MonatsabschlussClient({
                       <button
                         onClick={() => handleClose(m)}
                         disabled={m.txCount === 0}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#35609E] hover:bg-[#4F90E8] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-30"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-brand hover:bg-accent px-3 py-1.5 rounded-lg transition-colors disabled:opacity-30"
                       >
                         <CalendarCheck size={13} strokeWidth={2} />
                         Abschließen

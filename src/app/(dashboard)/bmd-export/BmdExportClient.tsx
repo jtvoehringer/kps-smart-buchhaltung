@@ -84,7 +84,7 @@ export default function BmdExportClient({ clients }: Props) {
             <select id="bmdExportClient-0"
               value={clientId}
               onChange={e => { setClientId(e.target.value); setPreviewRows(null); setSummen(null); }}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 bg-white"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 bg-white"
             >
               {clients.length === 0 && (
                 <option value="">Keine Mandanten gefunden</option>
@@ -102,7 +102,7 @@ export default function BmdExportClient({ clients }: Props) {
               type="date"
               value={dateFrom}
               onChange={e => { setDateFrom(e.target.value); setPreviewRows(null); setSummen(null); }}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
             />
           </div>
 
@@ -113,7 +113,7 @@ export default function BmdExportClient({ clients }: Props) {
               type="date"
               value={dateTo}
               onChange={e => { setDateTo(e.target.value); setPreviewRows(null); setSummen(null); }}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
             />
           </div>
 
@@ -131,7 +131,7 @@ export default function BmdExportClient({ clients }: Props) {
                     setPreviewRows(null);
                     setSummen(null);
                   }}
-                  className="text-xs px-2.5 py-1 rounded-md border border-[#35609E]/20 text-[#35609E] hover:bg-[#35609E]/5 transition-colors"
+                  className="text-xs px-2.5 py-1 rounded-md border border-brand/20 text-brand hover:bg-brand/5 transition-colors"
                 >
                   {y}
                 </button>
@@ -146,7 +146,7 @@ export default function BmdExportClient({ clients }: Props) {
                     key={q}
                     type="button"
                     onClick={() => { setDateFrom(from); setDateTo(to); setPreviewRows(null); setSummen(null); }}
-                    className="text-xs px-2.5 py-1 rounded-md border border-[#35609E]/20 text-[#35609E] hover:bg-[#35609E]/5 transition-colors"
+                    className="text-xs px-2.5 py-1 rounded-md border border-brand/20 text-brand hover:bg-brand/5 transition-colors"
                   >
                     Q{q}
                   </button>
@@ -160,14 +160,14 @@ export default function BmdExportClient({ clients }: Props) {
           <button
             onClick={fetchPreview}
             disabled={!clientId || loading}
-            className="flex-1 sm:flex-none px-5 py-2 rounded-lg border border-[#35609E] text-[#35609E] text-sm font-medium hover:bg-[#35609E]/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 sm:flex-none px-5 py-2 rounded-lg border border-brand text-brand text-sm font-medium hover:bg-brand/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Lädt…' : 'Vorschau'}
           </button>
           <button
             onClick={downloadCsv}
             disabled={!clientId || loading}
-            className="flex-1 sm:flex-none px-5 py-2 rounded-lg bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 sm:flex-none px-5 py-2 rounded-lg bg-brand hover:bg-accent text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Exportiert…' : 'CSV herunterladen'}
           </button>

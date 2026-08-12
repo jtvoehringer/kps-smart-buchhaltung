@@ -106,7 +106,7 @@ export default function DashboardClient({
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#35609E]">{companyName}</h1>
+          <h1 className="text-2xl font-bold text-brand">{companyName}</h1>
           <p className="text-gray-500 text-sm">Jahresübersicht</p>
         </div>
         {/* Jahres-Selector */}
@@ -119,7 +119,7 @@ export default function DashboardClient({
             disabled={selectedYear === availableYears[availableYears.length - 1]}
             className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
           >‹</button>
-          <span className="font-bold text-[#35609E] text-lg w-16 text-center">{selectedYear}</span>
+          <span className="font-bold text-brand text-lg w-16 text-center">{selectedYear}</span>
           <button
             onClick={() => setSelectedYear(y => {
               const idx = availableYears.indexOf(y);
@@ -135,21 +135,21 @@ export default function DashboardClient({
       <div className="grid grid-cols-4 gap-4 mb-8">
         <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
           <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Einnahmen gesamt</p>
-          <p className="text-2xl font-bold text-[#00897B]">{formatCurrency(totalIncome)}</p>
+          <p className="text-2xl font-bold text-income">{formatCurrency(totalIncome)}</p>
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
           <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Ausgaben gesamt</p>
-          <p className="text-2xl font-bold text-[#C62828]">{formatCurrency(totalExpense)}</p>
+          <p className="text-2xl font-bold text-expense">{formatCurrency(totalExpense)}</p>
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
           <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Saldo</p>
-          <p className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-[#00897B]' : 'text-[#C62828]'}`}>
+          <p className={`text-2xl font-bold ${totalBalance >= 0 ? 'text-income' : 'text-expense'}`}>
             {formatCurrency(Math.abs(totalBalance))}
           </p>
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
           <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">USt-Saldo</p>
-          <p className={`text-2xl font-bold ${totalVat >= 0 ? 'text-[#C62828]' : 'text-[#00897B]'}`}>
+          <p className={`text-2xl font-bold ${totalVat >= 0 ? 'text-expense' : 'text-income'}`}>
             {formatCurrency(Math.abs(totalVat))}
           </p>
         </div>
@@ -159,12 +159,12 @@ export default function DashboardClient({
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
           <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Offene Ausgangsrechnungen</p>
-          <p className="text-2xl font-bold text-[#35609E]">{outOpenCount > 0 ? formatCurrency(outOpenTotal) : '—'}</p>
+          <p className="text-2xl font-bold text-brand">{outOpenCount > 0 ? formatCurrency(outOpenTotal) : '—'}</p>
           <p className="text-xs text-gray-400 mt-1">{outOpenCount} {outOpenCount === 1 ? 'Rechnung' : 'Rechnungen'} offen</p>
         </div>
         <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
           <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Offene Eingangsrechnungen</p>
-          <p className="text-2xl font-bold text-[#35609E]">{inOpenCount > 0 ? formatCurrency(inOpenTotal) : '—'}</p>
+          <p className="text-2xl font-bold text-brand">{inOpenCount > 0 ? formatCurrency(inOpenTotal) : '—'}</p>
           <p className="text-xs text-gray-400 mt-1">{inOpenCount} {inOpenCount === 1 ? 'Rechnung' : 'Rechnungen'} offen</p>
         </div>
       </div>
@@ -173,10 +173,10 @@ export default function DashboardClient({
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-8">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="font-semibold text-gray-800 flex items-center gap-2">
-            {overdueRows.length > 0 && <AlertTriangle size={16} strokeWidth={2} className="text-[#C62828]" />}
+            {overdueRows.length > 0 && <AlertTriangle size={16} strokeWidth={2} className="text-expense" />}
             Überfällige Rechnungen
           </h2>
-          <Link href="/offene-posten" className="text-xs text-[#35609E] hover:text-[#4F90E8] font-medium hover:underline">
+          <Link href="/offene-posten" className="text-xs text-brand hover:text-accent font-medium hover:underline">
             Alle offenen Posten →
           </Link>
         </div>
@@ -191,12 +191,12 @@ export default function DashboardClient({
               return (
                 <li key={`${r.kind}-${r.id}`} className="flex items-center gap-3 px-6 py-3">
                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                    r.kind === 'out' ? 'bg-[#00897B]/10 text-[#00897B]' : 'bg-[#C62828]/10 text-[#C62828]'
+                    r.kind === 'out' ? 'bg-income/10 text-income' : 'bg-expense/10 text-expense'
                   }`}>
                     {r.kind === 'out' ? 'Ausgang' : 'Eingang'}
                   </span>
                   <span className="flex-1 text-sm text-gray-700 truncate">{r.label}</span>
-                  <span className="text-xs text-[#C62828] flex-shrink-0">{days} {days === 1 ? 'Tag' : 'Tage'} überfällig</span>
+                  <span className="text-xs text-expense flex-shrink-0">{days} {days === 1 ? 'Tag' : 'Tage'} überfällig</span>
                   <span className="text-sm font-medium text-gray-800 flex-shrink-0 w-24 text-right">{formatCurrency(r.amount)}</span>
                 </li>
               );
@@ -208,7 +208,7 @@ export default function DashboardClient({
       {/* Die Monatstabelle ist auf ihre eigene Seite gezogen
           (/monatsuebersicht, Design-Review August 2026). */}
       <div className="text-right">
-        <Link href="/monatsuebersicht" className="text-sm text-[#35609E] hover:underline underline-offset-2">
+        <Link href="/monatsuebersicht" className="text-sm text-brand hover:underline underline-offset-2">
           Zur Monatsübersicht →
         </Link>
       </div>

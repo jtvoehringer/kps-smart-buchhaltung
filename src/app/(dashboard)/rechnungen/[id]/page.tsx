@@ -67,7 +67,7 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
           ← Rechnungen
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#35609E]">
+        <h1 className="text-2xl font-bold text-brand">
           {invoice.invoice_number || 'Entwurf'}
         </h1>
       </div>

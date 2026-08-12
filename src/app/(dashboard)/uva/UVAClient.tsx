@@ -215,7 +215,7 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
   if (!vatLiable) {
     return (
       <div className="p-6 max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-[#35609E] mb-2">UVA-Meldung</h1>
+        <h1 className="text-2xl font-bold text-brand mb-2">UVA-Meldung</h1>
         <p className="text-gray-500 text-sm mb-6">{companyName}</p>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
           <Info size={32} strokeWidth={1.5} className="text-gray-300 mx-auto mb-3" />
@@ -233,14 +233,14 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
       {/* Header */}
       <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#35609E]">Umsatzsteuervoranmeldung</h1>
+          <h1 className="text-2xl font-bold text-brand">Umsatzsteuervoranmeldung</h1>
           <p className="text-gray-500 text-sm">{companyName}</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={handlePrint}
             title="UVA als PDF drucken / speichern"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border-2 border-[#35609E] text-[#35609E] hover:bg-[#35609E] hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border-2 border-brand text-brand hover:bg-brand hover:text-white transition-colors"
           >
             <Printer size={15} strokeWidth={2} />
             PDF / Drucken
@@ -248,7 +248,7 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
           <select
             value={year}
             onChange={e => setYear(Number(e.target.value))}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#35609E]/20"
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20"
           >
             {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
@@ -263,8 +263,8 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
             onClick={() => setPeriodNum(n)}
             className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
               periodNum === n
-                ? 'bg-[#35609E] text-white shadow-sm'
-                : 'bg-white text-gray-500 border border-gray-200 hover:border-[#35609E]/30 hover:text-[#35609E]'
+                ? 'bg-brand text-white shadow-sm'
+                : 'bg-white text-gray-500 border border-gray-200 hover:border-brand/30 hover:text-brand'
             }`}
           >
             {submitted && <Lock size={12} strokeWidth={2} />}
@@ -313,7 +313,7 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
             <button
               onClick={handleBerechnen}
               disabled={saving || ladeSummen || anzahlBuchungen === 0}
-              className="inline-flex items-center gap-1.5 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50"
             >
               {saving ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <Calculator size={14} strokeWidth={2} />}
               Berechnen &amp; Speichern
@@ -420,7 +420,7 @@ function UVATable({
 }: {
   title: string; subtitle: string; color: 'blue' | 'teal'; rows: RowData[]; total: number; totalLabel: string;
 }) {
-  const headerColor = color === 'blue' ? 'bg-[#35609E]' : 'bg-[#00897B]';
+  const headerColor = color === 'blue' ? 'bg-brand' : 'bg-income';
   const activeRows = rows.filter(r => r.bgl > 0 || r.steuer > 0);
 
   return (

@@ -61,7 +61,7 @@ export default async function BuchungslistePage({
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#35609E] flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
             <ClipboardList size={24} strokeWidth={1.75} className="text-accent-dark" />
             Buchungen
           </h1>
@@ -70,14 +70,14 @@ export default async function BuchungslistePage({
         <div className="flex items-center gap-4">
           <Link
             href="/buchungen/kategorien"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#35609E] transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-brand transition-colors"
           >
             <Tags size={16} strokeWidth={2} />
             Kategorien
           </Link>
           <Link
             href="/buchungen/neu"
-            className="inline-flex items-center gap-1.5 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+            className="inline-flex items-center gap-1.5 bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
           >
             <Plus size={16} strokeWidth={2} />
             Neue Buchung

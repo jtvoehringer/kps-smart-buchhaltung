@@ -29,7 +29,7 @@ export default async function NeuesKontoPage() {
           ← Konten
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#35609E]">Neues Konto</h1>
+        <h1 className="text-2xl font-bold text-brand">Neues Konto</h1>
       </div>
       <KontoForm clientId={membership.client_id} />
     </div>

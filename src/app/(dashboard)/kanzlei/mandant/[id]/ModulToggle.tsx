@@ -23,7 +23,7 @@ const INKLUSIV_LEISTUNGEN = [
 
 export default function InklusivCard() {
   return (
-    <div className="bg-white rounded-xl border border-[#35609E]/20 shadow-sm p-5 mb-5">
+    <div className="bg-white rounded-xl border border-brand/20 shadow-sm p-5 mb-5">
       <div className="flex items-center gap-2 mb-4">
         <h2 className="font-semibold text-gray-700">Inklusivleistungen</h2>
         <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
@@ -35,7 +35,7 @@ export default function InklusivCard() {
         {INKLUSIV_LEISTUNGEN.map(mod => (
           <div
             key={mod.label}
-            className="flex items-center gap-3 p-4 rounded-xl border-2 border-[#35609E] bg-[#35609E]/5"
+            className="flex items-center gap-3 p-4 rounded-xl border-2 border-brand bg-brand/5"
           >
             <span className="text-2xl">{mod.icon}</span>
             <div>

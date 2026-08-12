@@ -34,12 +34,12 @@ export default async function RechnungenPage() {
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#35609E]">Rechnungen</h1>
+          <h1 className="text-2xl font-bold text-brand">Rechnungen</h1>
           <p className="text-gray-500 text-sm">{(invoices?.length ?? 0) === 1 ? '1 Rechnung' : `${invoices?.length ?? 0} Rechnungen`} gesamt</p>
         </div>
         <Link
           href="/rechnungen/neu"
-          className="bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+          className="bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
         >
           + Neue Rechnung
         </Link>

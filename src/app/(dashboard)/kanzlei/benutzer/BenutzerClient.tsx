@@ -158,7 +158,7 @@ export default function BenutzerClient({
                             value={u.role}
                             onChange={e => handleRoleChange(u.id, e.target.value)}
                             disabled={isPending}
-                            className="text-xs border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#35609E] disabled:opacity-50"
+                            className="text-xs border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand disabled:opacity-50"
                           >
                             {editableRoles.map(r => (
                               <option key={r} value={r}>{ROLLE_LABEL[r]}</option>
@@ -191,7 +191,7 @@ export default function BenutzerClient({
               <input id="benutzerClient-0"
                 type="email" value={email} onChange={e => setEmail(e.target.value)}
                 required placeholder="name@beispiel.at"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
             <div>
@@ -199,7 +199,7 @@ export default function BenutzerClient({
               <input id="benutzerClient-1"
                 type="text" value={fullName} onChange={e => setFullName(e.target.value)}
                 placeholder="Vorname Nachname"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
             <div>
@@ -208,7 +208,7 @@ export default function BenutzerClient({
               </label>
               <select id="benutzerClient-2"
                 value={role} onChange={e => setRole(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
               >
                 <option value="kanzlei">Kanzlei (Mitarbeiter)</option>
                 <option value="klient">Klient (nur Dashboard)</option>
@@ -231,7 +231,7 @@ export default function BenutzerClient({
 
           <button
             type="submit" disabled={isPending}
-            className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-[#35609E] hover:bg-[#4F90E8] transition-colors disabled:opacity-50"
+            className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand hover:bg-accent transition-colors disabled:opacity-50"
           >
             {isPending ? 'Einladen…' : 'Benutzer einladen'}
           </button>

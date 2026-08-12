@@ -35,7 +35,7 @@ export default async function LieferantenPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#35609E] flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
             <Truck size={24} strokeWidth={1.75} className="text-accent-dark" />
             Lieferanten
           </h1>
@@ -43,7 +43,7 @@ export default async function LieferantenPage() {
         </div>
         <Link
           href="/lieferanten/neu"
-          className="bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+          className="bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
         >
           + Neuer Lieferant
         </Link>

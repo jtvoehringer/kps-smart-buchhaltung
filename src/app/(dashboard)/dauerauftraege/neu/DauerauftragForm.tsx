@@ -124,7 +124,7 @@ export default function DauerauftragForm({
           placeholder="z.B. Büromiete, Steuerberater-Honorar …"
           value={name}
           onChange={e => setName(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
         />
       </div>
 
@@ -137,8 +137,8 @@ export default function DauerauftragForm({
             onClick={() => setType('income')}
             className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${
               type === 'income'
-                ? 'bg-[#00897B] text-white border-[#00897B]'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-[#00897B]'
+                ? 'bg-income text-white border-income'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-income'
             }`}
           >
             ↑ Einnahme
@@ -148,8 +148,8 @@ export default function DauerauftragForm({
             onClick={() => setType('expense')}
             className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${
               type === 'expense'
-                ? 'bg-[#C62828] text-white border-[#C62828]'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-[#C62828]'
+                ? 'bg-expense text-white border-expense'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-expense'
             }`}
           >
             ↓ Ausgabe
@@ -164,7 +164,7 @@ export default function DauerauftragForm({
           required
           value={categoryId}
           onChange={e => setCategoryId(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
         >
           {filteredCategories.map(c => (
             <option key={c.id} value={c.id}>{c.name}</option>
@@ -186,7 +186,7 @@ export default function DauerauftragForm({
             placeholder="0,00"
             value={amount}
             onChange={e => setAmount(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
           />
         </div>
         <div>
@@ -194,7 +194,7 @@ export default function DauerauftragForm({
           <select id="dauerauftragForm-3"
             value={vatRate}
             onChange={e => setVatRate(Number(e.target.value))}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
           >
             {[0, 10, 13, 20].map(r => <option key={r} value={r}>{r} %</option>)}
           </select>
@@ -226,8 +226,8 @@ export default function DauerauftragForm({
               onClick={() => setInterval(opt.value)}
               className={`py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${
                 interval === opt.value
-                  ? 'bg-[#35609E] text-white border-[#35609E]'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-[#35609E]/40'
+                  ? 'bg-brand text-white border-brand'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-brand/40'
               }`}
             >
               {opt.label}
@@ -246,7 +246,7 @@ export default function DauerauftragForm({
           required
           value={nextRunDate}
           onChange={e => setNextRunDate(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
         />
         <p className="text-xs text-gray-400 mt-1">
           Der Tag des Monats ({nextRunDate ? new Date(nextRunDate).getDate() : '—'}) wird als Fälligkeitstag verwendet. Bitte Tag 1–28 wählen.
@@ -266,7 +266,7 @@ export default function DauerauftragForm({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#35609E] hover:bg-[#152d54] transition-colors disabled:opacity-50"
+          className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white bg-brand hover:bg-[#152d54] transition-colors disabled:opacity-50"
         >
           {loading ? 'Speichern…' : 'Dauerauftrag anlegen'}
         </button>

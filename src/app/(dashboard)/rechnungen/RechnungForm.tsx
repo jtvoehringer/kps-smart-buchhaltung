@@ -284,7 +284,7 @@ export default function RechnungForm({
     setLoading(false);
   }
 
-  const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]';
+  const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
 
   return (
     <div className="space-y-5 max-w-4xl">
@@ -443,7 +443,7 @@ export default function RechnungForm({
         <button
           type="button"
           onClick={addItem}
-          className="mt-4 text-sm text-[#35609E] hover:text-[#4F90E8] font-medium transition-colors"
+          className="mt-4 text-sm text-brand hover:text-accent font-medium transition-colors"
         >
           + Position hinzufügen
         </button>
@@ -476,7 +476,7 @@ export default function RechnungForm({
         <h2 className="font-semibold text-gray-800 mb-3">Notiz / Anmerkung (erscheint auf Rechnung)</h2>
         <textarea rows={2} placeholder="z.B. Zahlbar binnen 14 Tagen ohne Abzug…"
           value={notes} onChange={e => setNotes(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] resize-none" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none" />
       </div>
 
       {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
@@ -496,17 +496,17 @@ export default function RechnungForm({
         </button>
         {istFinalisiert ? (
           <button type="button" onClick={() => handleSave(false)} disabled={loading}
-            className="flex-1 py-3 rounded-xl bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold transition-colors disabled:opacity-50">
+            className="flex-1 py-3 rounded-xl bg-brand hover:bg-accent text-white text-sm font-semibold transition-colors disabled:opacity-50">
             {loading ? 'Speichern…' : 'Änderungen speichern'}
           </button>
         ) : (
           <>
             <button type="button" onClick={() => handleSave(false)} disabled={loading}
-              className="flex-1 py-3 rounded-xl border-2 border-[#35609E] text-[#35609E] text-sm font-semibold hover:bg-[#35609E]/5 transition-colors disabled:opacity-50">
+              className="flex-1 py-3 rounded-xl border-2 border-brand text-brand text-sm font-semibold hover:bg-brand/5 transition-colors disabled:opacity-50">
               {loading ? 'Speichern…' : 'Als Entwurf speichern'}
             </button>
             <button type="button" onClick={() => handleSave(true)} disabled={loading}
-              className="flex-1 py-3 rounded-xl bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold transition-colors disabled:opacity-50">
+              className="flex-1 py-3 rounded-xl bg-brand hover:bg-accent text-white text-sm font-semibold transition-colors disabled:opacity-50">
               {loading ? 'Finalisieren…' : 'Finalisieren'}
             </button>
           </>

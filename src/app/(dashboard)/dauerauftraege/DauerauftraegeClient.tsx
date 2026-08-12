@@ -87,7 +87,7 @@ export default function DauerauftraegeClient({
       <div className="flex justify-end">
         <Link
           href="/dauerauftraege/neu"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#35609E] hover:bg-[#152d54] transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand hover:bg-[#152d54] transition-colors shadow-sm"
         >
           <span>＋</span>
           <span>Neuer Dauerauftrag</span>
@@ -107,7 +107,7 @@ export default function DauerauftraegeClient({
           </p>
           <Link
             href="/dauerauftraege/neu"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#35609E] hover:bg-[#152d54] transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand hover:bg-[#152d54] transition-colors"
           >
             Ersten Dauerauftrag anlegen
           </Link>
@@ -189,7 +189,7 @@ function RecurringRow({
   return (
     <div className={`px-5 py-4 flex items-start gap-4 ${muted ? 'opacity-60' : ''}`}>
       {/* Typ-Badge */}
-      <div className={`mt-0.5 flex-shrink-0 w-2 h-2 rounded-full mt-2 ${isIncome ? 'bg-[#00897B]' : 'bg-[#C62828]'}`} />
+      <div className={`mt-0.5 flex-shrink-0 w-2 h-2 rounded-full mt-2 ${isIncome ? 'bg-income' : 'bg-expense'}`} />
 
       {/* Info */}
       <div className="flex-1 min-w-0">
@@ -213,7 +213,7 @@ function RecurringRow({
 
       {/* Betrag */}
       <div className="text-right flex-shrink-0">
-        <div className={`text-sm font-bold ${isIncome ? 'text-[#00897B]' : 'text-[#C62828]'}`}>
+        <div className={`text-sm font-bold ${isIncome ? 'text-income' : 'text-expense'}`}>
           {isIncome ? '+' : '−'} {eur(item.amount_net)}
         </div>
         <div className="text-xs text-gray-400">

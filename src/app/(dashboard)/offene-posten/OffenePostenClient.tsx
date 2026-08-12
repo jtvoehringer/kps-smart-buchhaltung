@@ -268,7 +268,7 @@ export default function OffenePostenClient({
                           <td className="px-4 py-3 font-mono font-medium">
                             <Link
                               href={`/rechnungen/${inv.id}`}
-                              className="text-[#35609E] hover:underline underline-offset-2"
+                              className="text-brand hover:underline underline-offset-2"
                               title="Rechnung öffnen"
                             >
                               {inv.invoice_number}
@@ -276,7 +276,7 @@ export default function OffenePostenClient({
                           </td>
                           <td className="px-4 py-3 text-gray-700">
                             {inv.customers ? (
-                              <Link href={`/kunden/${inv.customers.id}`} className="hover:text-[#35609E] transition-colors">
+                              <Link href={`/kunden/${inv.customers.id}`} className="hover:text-brand transition-colors">
                                 {inv.customers.name}
                               </Link>
                             ) : '—'}
@@ -305,12 +305,12 @@ export default function OffenePostenClient({
                                 <div>
                                   <label htmlFor={`op-${inv.id}-zahldatum`} className="block text-xs font-medium text-gray-600 mb-1">Zahlungsdatum</label>
                                   <input id={`op-${inv.id}-zahldatum`} type="date" value={outPaymentDate} onChange={e => setOutPaymentDate(e.target.value)}
-                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
                                 </div>
                                 <div>
                                   <label htmlFor={`op-${inv.id}-kategorie`} className="block text-xs font-medium text-gray-600 mb-1">Kategorie</label>
                                   <select id={`op-${inv.id}-kategorie`} value={outCategoryId} onChange={e => setOutCategoryId(e.target.value)}
-                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                                     {incomeCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                   </select>
                                 </div>
@@ -319,11 +319,11 @@ export default function OffenePostenClient({
                                   {accounts.length === 0 ? (
                                     <p className="text-xs text-gray-400 py-2">
                                       Noch keine Konten angelegt –{' '}
-                                      <Link href="/konten/neu" className="text-[#35609E] underline underline-offset-2">Konto anlegen</Link>
+                                      <Link href="/konten/neu" className="text-brand underline underline-offset-2">Konto anlegen</Link>
                                     </p>
                                   ) : (
                                     <select id={`op-${inv.id}-aus-konto`} value={outAccountId} onChange={e => setOutAccountId(e.target.value)}
-                                      className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+                                      className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                                       <option value="">Kein Konto</option>
                                       {accounts.map(k => (
                                         <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>
@@ -413,7 +413,7 @@ export default function OffenePostenClient({
                         <tr className="border-t border-gray-50 hover:bg-gray-50/50">
                           <td className="px-4 py-3 text-gray-700">
                             {inv.supplier_id ? (
-                              <Link href={`/lieferanten/${inv.supplier_id}`} className="inline-flex items-center gap-1.5 hover:text-[#35609E] transition-colors">
+                              <Link href={`/lieferanten/${inv.supplier_id}`} className="inline-flex items-center gap-1.5 hover:text-brand transition-colors">
                                 {inv.vendor_name}
                                 {inv.beleg_storage_path && <Paperclip size={12} strokeWidth={2} className="text-gray-300" />}
                               </Link>
@@ -429,7 +429,7 @@ export default function OffenePostenClient({
                               <button
                                 type="button"
                                 onClick={() => belegOeffnen(inv.beleg_storage_path!)}
-                                className="text-[#35609E] font-medium hover:underline underline-offset-2 disabled:opacity-50"
+                                className="text-brand font-medium hover:underline underline-offset-2 disabled:opacity-50"
                                 disabled={belegLaedt === inv.beleg_storage_path}
                                 title="Beleg öffnen"
                               >
@@ -463,12 +463,12 @@ export default function OffenePostenClient({
                                 <div>
                                   <label htmlFor={`op-${inv.id}-zahldatum`} className="block text-xs font-medium text-gray-600 mb-1">Zahlungsdatum</label>
                                   <input id={`op-${inv.id}-zahldatum`} type="date" value={inPaymentDate} onChange={e => setInPaymentDate(e.target.value)}
-                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
                                 </div>
                                 <div>
                                   <label htmlFor={`op-${inv.id}-kategorie`} className="block text-xs font-medium text-gray-600 mb-1">Kategorie</label>
                                   <select id={`op-${inv.id}-kategorie`} value={inCategoryId} onChange={e => setInCategoryId(e.target.value)}
-                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                                     {expenseCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                   </select>
                                 </div>
@@ -477,11 +477,11 @@ export default function OffenePostenClient({
                                   {accounts.length === 0 ? (
                                     <p className="text-xs text-gray-400 py-2">
                                       Noch keine Konten angelegt –{' '}
-                                      <Link href="/konten/neu" className="text-[#35609E] underline underline-offset-2">Konto anlegen</Link>
+                                      <Link href="/konten/neu" className="text-brand underline underline-offset-2">Konto anlegen</Link>
                                     </p>
                                   ) : (
                                     <select id={`op-${inv.id}-ein-konto`} value={inAccountId} onChange={e => setInAccountId(e.target.value)}
-                                      className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+                                      className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
                                       <option value="">Kein Konto</option>
                                       {accounts.map(k => (
                                         <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>

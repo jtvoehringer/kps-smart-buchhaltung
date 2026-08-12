@@ -104,7 +104,7 @@ export default function RechnungenClient({
                 <p className="text-gray-500 text-sm mb-4">Noch keine Rechnungen vorhanden.</p>
         <Link
           href="/rechnungen/neu"
-          className="inline-block bg-[#35609E] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#4F90E8] transition-colors"
+          className="inline-block bg-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-accent transition-colors"
         >
           Erste Rechnung erstellen
         </Link>
@@ -145,7 +145,7 @@ export default function RechnungenClient({
             onClick={() => setFilterStatus(s)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               filterStatus === s
-                ? 'bg-[#35609E] text-white'
+                ? 'bg-brand text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
@@ -183,7 +183,7 @@ export default function RechnungenClient({
                     <td className="px-4 py-3 font-mono font-medium">
                       <Link
                         href={`/rechnungen/${inv.id}`}
-                        className="text-[#35609E] hover:underline underline-offset-2"
+                        className="text-brand hover:underline underline-offset-2"
                         title="Rechnung öffnen"
                       >
                         {inv.invoice_number || <span className="font-sans text-gray-400 italic">Entwurf</span>}
@@ -192,7 +192,7 @@ export default function RechnungenClient({
                     <td className="px-4 py-3">
                       {inv.customers ? (
                         <Link href={`/kunden/${inv.customers.id}`} className="group block">
-                          <div className="font-medium text-gray-800 group-hover:text-[#35609E] transition-colors">
+                          <div className="font-medium text-gray-800 group-hover:text-brand transition-colors">
                             {inv.customers.name}
                           </div>
                           {inv.customers.contact_person && (
@@ -237,7 +237,7 @@ export default function RechnungenClient({
                               <Link
                                 href={`/rechnungen/${inv.id}/bearbeiten`}
                                 title="Entwurf bearbeiten"
-                                className="p-1 text-gray-300 hover:text-[#35609E] transition-colors"
+                                className="p-1 text-gray-300 hover:text-brand transition-colors"
                               >
                                 <Pencil size={15} strokeWidth={2} />
                               </Link>
@@ -263,7 +263,7 @@ export default function RechnungenClient({
                             <Link
                               href={`/rechnungen/${inv.id}`}
                               title="Rechnung öffnen"
-                              className="p-1 text-gray-300 hover:text-[#35609E] transition-colors"
+                              className="p-1 text-gray-300 hover:text-brand transition-colors"
                             >
                               <ArrowRight size={15} strokeWidth={2} />
                             </Link>

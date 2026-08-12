@@ -59,7 +59,7 @@ export default function LieferantenClient({
         <p className="text-gray-500 text-sm mb-4">Noch keine Lieferanten angelegt.</p>
         <Link
           href="/lieferanten/neu"
-          className="inline-block bg-[#35609E] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#4F90E8] transition-colors"
+          className="inline-block bg-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-accent transition-colors"
         >
           Ersten Lieferanten anlegen
         </Link>
@@ -103,7 +103,7 @@ export default function LieferantenClient({
                 <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50/50">
                   <td className="px-4 py-3">
                     <Link href={`/lieferanten/${s.id}`} className="group block">
-                      <div className="font-medium text-gray-800 group-hover:text-[#35609E] transition-colors">{s.name}</div>
+                      <div className="font-medium text-gray-800 group-hover:text-brand transition-colors">{s.name}</div>
                       {s.contact_person && (
                         <div className="text-xs text-gray-400">{s.contact_person}</div>
                       )}
@@ -124,7 +124,7 @@ export default function LieferantenClient({
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/lieferanten/${s.id}`}
-                        className="text-gray-300 hover:text-[#35609E] transition-colors"
+                        className="text-gray-300 hover:text-brand transition-colors"
                         title="Bearbeiten"
                       >
                         <Pencil size={15} strokeWidth={1.75} />

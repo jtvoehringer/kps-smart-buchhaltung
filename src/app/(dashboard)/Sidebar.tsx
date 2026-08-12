@@ -23,7 +23,7 @@ type NavEntry =
   | { kind: 'group'; href: string; label: string; icon: LucideIcon; children: SubItem[] };
 
 // IC&P Corporate Design – Grau/Blau
-const NAV_BG     = '#3F454C'; // Grau dunkel
+const NAV_BG     = '#0E2540'; // Navy dunkel (ICP-CD, Welle 2)
 const NAV_ACCENT = '#4F90E8'; // Blau (aktive Elemente)
 
 // Rechnungen, Belege (OCR) und Offene Posten sind seit dem Vollintegrations-

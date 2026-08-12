@@ -146,7 +146,7 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
               <button
                 type="button"
                 onClick={() => openAttachment(att)}
-                className="flex-1 text-left text-sm text-[#35609E] hover:underline truncate"
+                className="flex-1 text-left text-sm text-brand hover:underline truncate"
                 title={att.file_name}
               >
                 {att.file_name}
@@ -170,7 +170,7 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
       {/* Kamera-Direktaufnahme */}
       <div className="flex items-center gap-2">
         <button type="button" onClick={() => cameraInput.current?.click()}
-          className="inline-flex items-center gap-1 text-xs text-white font-medium bg-[#35609E] hover:bg-[#4F90E8] px-3 py-1.5 rounded-lg transition-colors">
+          className="inline-flex items-center gap-1 text-xs text-white font-medium bg-brand hover:bg-accent px-3 py-1.5 rounded-lg transition-colors">
           Foto aufnehmen
         </button>
         <span className="text-xs text-gray-400">oder Datei unten hochladen</span>
@@ -186,13 +186,13 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
         onClick={() => fileInput.current?.click()}
         className={`border-2 border-dashed rounded-xl px-4 py-6 text-center cursor-pointer transition-colors ${
           dragOver
-            ? 'border-[#35609E] bg-blue-50'
+            ? 'border-brand bg-blue-50'
             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
         }`}
       >
         {uploading ? (
           <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-            <svg className="animate-spin h-4 w-4 text-[#35609E]" viewBox="0 0 24 24" fill="none">
+            <svg className="animate-spin h-4 w-4 text-brand" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
             </svg>
@@ -202,7 +202,7 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
           <>
             <div className="text-2xl mb-1">⬆️</div>
             <p className="text-sm text-gray-500">
-              Datei hierher ziehen oder <span className="text-[#35609E] font-medium">auswählen</span>
+              Datei hierher ziehen oder <span className="text-brand font-medium">auswählen</span>
             </p>
           </>
         )}

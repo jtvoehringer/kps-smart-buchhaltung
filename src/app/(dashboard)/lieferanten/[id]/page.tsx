@@ -74,7 +74,7 @@ export default async function LieferantBearbeitenPage({ params }: { params: Prom
           ← Lieferanten
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#35609E]">{supplier.name}</h1>
+        <h1 className="text-2xl font-bold text-brand">{supplier.name}</h1>
       </div>
       <LieferantForm clientId={membership.client_id} initial={initial} />
 

@@ -39,12 +39,12 @@ export default async function KategorienPage() {
       <div className="mb-6">
         <Link
           href="/buchungen"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#35609E] transition-colors mb-3"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand transition-colors mb-3"
         >
           <ArrowLeft size={14} strokeWidth={2} />
           Zurück zu Buchungen
         </Link>
-        <h1 className="text-2xl font-bold text-[#35609E] flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
           <Tags size={24} strokeWidth={1.75} className="text-accent-dark" />
           Kategorien
         </h1>

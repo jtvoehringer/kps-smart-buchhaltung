@@ -57,7 +57,7 @@ export default async function BenutzerPage() {
           ← Kanzlei
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#35609E]">Benutzerverwaltung</h1>
+        <h1 className="text-2xl font-bold text-brand">Benutzerverwaltung</h1>
       </div>
 
       <BenutzerClient users={mapped} myRole={me.role} myId={user.id} />

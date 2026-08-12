@@ -280,14 +280,14 @@ export default function BuchungForm({
       <div>
         <label htmlFor="buchungForm-0" className="block text-sm font-medium text-gray-700 mb-1">Buchungsdatum</label>
         <input id="buchungForm-0" type="date" required value={bookingDate} onChange={e => setBookingDate(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
       </div>
 
       {/* Kategorie */}
       <div>
         <label htmlFor="buchungForm-1" className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
         <select id="buchungForm-1" required value={categoryId} onChange={e => setCategoryId(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]">
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
           {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </div>
@@ -299,13 +299,13 @@ export default function BuchungForm({
           <input id="buchungForm-2" type="number" required min="0.01" step="0.01" placeholder="0,00" value={amount}
             onChange={e => setAmount(e.target.value)}
             disabled={isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten')}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] disabled:bg-gray-100 disabled:cursor-not-allowed" />
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand disabled:bg-gray-100 disabled:cursor-not-allowed" />
         </div>
         <div>
           <label htmlFor="buchungForm-3" className="block text-sm font-medium text-gray-700 mb-1">USt %</label>
           <select id="buchungForm-3" value={vatRate} onChange={e => setVatRate(Number(e.target.value))}
             disabled={isEAuto || (isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten'))}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E] disabled:bg-gray-100 disabled:cursor-not-allowed">
+            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand disabled:bg-gray-100 disabled:cursor-not-allowed">
             <option value={0}>0 %</option>
             <option value={10}>10 %</option>
             <option value={13}>13 %</option>
@@ -331,7 +331,7 @@ export default function BuchungForm({
           id="ust-kz"
           value={ustKennzeichen}
           onChange={e => setUstKennzeichen(e.target.value as UstKennzeichen)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
         >
           {kennzeichenFuer(type).map(k => (
             <option key={k.wert} value={k.wert}>{k.label}</option>
@@ -552,7 +552,7 @@ export default function BuchungForm({
         </label>
         <input id="buchungForm-13" type="text" placeholder="z.B. Büromaterial Dezember, Rechnung Nr. 2024-001 …"
           value={description} onChange={e => setDescription(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
       </div>
 
       {/* Belege (optional) */}
@@ -565,11 +565,11 @@ export default function BuchungForm({
           </span>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => cameraInputRef.current?.click()}
-              className="inline-flex items-center gap-1 text-xs text-white font-medium bg-[#35609E] hover:bg-[#4F90E8] px-3 py-1 rounded-lg transition-colors">
+              className="inline-flex items-center gap-1 text-xs text-white font-medium bg-brand hover:bg-accent px-3 py-1 rounded-lg transition-colors">
               Foto aufnehmen
             </button>
             <button type="button" onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1 text-xs text-[#35609E] hover:text-[#4F90E8] font-medium border border-[#35609E] hover:border-[#4F90E8] px-3 py-1 rounded-lg transition-colors">
+              className="inline-flex items-center gap-1 text-xs text-brand hover:text-accent font-medium border border-brand hover:border-accent px-3 py-1 rounded-lg transition-colors">
               <Paperclip size={12} strokeWidth={2} />
               Datei wählen
             </button>

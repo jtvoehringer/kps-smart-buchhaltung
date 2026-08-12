@@ -22,8 +22,25 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq('id', user.id)
     .maybeSingle();
 
+  // Welle 2: die einzige austauschbare Größe neben dem Logo ist die
+  // Akzentfarbe der Kanzlei (branding.brand_color). Sie überschreibt
+  // --signal-rgb, an der alle accent-Tokens hängen. Navy bleibt konstant.
+  const { data: brandingFarbe } = !clientId ? { data: null } : await supabase
+    .from('client_branding')
+    .select('brand_color')
+    .eq('client_id', clientId)
+    .maybeSingle();
+
+  const hex = brandingFarbe?.brand_color?.trim() ?? '';
+  const signalRgb = /^#[0-9a-fA-F]{6}$/.test(hex)
+    ? `${parseInt(hex.slice(1, 3), 16)} ${parseInt(hex.slice(3, 5), 16)} ${parseInt(hex.slice(5, 7), 16)}`
+    : null;
+
   return (
-    <div className="h-screen flex overflow-hidden">
+    <div
+      className="h-screen flex overflow-hidden"
+      style={signalRgb ? ({ ['--signal-rgb' as string]: signalRgb } as React.CSSProperties) : undefined}
+    >
       <Sidebar
         companyName={client?.company_name ?? 'Smart Buchhaltung'}
         role={me?.role ?? 'klient'}

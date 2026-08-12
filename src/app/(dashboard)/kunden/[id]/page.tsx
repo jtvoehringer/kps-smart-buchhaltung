@@ -73,7 +73,7 @@ export default async function KundeBearbeitenPage({ params }: { params: Promise<
           ← Kunden
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#35609E]">{customer.name}</h1>
+        <h1 className="text-2xl font-bold text-brand">{customer.name}</h1>
       </div>
       <KundeForm clientId={membership.client_id} initial={initial} />
 

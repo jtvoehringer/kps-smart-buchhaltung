@@ -45,7 +45,7 @@ export default function DashboardError({
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 onClick={reset}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand hover:bg-accent text-white text-sm font-semibold transition-colors"
               >
                 <RotateCcw size={15} strokeWidth={2} /> Erneut versuchen
               </button>

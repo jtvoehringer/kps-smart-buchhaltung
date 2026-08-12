@@ -339,8 +339,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
         onDrop={onDrop}
         className={`rounded-xl border-2 border-dashed transition-all p-8 text-center ${
           dragOver
-            ? 'border-[#35609E] bg-[#35609E]/5'
-            : 'border-gray-300 hover:border-[#35609E]/50 hover:bg-gray-50'
+            ? 'border-brand bg-brand/5'
+            : 'border-gray-300 hover:border-brand/50 hover:bg-gray-50'
         }`}
       >
         <input
@@ -362,7 +362,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
           onChange={e => handleFiles(e.target.files)}
         />
         {uploading ? (
-          <div className="text-[#35609E] font-medium">
+          <div className="text-brand font-medium">
             <div className="text-3xl mb-2 animate-spin">⏳</div>
             Wird hochgeladen…
           </div>
@@ -374,7 +374,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
               <button
                 type="button"
                 onClick={() => cameraInputRef.current?.click()}
-                className="inline-flex items-center gap-2 bg-[#35609E] hover:bg-[#4F90E8] text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                className="inline-flex items-center gap-2 bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
               >
                 Foto aufnehmen
               </button>
@@ -398,7 +398,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
       {receipts.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white rounded-xl border border-gray-100 p-4 text-center">
-            <p className="text-2xl font-bold text-[#35609E]">{receipts.length}</p>
+            <p className="text-2xl font-bold text-brand">{receipts.length}</p>
             <p className="text-xs text-gray-400 mt-0.5">Belege gesamt</p>
           </div>
           <div className="bg-white rounded-xl border border-gray-100 p-4 text-center">
@@ -482,7 +482,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                 {(r.status === 'error' || r.status === 'processing') && (
                   <button
                     onClick={e => { e.stopPropagation(); void startOcr(r.id); }}
-                    className="text-xs text-[#35609E] hover:underline flex-shrink-0"
+                    className="text-xs text-brand hover:underline flex-shrink-0"
                     title={r.status === 'processing'
                       ? 'Erkennung neu starten – falls sie hängengeblieben ist'
                       : 'Erkennung erneut versuchen'}
@@ -568,7 +568,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                     <select id="belegeClient-0"
                       value={categoryId}
                       onChange={e => setCategoryId(e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 bg-white"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 bg-white"
                     >
                       <option value="">– bitte wählen –</option>
                       {categories
@@ -712,7 +712,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                       type="date"
                       value={editing.datum ?? ''}
                       onChange={e => setEditing(p => ({ ...p, datum: e.target.value }))}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
                     />
                   </div>
 
@@ -733,7 +733,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                           betrag_netto: Math.round((gross - vat) * 100) / 100,
                         }));
                       }}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
                       {[0, 10, 13, 20].map(s => (
                         <option key={s} value={s}>{s} %</option>
@@ -760,7 +760,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                           betrag_netto:  Math.round((gross - vat) * 100) / 100,
                         }));
                       }}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -782,7 +782,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                       type="text"
                       value={editing.lieferant ?? ''}
                       onChange={e => setEditing(p => ({ ...p, lieferant: e.target.value }))}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
                     />
                   </div>
 
@@ -793,7 +793,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                       type="text"
                       value={editing.beschreibung ?? ''}
                       onChange={e => setEditing(p => ({ ...p, beschreibung: e.target.value }))}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]/30"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
                     />
                   </div>
                 </div>
@@ -806,7 +806,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                   <button
                     onClick={handleBook}
                     disabled={booking || !editing.betrag_brutto || !categoryId}
-                    className="w-full py-3 bg-[#35609E] hover:bg-[#4F90E8] text-white font-semibold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full py-3 bg-brand hover:bg-accent text-white font-semibold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {booking ? 'Wird verbucht…' : 'Als Buchung übernehmen'}
                   </button>
@@ -822,7 +822,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                 <p className="text-red-400 text-xs mb-4">{selected.ocr_error}</p>
                 <button
                   onClick={() => { startOcr(selected.id); setSelected(null); }}
-                  className="px-5 py-2 bg-[#35609E] text-white text-sm rounded-lg hover:bg-[#4F90E8]"
+                  className="px-5 py-2 bg-brand text-white text-sm rounded-lg hover:bg-accent"
                 >
                   Nochmals versuchen
                 </button>

@@ -38,13 +38,13 @@ export default async function NeueRechnungPage() {
           ← Rechnungen
         </Link>
         <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-[#35609E]">Neue Rechnung</h1>
+        <h1 className="text-2xl font-bold text-brand">Neue Rechnung</h1>
       </div>
       {(!customers || customers.length === 0) ? (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-sm text-amber-700">
           <p className="font-semibold mb-1">Noch keine Kunden angelegt</p>
           <p>Bitte zuerst mindestens einen Kunden anlegen.</p>
-          <Link href="/kunden/neu" className="inline-block mt-3 bg-[#35609E] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#4F90E8] transition-colors">
+          <Link href="/kunden/neu" className="inline-block mt-3 bg-brand text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent transition-colors">
             Kunden anlegen
           </Link>
         </div>

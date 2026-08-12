@@ -39,8 +39,8 @@ export default function PasswortNeuPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#E3F2FD]">
       <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="inline-block bg-[#35609E] text-white text-sm font-bold px-3 py-1 rounded mb-3">KPS</div>
-          <h1 className="text-2xl font-bold text-[#35609E]">Neues Passwort</h1>
+          <div className="inline-block bg-brand text-white text-sm font-bold px-3 py-1 rounded mb-3">KPS</div>
+          <h1 className="text-2xl font-bold text-brand">Neues Passwort</h1>
           <p className="text-gray-500 text-sm mt-1">Bitte wähle ein neues Passwort</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -49,18 +49,18 @@ export default function PasswortNeuPage() {
             <input id="page-0" type="password" name="new-password" required autoComplete="new-password"
               value={password} onChange={e => setPassword(e.target.value)}
               placeholder="Mindestens 8 Zeichen"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
           </div>
           <div>
             <label htmlFor="page-1" className="block text-sm font-medium text-gray-700 mb-1">Passwort bestätigen</label>
             <input id="page-1" type="password" name="confirm-password" required autoComplete="new-password"
               value={password2} onChange={e => setPassword2(e.target.value)}
               placeholder="Nochmals eingeben"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#35609E]" />
+              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
           </div>
           {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
           <button type="submit" disabled={loading}
-            className="w-full bg-[#35609E] hover:bg-[#4F90E8] text-white font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-50">
+            className="w-full bg-brand hover:bg-accent text-white font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-50">
             {loading ? 'Speichern…' : 'Passwort speichern'}
           </button>
         </form>

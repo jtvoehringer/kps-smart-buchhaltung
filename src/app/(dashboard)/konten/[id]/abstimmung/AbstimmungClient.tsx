@@ -116,7 +116,7 @@ export default function AbstimmungClient({
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
           <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Kontostand rechnerisch</p>
-          <p className={`text-xl font-bold ${endBalance >= 0 ? 'text-[#35609E]' : 'text-expense'}`}>{formatCurrency(endBalance)}</p>
+          <p className={`text-xl font-bold ${endBalance >= 0 ? 'text-brand' : 'text-expense'}`}>{formatCurrency(endBalance)}</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
           <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Buchungen</p>
@@ -193,7 +193,7 @@ export default function AbstimmungClient({
                       onClick={() => toggleReconciled(r.id, r.is_reconciled)}
                       disabled={busyId === r.id}
                       className={`w-5 h-5 rounded-md border inline-flex items-center justify-center transition-colors disabled:opacity-50 ${
-                        r.is_reconciled ? 'bg-[#35609E] border-[#35609E] text-white' : 'border-gray-300 hover:border-gray-400'
+                        r.is_reconciled ? 'bg-brand border-brand text-white' : 'border-gray-300 hover:border-gray-400'
                       }`}
                       title="Mit Kontoauszug abgestimmt"
                     >

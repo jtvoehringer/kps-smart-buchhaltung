@@ -54,7 +54,7 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
         <p className="text-gray-500 text-sm mb-4">Noch keine Konten angelegt.</p>
         <Link
           href="/konten/neu"
-          className="inline-block bg-[#35609E] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#4F90E8] transition-colors"
+          className="inline-block bg-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-accent transition-colors"
         >
           Erstes Konto anlegen
         </Link>
@@ -92,7 +92,7 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
                 <div className="flex items-center justify-end gap-3">
                   <Link
                     href={`/konten/${a.id}/abstimmung`}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#35609E] hover:text-[#4F90E8] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-accent transition-colors"
                     title="Kontoabstimmung"
                   >
                     <Scale size={14} strokeWidth={1.75} />
@@ -100,7 +100,7 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
                   </Link>
                   <Link
                     href={`/konten/${a.id}`}
-                    className="text-gray-300 hover:text-[#35609E] transition-colors"
+                    className="text-gray-300 hover:text-brand transition-colors"
                     title="Bearbeiten"
                   >
                     <Pencil size={15} strokeWidth={1.75} />
