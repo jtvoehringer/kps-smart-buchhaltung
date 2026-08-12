@@ -33,12 +33,15 @@ const belegNr = (r: Row) =>
 
 export default function AbstimmungClient({
   accountId, accountName, rows: initialRows, openingBalance, openingDate,
+  imEroeffnungssaldo = 0,
 }: {
   accountId: string;
   accountName: string;
   rows: Row[];
   openingBalance: number;
   openingDate: string | null;
+  /** Bewegungen am oder vor dem Stichtag – stecken im Eröffnungssaldo */
+  imEroeffnungssaldo?: number;
 }) {
   const supabase = createClient();
   const [rows, setRows] = useServerState(initialRows);
@@ -115,6 +118,22 @@ export default function AbstimmungClient({
     <div className="space-y-4">
       {fehler && (
         <p className="text-sm text-red-600 bg-red-50 border border-red-100 px-3 py-2 rounded-lg">{fehler}</p>
+      )}
+
+      {openingDate && imEroeffnungssaldo > 0 && (
+        <p className="text-sm text-gray-600 bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg leading-relaxed">
+          {imEroeffnungssaldo === 1
+            ? 'Eine Bewegung liegt'
+            : `${imEroeffnungssaldo} Bewegungen liegen`}{' '}
+          am oder vor dem Eröffnungsstichtag ({new Date(openingDate).toLocaleDateString('de-AT')})
+          und {imEroeffnungssaldo === 1 ? 'steckt' : 'stecken'} bereits im Eröffnungssaldo –
+          sie werden hier nicht einzeln angeführt. Soll auch Aktuelles einzeln
+          erscheinen, das Eröffnungsdatum unter{' '}
+          <a href={`/konten/${accountId}`} className="font-semibold underline underline-offset-2">
+            Konto bearbeiten
+          </a>{' '}
+          auf den Tag des letzten Kontoauszugs zurücksetzen.
+        </p>
       )}
 
       {!openingDate && (

@@ -57,13 +57,33 @@ export default async function KontoabstimmungPage({ params }: { params: Promise<
     umbAbfrage = umbAbfrage.gt('transfer_date', account.opening_date);
   }
 
-  const [{ data: transactions }, { data: transfers }, { data: alleKonten }] = await Promise.all([
+  // Wie viele Bewegungen liegen am oder vor dem Stichtag und stecken
+  // damit im Eröffnungssaldo? Ohne Hinweis wirken sie "verschwunden".
+  const verschluckteZaehlen = account.opening_date
+    ? [
+        admin.from('transactions')
+          .select('id', { count: 'exact', head: true })
+          .eq('client_id', membership.client_id)
+          .eq('account_id', id)
+          .lte('booking_date', account.opening_date),
+        admin.from('account_transfers')
+          .select('id', { count: 'exact', head: true })
+          .eq('client_id', membership.client_id)
+          .or(`from_account_id.eq.${id},to_account_id.eq.${id}`)
+          .lte('transfer_date', account.opening_date),
+      ]
+    : [];
+
+  const [{ data: transactions }, { data: transfers }, { data: alleKonten }, ...verschluckt] = await Promise.all([
     abfrage
       .order('booking_date', { ascending: false })
       .order('created_at',   { ascending: false }),
     umbAbfrage.order('transfer_date', { ascending: false }),
     admin.from('accounts').select('id, name').eq('client_id', membership.client_id),
+    ...verschluckteZaehlen,
   ]);
+
+  const imEroeffnungssaldo = verschluckt.reduce((s, r) => s + (('count' in r ? r.count : 0) ?? 0), 0);
 
   const kontoName = new Map((alleKonten ?? []).map(k => [k.id, k.name]));
 
@@ -114,6 +134,7 @@ export default async function KontoabstimmungPage({ params }: { params: Promise<
         rows={[...rows, ...umbuchungen]}
         openingBalance={Number(account.opening_balance ?? 0)}
         openingDate={account.opening_date ?? null}
+        imEroeffnungssaldo={imEroeffnungssaldo}
       />
     </div>
   );
