@@ -292,6 +292,17 @@ export type Invoice = {
   customers?: Pick<Customer, 'id' | 'name' | 'contact_person'> | null;
 };
 
+export type InvoiceAttachment = {
+  id: string;
+  client_id: string;
+  invoice_id: string;
+  file_name: string;
+  storage_path: string;
+  mime_type: string | null;
+  file_size: number | null;
+  created_at: string;
+};
+
 export type IncomingInvoice = {
   id: string;
   client_id: string;
@@ -659,6 +670,19 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      invoice_attachments: {
+        Row: InvoiceAttachment;
+        Insert: {
+          client_id: string;
+          invoice_id: string;
+          file_name: string;
+          storage_path: string;
+          mime_type?: string | null;
+          file_size?: number | null;
+        };
+        Update: Partial<InvoiceAttachment>;
+        Relationships: [];
       };
       incoming_invoices: {
         Row: IncomingInvoice;

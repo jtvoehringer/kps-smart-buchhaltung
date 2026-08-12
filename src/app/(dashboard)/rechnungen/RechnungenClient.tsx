@@ -181,8 +181,14 @@ export default function RechnungenClient({
                   : 0;
                 return (
                   <tr key={inv.id} className="border-t border-gray-50 hover:bg-gray-50/50">
-                    <td className="px-4 py-3 font-mono text-[#35609E] font-medium">
-                      {inv.invoice_number || <span className="text-gray-300 italic">Entwurf</span>}
+                    <td className="px-4 py-3 font-mono font-medium">
+                      <Link
+                        href={`/rechnungen/${inv.id}`}
+                        className="text-[#35609E] hover:underline underline-offset-2"
+                        title="Rechnung öffnen"
+                      >
+                        {inv.invoice_number || <span className="font-sans text-gray-400 italic">Entwurf</span>}
+                      </Link>
                     </td>
                     <td className="px-4 py-3">
                       {inv.customers ? (

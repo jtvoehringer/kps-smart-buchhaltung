@@ -93,6 +93,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }, { status: 500 });
   }
 
+  // Zusatzanhänge (Leistungs-/Zeitnachweise) der Rechnung laden.
+  // Geladen wird mit dem Service-Role-Schlüssel – deshalb gilt dieselbe
+  // Pfadprüfung wie bei der Belegerkennung: nur aus dem Ordner des
+  // eigenen Mandanten, sonst wird der Anhang übersprungen.
+  const { data: anhangZeilen } = await admin
+    .from('invoice_attachments')
+    .select('file_name, storage_path, file_size')
+    .eq('invoice_id', id)
+    .eq('client_id', membership.client_id)
+    .order('created_at', { ascending: true });
+
+  const gesamtGroesse = (anhangZeilen ?? []).reduce((s, a) => s + (Number(a.file_size) || 0), 0);
+  if (gesamtGroesse > 25 * 1024 * 1024) {
+    return NextResponse.json({
+      error: 'Die Anhänge sind zusammen größer als 25 MB – das übersteigt das E-Mail-Limit. Bitte einzelne Anhänge entfernen.',
+    }, { status: 400 });
+  }
+
   const erlaubt = await versandProtokollieren(admin, {
     clientId: membership.client_id,
     userId: user.id,
@@ -122,6 +140,32 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       senderUid: clientData?.uid_number ?? null,
     });
 
+    const mailAnhaenge: { filename: string; content: Buffer }[] = [
+      {
+        filename: `Rechnung-${invoice.invoice_number || id}.pdf`,
+        content: pdfBuffer,
+      },
+    ];
+    for (const a of anhangZeilen ?? []) {
+      const pfad = String(a.storage_path ?? '');
+      if (!pfad.startsWith(`${membership.client_id}/`) || pfad.includes('..')) {
+        console.error('[Rechnungsversand] Anhang außerhalb des Mandantenordners übersprungen:', pfad);
+        continue;
+      }
+      const { data: datei, error: dlErr } = await admin.storage.from('belege').download(pfad);
+      if (dlErr || !datei) {
+        // Lieber abbrechen als eine Rechnung ohne den zugesagten
+        // Nachweis zu verschicken.
+        return NextResponse.json({
+          error: `Anhang "${a.file_name}" konnte nicht geladen werden (${dlErr?.message ?? 'nicht gefunden'}). Bitte den Anhang entfernen oder neu hochladen.`,
+        }, { status: 500 });
+      }
+      mailAnhaenge.push({
+        filename: a.file_name,
+        content: Buffer.from(await datei.arrayBuffer()),
+      });
+    }
+
     const resend = new Resend(apiKey);
     const senderName = clientData?.company_name || 'Ihre Buchhaltung';
     // Angesprochen wird der Kontakt ("z.H." der Rechnung, sonst der
@@ -140,12 +184,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         `Freundliche Grüße`,
         senderName,
       ].join('\n'),
-      attachments: [
-        {
-          filename: `Rechnung-${invoice.invoice_number || id}.pdf`,
-          content: pdfBuffer,
-        },
-      ],
+      attachments: mailAnhaenge,
     });
 
     if (sendErr) {

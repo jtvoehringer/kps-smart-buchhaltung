@@ -22,6 +22,7 @@ type InvoiceItem = {
 
 type Invoice = {
   id: string;
+  client_id: string;
   invoice_number: string | null;
   invoice_date: string;
   due_date: string;
@@ -57,6 +58,21 @@ type Branding = {
 
 type Category = { id: string; name: string; type: string; vat_rate: number };
 
+type Anhang = {
+  id: string;
+  file_name: string;
+  storage_path: string;
+  mime_type: string | null;
+  file_size: number | null;
+  created_at: string;
+};
+
+const ANHANG_TYPEN = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+const ANHANG_MAX = 10 * 1024 * 1024;
+
+const kb = (n: number | null) =>
+  n == null ? '' : n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
+
 const STATUS_LABEL: Record<string, string> = {
   draft: 'Entwurf', open: 'Offen', paid: 'Bezahlt', cancelled: 'Storniert',
 };
@@ -75,10 +91,10 @@ function heuteLokal() {
 }
 
 export default function RechnungDetailClient({
-  invoice, branding, incomeCategories, senderCompanyName, senderUid,
+  invoice, branding, incomeCategories, senderCompanyName, senderUid, attachments,
 }: {
   invoice: Invoice; branding: Branding; incomeCategories: Category[];
-  senderCompanyName: string; senderUid: string | null;
+  senderCompanyName: string; senderUid: string | null; attachments: Anhang[];
 }) {
   const router = useRouter();
   const supabase = createClient();
@@ -94,6 +110,80 @@ export default function RechnungDetailClient({
   const [sendMessage, setSendMessage] = useState('');
   const [sending, setSending]       = useState(false);
   const [sendError, setSendError]   = useState('');
+
+  // ── Zusatzanhänge (Leistungs-/Zeitnachweise) ────────────────────
+  const [anhaenge, setAnhaenge]         = useState<Anhang[]>(attachments);
+  const [anhangLaedt, setAnhangLaedt]   = useState(false);
+  const [anhangFehler, setAnhangFehler] = useState('');
+
+  async function anhangHochladen(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setAnhangLaedt(true);
+    setAnhangFehler('');
+    try {
+      for (const file of Array.from(files)) {
+        if (!ANHANG_TYPEN.includes(file.type)) {
+          throw new Error(`${file.name}: Nur PDF, JPG, PNG oder WEBP.`);
+        }
+        if (file.size > ANHANG_MAX) {
+          throw new Error(`${file.name}: Maximal 10 MB je Datei.`);
+        }
+        const sauber = file.name.replace(/[^\w.\-()äöüÄÖÜß ]+/g, '_');
+        const pfad = `${invoice.client_id}/rechnungsanhaenge/${invoice.id}/${Date.now()}_${sauber}`;
+        const { error: upErr } = await supabase.storage
+          .from('belege')
+          .upload(pfad, file, { contentType: file.type });
+        if (upErr) throw new Error(`${file.name}: ${upErr.message}`);
+
+        const { data: zeile, error: dbErr } = await supabase
+          .from('invoice_attachments')
+          .insert({
+            client_id: invoice.client_id,
+            invoice_id: invoice.id,
+            file_name: file.name,
+            storage_path: pfad,
+            mime_type: file.type,
+            file_size: file.size,
+          })
+          .select()
+          .single();
+        if (dbErr || !zeile) {
+          // Datei nicht verwaist liegenlassen
+          await supabase.storage.from('belege').remove([pfad]);
+          throw new Error(`${file.name}: ${dbErr?.message ?? 'Speichern fehlgeschlagen'}`);
+        }
+        setAnhaenge(prev => [...prev, zeile as Anhang]);
+      }
+    } catch (e: unknown) {
+      setAnhangFehler(e instanceof Error ? e.message : 'Upload fehlgeschlagen.');
+    } finally {
+      setAnhangLaedt(false);
+    }
+  }
+
+  async function anhangOeffnen(a: Anhang) {
+    setAnhangFehler('');
+    const { data, error: sigErr } = await supabase.storage
+      .from('belege')
+      .createSignedUrl(a.storage_path, 300);
+    if (sigErr || !data?.signedUrl) {
+      setAnhangFehler(`Öffnen fehlgeschlagen: ${sigErr?.message ?? 'unbekannter Fehler'}`);
+      return;
+    }
+    window.open(data.signedUrl, '_blank', 'noopener');
+  }
+
+  async function anhangLoeschen(a: Anhang) {
+    setAnhangFehler('');
+    const { error: delErr } = await supabase.from('invoice_attachments').delete().eq('id', a.id);
+    if (delErr) {
+      setAnhangFehler(`Löschen fehlgeschlagen: ${delErr.message}`);
+      return;
+    }
+    // Verwaiste Datei ist unkritisch – Fehler hier nicht blockieren lassen.
+    await supabase.storage.from('belege').remove([a.storage_path]);
+    setAnhaenge(prev => prev.filter(x => x.id !== a.id));
+  }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -235,6 +325,52 @@ export default function RechnungDetailClient({
               placeholder="z.B. anbei erhalten Sie die Rechnung wie besprochen."
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none" />
           </div>
+          {/* Zusatzanhänge: Leistungs-/Zeitnachweise gehen mit derselben Mail hinaus */}
+          <div className="border border-gray-100 rounded-lg p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium text-gray-500">
+                Weitere Anhänge <span className="text-gray-400 font-normal">(z.B. Leistungs-/Zeitnachweis – PDF oder Bild, max. 10 MB)</span>
+              </p>
+              <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#35609E] hover:text-[#4F90E8] cursor-pointer">
+                {anhangLaedt ? 'Lädt…' : '+ Datei hinzufügen'}
+                <input
+                  type="file" multiple className="hidden"
+                  accept="application/pdf,image/jpeg,image/png,image/webp"
+                  disabled={anhangLaedt}
+                  onChange={e => { void anhangHochladen(e.target.files); e.target.value = ''; }}
+                />
+              </label>
+            </div>
+            {anhaenge.length === 0 ? (
+              <p className="text-xs text-gray-400">Es wird nur das Rechnungs-PDF versendet.</p>
+            ) : (
+              <ul className="space-y-1">
+                {anhaenge.map(a => (
+                  <li key={a.id} className="flex items-center justify-between gap-2 text-sm">
+                    <button
+                      type="button"
+                      onClick={() => void anhangOeffnen(a)}
+                      className="text-gray-700 hover:text-[#35609E] hover:underline underline-offset-2 truncate text-left"
+                      title="Anhang öffnen"
+                    >
+                      {a.file_name}
+                      {a.file_size != null && <span className="text-gray-400 text-xs"> · {kb(a.file_size)}</span>}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void anhangLoeschen(a)}
+                      className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0"
+                      title="Anhang entfernen"
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {anhangFehler && <p className="text-red-600 text-xs bg-red-50 px-2 py-1.5 rounded">{anhangFehler}</p>}
+          </div>
+
           {sendError && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{sendError}</p>}
           <div className="flex gap-2">
             <button onClick={handleSend} disabled={sending}

@@ -116,6 +116,22 @@ export default function OffenePostenClient({
   }
 
   // ── Eingangsrechnungen: Buchung bei Zahlungsausgang ──────────────────
+  // Eingangsrechnungen haben keine eigene Detailseite – ein Klick auf
+  // die Nummer öffnet den hinterlegten Beleg (kurzlebige signierte URL,
+  // der Bucket ist privat).
+  const [belegLaedt, setBelegLaedt] = useState<string | null>(null);
+  async function belegOeffnen(pfad: string) {
+    setBelegLaedt(pfad);
+    setInError('');
+    const { data, error } = await supabase.storage.from('belege').createSignedUrl(pfad, 300);
+    setBelegLaedt(null);
+    if (error || !data?.signedUrl) {
+      setInError(`Beleg konnte nicht geöffnet werden: ${error?.message ?? 'unbekannter Fehler'}`);
+      return;
+    }
+    window.open(data.signedUrl, '_blank', 'noopener');
+  }
+
   const [inBookingId, setInBookingId] = useState<string | null>(null);
   const [inPaymentDate, setInPaymentDate] = useState('');
   const [inCategoryId, setInCategoryId] = useState('');
@@ -235,7 +251,15 @@ export default function OffenePostenClient({
                     return (
                       <Fragment key={inv.id}>
                         <tr className="border-t border-gray-50 hover:bg-gray-50/50">
-                          <td className="px-4 py-3 font-mono text-[#35609E] font-medium">{inv.invoice_number}</td>
+                          <td className="px-4 py-3 font-mono font-medium">
+                            <Link
+                              href={`/rechnungen/${inv.id}`}
+                              className="text-[#35609E] hover:underline underline-offset-2"
+                              title="Rechnung öffnen"
+                            >
+                              {inv.invoice_number}
+                            </Link>
+                          </td>
                           <td className="px-4 py-3 text-gray-700">
                             {inv.customers ? (
                               <Link href={`/kunden/${inv.customers.id}`} className="hover:text-[#35609E] transition-colors">
@@ -319,6 +343,12 @@ export default function OffenePostenClient({
           <NeueEingangsrechnungForm clientId={clientId} categories={expenseCategories} suppliers={suppliers} />
         </div>
 
+        {/* Fehler aus dem Beleg-Öffnen sind sonst nur in der
+            aufgeklappten Buchungszeile sichtbar. */}
+        {inError && inBookingId === null && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-100 px-3 py-2 rounded-lg">{inError}</p>
+        )}
+
         {incomingInvoices.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center">
             <Inbox size={28} strokeWidth={1.5} className="text-gray-300 mx-auto mb-2" />
@@ -362,7 +392,21 @@ export default function OffenePostenClient({
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-3 font-mono text-gray-500">{inv.invoice_number ?? '—'}</td>
+                          <td className="px-4 py-3 font-mono text-gray-500">
+                            {inv.beleg_storage_path ? (
+                              <button
+                                type="button"
+                                onClick={() => belegOeffnen(inv.beleg_storage_path!)}
+                                className="text-[#35609E] font-medium hover:underline underline-offset-2 disabled:opacity-50"
+                                disabled={belegLaedt === inv.beleg_storage_path}
+                                title="Beleg öffnen"
+                              >
+                                {inv.invoice_number ?? 'Beleg'}
+                              </button>
+                            ) : (
+                              <span title="Kein Beleg hinterlegt">{inv.invoice_number ?? '—'}</span>
+                            )}
+                          </td>
                           <td className="px-4 py-3">
                             <span className={`inline-flex items-center gap-1.5 ${overdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
                               {overdue && <AlertTriangle size={13} strokeWidth={2} />}

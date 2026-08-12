@@ -46,6 +46,13 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
 
   if (!invoice) notFound();
 
+  const { data: attachments } = await admin
+    .from('invoice_attachments')
+    .select('id, file_name, storage_path, mime_type, file_size, created_at')
+    .eq('invoice_id', id)
+    .eq('client_id', membership.client_id)
+    .order('created_at', { ascending: true });
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
@@ -58,6 +65,7 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
         </h1>
       </div>
       <RechnungDetailClient
+        attachments={attachments ?? []}
         invoice={invoice}
         branding={branding ?? null}
         incomeCategories={incomeCategories ?? []}
