@@ -43,9 +43,15 @@ const styles = StyleSheet.create({
   vatRow: { flexDirection: 'row', paddingBottom: 6, marginBottom: 2, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   vatLabel: { flex: 1, marginLeft: 45, fontSize: 8, color: '#999' },
   vatAmount: { width: 75, fontSize: 8, color: '#999', textAlign: 'right' },
-  totalsBlock: { alignSelf: 'flex-end', width: 200, marginTop: 12 },
-  totalsRow: { flexDirection: 'row', justifyContent: 'space-between', fontSize: 9.5, color: '#555', paddingVertical: 2 },
-  totalsTotal: { flexDirection: 'row', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, borderTopWidth: 2, marginTop: 4, paddingTop: 6 },
+  // Summen laufen in derselben Spaltenflucht wie die Positionen:
+  // Label beginnt an der Mengenspalte, Betrag endet in der Betragsspalte.
+  totalsBlock: { marginTop: 12 },
+  totalsRow: { flexDirection: 'row', fontSize: 9.5, color: '#555', paddingVertical: 2 },
+  totalsEinzug: { width: 42, flexShrink: 0 },
+  totalsFrei: { flexGrow: 1, flexShrink: 1, flexBasis: 0 },
+  totalsLabel: { width: 138, flexShrink: 0 },
+  totalsWert: { width: 90, flexShrink: 0, textAlign: 'right' },
+  totalsTotal: { flexDirection: 'row', fontSize: 12, fontWeight: 700, marginTop: 4, paddingTop: 6 },
   notes: { fontSize: 9, color: '#666', fontStyle: 'italic', marginTop: 16 },
   payment: { marginTop: 20, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#eeeeee' },
   paymentH: { fontSize: 8.5, fontWeight: 700, color: '#444', textTransform: 'uppercase', marginBottom: 4 },
@@ -156,10 +162,20 @@ export function InvoiceDocument({ invoice, customer, branding, senderCompanyName
         ))}
 
         <View style={styles.totalsBlock}>
-          <View style={styles.totalsRow}><Text>Netto gesamt</Text><Text>{fmt(Number(invoice.total_net))}</Text></View>
-          <View style={styles.totalsRow}><Text>USt gesamt</Text><Text>{fmt(Number(invoice.total_vat))}</Text></View>
-          <View style={[styles.totalsTotal, { borderTopColor: color, color }]}>
-            <Text>Gesamtbetrag</Text><Text>{fmt(Number(invoice.total_gross))}</Text>
+          <View style={styles.totalsRow}>
+            <View style={styles.totalsEinzug} /><View style={styles.totalsFrei} />
+            <Text style={styles.totalsLabel}>Netto</Text>
+            <Text style={styles.totalsWert}>{fmt(Number(invoice.total_net))}</Text>
+          </View>
+          <View style={styles.totalsRow}>
+            <View style={styles.totalsEinzug} /><View style={styles.totalsFrei} />
+            <Text style={styles.totalsLabel}>USt</Text>
+            <Text style={styles.totalsWert}>{fmt(Number(invoice.total_vat))}</Text>
+          </View>
+          <View style={[styles.totalsTotal, { color }]}>
+            <View style={styles.totalsEinzug} /><View style={styles.totalsFrei} />
+            <Text style={[styles.totalsLabel, { borderTopWidth: 2, borderTopColor: color, paddingTop: 4 }]}>Gesamt</Text>
+            <Text style={[styles.totalsWert, { borderTopWidth: 2, borderTopColor: color, paddingTop: 4 }]}>{fmt(Number(invoice.total_gross))}</Text>
           </View>
           <Text style={{ fontSize: 7.5, color: '#999', textAlign: 'right', marginTop: 3 }}>
             Alle Beträge in Euro

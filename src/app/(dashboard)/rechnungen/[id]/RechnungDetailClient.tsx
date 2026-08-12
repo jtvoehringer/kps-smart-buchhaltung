@@ -519,9 +519,9 @@ export default function RechnungDetailClient({
             <tr className="border-b-2 text-xs text-gray-500 uppercase" style={{ borderColor: branding?.brand_color ?? '#35609E' }}>
               <th className="text-left pb-2 w-16">Pos.</th>
               <th className="text-left pb-2">Leistung</th>
-              <th className="text-right pb-2">Menge</th>
-              <th className="text-right pb-2">Einzel (netto)</th>
-              <th className="text-right pb-2">Betrag</th>
+              <th className="text-left pb-2 w-24">Menge</th>
+              <th className="text-left pb-2 w-28">Einzel (netto)</th>
+              <th className="text-right pb-2 w-32">Betrag</th>
             </tr>
           </thead>
           <tbody>
@@ -542,8 +542,8 @@ export default function RechnungDetailClient({
                       </div>
                     )}
                   </td>
-                  <td className="py-2 pt-3 text-right text-gray-600">{item.quantity} {item.unit}</td>
-                  <td className="py-2 pt-3 text-right text-gray-600">{formatCurrency(item.unit_price)}</td>
+                  <td className="py-2 pt-3 text-left text-gray-600 whitespace-nowrap">{String(item.quantity).replace('.', ',')} {item.unit}</td>
+                  <td className="py-2 pt-3 text-left text-gray-600 whitespace-nowrap">{formatCurrency(item.unit_price)}</td>
                   <td className="py-2 pt-3 text-right font-medium text-gray-800">{formatCurrency(item.amount_net)}</td>
                 </tr>
                 <tr className="border-b border-gray-50">
@@ -554,26 +554,36 @@ export default function RechnungDetailClient({
               </Fragment>
             ))}
           </tbody>
+          {/* Summen im tfoot derselben Tabelle: Labels stehen exakt in
+              der Mengenspalte, Beträge exakt in der Betragsspalte. */}
+          <tfoot>
+            <tr className="text-gray-500">
+              <td className="pt-3"></td>
+              <td></td>
+              <td className="text-left py-0.5" colSpan={2}>Netto</td>
+              <td className="text-right py-0.5">{formatCurrency(Number(invoice.total_net))}</td>
+            </tr>
+            <tr className="text-gray-500">
+              <td></td>
+              <td></td>
+              <td className="text-left py-0.5" colSpan={2}>USt</td>
+              <td className="text-right py-0.5">{formatCurrency(Number(invoice.total_vat))}</td>
+            </tr>
+            <tr className="font-bold text-base"
+              style={{ color: branding?.brand_color ?? '#35609E' }}>
+              <td></td>
+              <td></td>
+              <td className="text-left pt-1 border-t-2" colSpan={2}
+                style={{ borderColor: branding?.brand_color ?? '#35609E' }}>Gesamt</td>
+              <td className="text-right pt-1 border-t-2"
+                style={{ borderColor: branding?.brand_color ?? '#35609E' }}>{formatCurrency(Number(invoice.total_gross))}</td>
+            </tr>
+            <tr>
+              <td colSpan={4}></td>
+              <td className="text-right text-[10px] text-gray-400 pt-0.5">Alle Beträge in Euro</td>
+            </tr>
+          </tfoot>
         </table>
-
-        {/* Summen */}
-        <div className="flex justify-end">
-          <div className="w-64 space-y-1 text-sm">
-            <div className="flex justify-between text-gray-500">
-              <span>Netto</span><span>{formatCurrency(Number(invoice.total_net))}</span>
-            </div>
-            <div className="flex justify-between text-gray-500">
-              <span>USt</span><span>{formatCurrency(Number(invoice.total_vat))}</span>
-            </div>
-            <div className="flex justify-between font-bold text-base pt-1 border-t-2"
-              style={{ borderColor: branding?.brand_color ?? '#35609E', color: branding?.brand_color ?? '#35609E' }}>
-              <span>Gesamt</span><span>{formatCurrency(Number(invoice.total_gross))}</span>
-            </div>
-            <div className="text-right text-[10px] text-gray-400">
-              Alle Beträge in Euro
-            </div>
-          </div>
-        </div>
 
         {/* Zahlungshinweis */}
         <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-gray-500">
@@ -607,13 +617,13 @@ export default function RechnungDetailClient({
             )}
             {branding?.invoice_footer_left && <p>{branding.invoice_footer_left}</p>}
           </div>
-          <div>
+          <div className="text-center">
             {branding?.company_phone   && <p>Tel: {branding.company_phone}</p>}
             {branding?.company_email   && <p>{branding.company_email}</p>}
             {branding?.company_website && <p>{branding.company_website}</p>}
             {branding?.invoice_footer_center && <p>{branding.invoice_footer_center}</p>}
           </div>
-          <div>
+          <div className="text-right">
             {branding?.iban && <p>IBAN: {branding.iban}</p>}
             {(branding?.bic || branding?.bank_name) && (
               <p>{[branding.bic, branding.bank_name].filter(Boolean).join(' · ')}</p>
