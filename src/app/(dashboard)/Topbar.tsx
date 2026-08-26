@@ -30,21 +30,24 @@ export default function Topbar({
     <header className="bg-navy text-white shrink-0 z-40">
       <div className="h-14 max-w-6xl mx-auto px-4 md:px-6 flex items-center gap-3 md:gap-5">
         <Link href="/dashboard" className="flex items-center gap-3 md:gap-5 min-w-0 shrink-0 group">
+          {/* Querformat-Lockup wie im HR-Suite-PoC und LSB Cockpit (Wunsch 26.08.2026) */}
           <Image
-            src="/icp-lockup-weiss.png"
+            src="/icp-lockup-weiss-quer.svg"
             alt="ICP Solutions"
-            width={96}
-            height={32}
-            className="h-[26px] w-auto transition-opacity group-hover:opacity-85"
+            width={119}
+            height={26}
+            className="h-[24px] md:h-[26px] w-auto transition-opacity group-hover:opacity-85"
             priority
           />
           <span className="hidden sm:block text-[15px] font-medium tracking-[0.02em] opacity-90 border-l border-white/25 pl-3 md:pl-5 whitespace-nowrap">
-            Smart Buchhaltung
+            E&amp;A Suite
           </span>
         </Link>
 
-        <div className="min-w-0 flex-1 truncate text-[13.5px] text-white/75" title={companyName}>
-          {companyName}
+        {/* Mandant – als solcher beschriftet, damit klar ist, wessen Daten gezeigt werden */}
+        <div className="min-w-0 flex-1 flex items-baseline gap-2 truncate" title={`Mandant: ${companyName}`}>
+          <span className="hidden md:inline font-mono text-[10.5px] tracking-[0.08em] uppercase text-white/45 shrink-0">Mandant</span>
+          <span className="truncate text-[13.5px] text-white/80">{companyName}</span>
         </div>
 
         <div className="ml-auto flex items-center gap-2 md:gap-3 shrink-0">

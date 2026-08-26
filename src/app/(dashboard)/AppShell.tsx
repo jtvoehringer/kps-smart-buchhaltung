@@ -28,7 +28,7 @@ export default function AppShell({
       <main className="flex-1 min-w-0 overflow-y-auto">
         {children}
         <footer className="px-6 pb-6 pt-2 max-w-6xl mx-auto flex flex-wrap justify-between gap-2 font-mono text-[11px] text-ink-3">
-          <span>© ICP Solutions · Smart Buchhaltung</span>
+          <span>© ICP Solutions · E&amp;A Suite</span>
           <span>
             {/* Release aus package.json, Build = Git-Commit des Vercel-Builds (next.config.js) */}
             Rel. {process.env.NEXT_PUBLIC_APP_VERSION ?? '0.9'}

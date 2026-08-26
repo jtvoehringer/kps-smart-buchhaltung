@@ -29,7 +29,7 @@ import './globals.css';
 import RegisterSW from './RegisterSW';
 
 export const metadata: Metadata = {
-  title: 'Smart Buchhaltung',
+  title: 'E&A Suite',
   description: 'Digitale Buchführung für österreichische EA-Rechner',
   manifest: '/manifest.json',
   icons: {
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Smart Buchhaltung',
+    title: 'E&A Suite',
   },
 };
 

@@ -34,7 +34,7 @@ export default function AppEinladungCard({ defaultEmail }: { defaultEmail: strin
         Mobile App
       </h2>
       <p className="text-sm text-ink-2">
-        Smart Buchhaltung lässt sich auf dem Smartphone oder Tablet als App installieren – ideal, um
+        Die E&amp;A Suite lässt sich auf dem Smartphone oder Tablet als App installieren – ideal, um
         Belege direkt unterwegs zu fotografieren. Schick dir (oder einem Mitarbeiter/Klienten) den
         Installationslink samt Kurzanleitung per E-Mail.
       </p>

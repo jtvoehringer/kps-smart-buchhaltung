@@ -42,7 +42,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       style={signalRgb ? ({ ['--signal-rgb' as string]: signalRgb } as React.CSSProperties) : undefined}
     >
       <AppShell
-        companyName={client?.company_name ?? 'Smart Buchhaltung'}
+        companyName={client?.company_name ?? 'E&A Suite'}
         role={me?.role ?? 'klient'}
         clientId={clientId}
       >

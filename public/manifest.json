@@ -1,6 +1,6 @@
 {
-  "name": "Smart Buchhaltung",
-  "short_name": "Smart Buchhaltung",
+  "name": "E&A Suite",
+  "short_name": "E&A Suite",
   "description": "Digitale Buchführung für österreichische EA-Rechner – Belege per Smartphone scannen, Buchungen, UVA und Offene Posten verwalten.",
   "start_url": "/belege",
   "scope": "/",

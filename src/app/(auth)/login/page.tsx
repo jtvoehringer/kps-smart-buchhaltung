@@ -40,7 +40,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-3">
             <Image src="/icp-lockup-navy.png" alt="ICP Solutions" width={170} height={50} priority />
           </div>
-          <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">Smart Buchhaltung</h1>
+          <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">E&amp;A Suite</h1>
           <p className="text-ink-2 text-sm mt-1">Bitte melden Sie sich an</p>
         </div>
 
