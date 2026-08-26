@@ -1,6 +1,6 @@
 {
-  "name": "KPS Smart Buchhaltung",
-  "short_name": "KPS Buchhaltung",
+  "name": "Smart Buchhaltung",
+  "short_name": "Smart Buchhaltung",
   "description": "Digitale Buchführung für österreichische EA-Rechner – Belege per Smartphone scannen, Buchungen, UVA und Offene Posten verwalten.",
   "start_url": "/belege",
   "scope": "/",

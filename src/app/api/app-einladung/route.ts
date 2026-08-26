@@ -1,5 +1,5 @@
 // POST /api/app-einladung
-// Verschickt eine E-Mail mit dem Installations-Link zur KPS Smart Buchhaltung
+// Verschickt eine E-Mail mit dem Installations-Link zur Smart Buchhaltung
 // PWA + Kurzanleitung für iOS/Android/iPad. Nutzt denselben Resend-Versand
 // wie /api/rechnungen/[id]/send.
 
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     .select('company_name')
     .eq('id', membership.client_id)
     .maybeSingle();
-  const senderName = clientData?.company_name || 'KPS Smart Buchhaltung';
+  const senderName = clientData?.company_name || 'Smart Buchhaltung';
 
   // Mengenbegrenzung und Nachweis – vor dem Versand, damit ein
   // erreichtes Limit die Mail auch wirklich verhindert.
@@ -81,11 +81,11 @@ export async function POST(req: NextRequest) {
     const { error: sendErr } = await resend.emails.send({
       from: fromAddress,
       to: recipient,
-      subject: 'KPS Smart Buchhaltung – App auf dem Smartphone installieren',
+      subject: 'Smart Buchhaltung – App auf dem Smartphone installieren',
       text: [
         `Hallo,`,
         ``,
-        `hier ist der Link zu KPS Smart Buchhaltung, den du auf deinem Smartphone oder Tablet als App installieren kannst – ideal, um Belege direkt unterwegs zu fotografieren:`,
+        `hier ist der Link zu Smart Buchhaltung, den du auf deinem Smartphone oder Tablet als App installieren kannst – ideal, um Belege direkt unterwegs zu fotografieren:`,
         ``,
         belegeUrl,
         ``,
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       ].join('\n'),
       html: [
         `<p>Hallo,</p>`,
-        `<p>hier ist der Link zu <strong>KPS Smart Buchhaltung</strong>, den du auf deinem Smartphone oder Tablet als App installieren kannst – ideal, um Belege direkt unterwegs zu fotografieren:</p>`,
+        `<p>hier ist der Link zu <strong>Smart Buchhaltung</strong>, den du auf deinem Smartphone oder Tablet als App installieren kannst – ideal, um Belege direkt unterwegs zu fotografieren:</p>`,
         `<p><a href="${htmlEscape(belegeUrl)}">${htmlEscape(belegeUrl)}</a></p>`,
         `<p><strong>iPhone/iPad (Safari):</strong><br>1. Link oben öffnen<br>2. Teilen-Symbol antippen (Quadrat mit Pfeil nach oben)<br>3. „Zum Home-Bildschirm" auswählen</p>`,
         `<p><strong>Android (Chrome):</strong><br>1. Link oben öffnen<br>2. Menü (drei Punkte) antippen<br>3. „App installieren" bzw. „Zum Startbildschirm hinzufügen" auswählen</p>`,

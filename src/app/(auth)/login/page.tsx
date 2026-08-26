@@ -38,7 +38,7 @@ export default function LoginPage() {
         {/* Logo / Titel */}
         <div className="mb-8 text-center">
           <div className="flex justify-center mb-3">
-            <Image src="/kps-logo.png" alt="KPS Logo" width={150} height={73} priority />
+            <Image src="/icp-lockup-navy.png" alt="ICP Solutions" width={170} height={50} priority />
           </div>
           <h1 className="text-2xl font-bold text-brand">Smart Buchhaltung</h1>
           <p className="text-gray-500 text-sm mt-1">Bitte melden Sie sich an</p>

@@ -18,7 +18,7 @@ import './globals.css';
 import RegisterSW from './RegisterSW';
 
 export const metadata: Metadata = {
-  title: 'KPS Smart Buchhaltung',
+  title: 'Smart Buchhaltung',
   description: 'Digitale Buchführung für österreichische EA-Rechner',
   manifest: '/manifest.json',
   icons: {
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'KPS Buchhaltung',
+    title: 'Smart Buchhaltung',
   },
 };
 

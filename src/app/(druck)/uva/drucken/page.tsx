@@ -224,7 +224,7 @@ export default async function UVADruckenPage({
 
         <div className="header">
           <div className="logo-block">
-            <div className="logo">KPS</div>
+            <div className="logo">ICP</div>
             <div>
               <div className="brand-name">Smart Buchhaltung</div>
               <div className="company-name">{client.company_name}</div>
@@ -357,7 +357,7 @@ export default async function UVADruckenPage({
           </div>
           <div className="footer-meta">
             IC&amp;P Consultants e.U.<br />
-            KPS Smart Buchhaltung
+            Smart Buchhaltung
           </div>
         </div>
       </div>

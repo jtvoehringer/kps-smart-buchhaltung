@@ -39,7 +39,7 @@ export default function PasswortNeuPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#E3F2FD]">
       <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="inline-block bg-brand text-white text-sm font-bold px-3 py-1 rounded mb-3">KPS</div>
+          <div className="inline-block bg-brand text-white text-sm font-bold px-3 py-1 rounded mb-3">ICP</div>
           <h1 className="text-2xl font-bold text-brand">Neues Passwort</h1>
           <p className="text-gray-500 text-sm mt-1">Bitte wähle ein neues Passwort</p>
         </div>

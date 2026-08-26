@@ -124,11 +124,11 @@ export default function Sidebar({ companyName, role }: Props) {
       <div className="px-4 pt-5 pb-4 border-b border-white/10 flex-shrink-0">
         <Link href="/dashboard" className="flex flex-col items-start gap-2 group" onClick={() => setMobileOpen(false)}>
           <Image
-            src="/kps-logo.png"
-            alt="KPS Logo"
-            width={120}
-            height={58}
-            className="transition-opacity group-hover:opacity-80 bg-white rounded-md px-2 py-1"
+            src="/icp-lockup-weiss.png"
+            alt="ICP Solutions"
+            width={140}
+            height={41}
+            className="transition-opacity group-hover:opacity-80"
             priority
           />
           <span

@@ -26,13 +26,21 @@ export default async function UVAPage() {
   // Mandant damit unbemerkt eine zu niedrige Zahllast.
   const { data: jahre } = await supabase.rpc('buchungsjahre', { p_client_id: client.id });
 
-  // Gespeicherte UVA-Meldungen (Entwurf/übermittelt) laden
-  const { data: taxReturns } = await supabase
-    .from('tax_returns')
-    .select('id, period_year, period_month, status, submitted_at')
-    .eq('client_id', client.id)
-    .order('period_year', { ascending: false })
-    .order('period_month', { ascending: false });
+  // Gespeicherte UVA-Meldungen (Entwurf/übermittelt) und die
+  // Monatsabschlüsse laden – die Übermittlung setzt seit Migration 043
+  // voraus, dass alle Monate des Zeitraums abgeschlossen sind.
+  const [{ data: taxReturns }, { data: monthClosures }] = await Promise.all([
+    supabase
+      .from('tax_returns')
+      .select('id, period_year, period_month, status, submitted_at')
+      .eq('client_id', client.id)
+      .order('period_year', { ascending: false })
+      .order('period_month', { ascending: false }),
+    supabase
+      .from('month_closures')
+      .select('period_year, period_month, reopened_at')
+      .eq('client_id', client.id),
+  ]);
 
   return (
     <UVAClient
@@ -42,6 +50,7 @@ export default async function UVAPage() {
       vatPeriod={client.vat_period ?? 'quarterly'}
       jahre={(jahre ?? []).map((j: { jahr: number }) => j.jahr)}
       taxReturns={taxReturns ?? []}
+      monthClosures={monthClosures ?? []}
     />
   );
 }

@@ -26,6 +26,8 @@ type Props = {
   /** Jahre mit Buchungen – aus buchungsjahre() */
   jahre: number[];
   taxReturns: TaxReturn[];
+  /** Monatsabschlüsse – Voraussetzung für die Übermittlung (Migration 043) */
+  monthClosures: { period_year: number; period_month: number; reopened_at: string | null }[];
 };
 
 /** Eine Zeile aus uva_summe() */
@@ -59,7 +61,7 @@ function formatDateTime(ts: string | null) {
   return ts ? new Date(ts).toLocaleString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
 }
 
-export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod, jahre, taxReturns }: Props) {
+export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod, jahre, taxReturns, monthClosures }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const isQuarterly = vatPeriod !== 'monthly';
@@ -160,6 +162,21 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
     if (dueMonth > 12) { dueMonth -= 12; dueYear += 1; }
     return `15. ${MONATE[dueMonth - 1]}${dueYear !== year ? ` ${dueYear}` : ''}`;
   }, [isQuarterly, periodNum, year]);
+
+  // Migration 043: Die Übermittlung setzt voraus, dass alle Monate des
+  // Zeitraums abgeschlossen sind – wiedereröffnete gelten als offen.
+  // (Die Datenbankfunktion prüft dasselbe; hier nur die Vorwarnung.)
+  const offeneMonate = useMemo(() => {
+    const start = isQuarterly ? periodMonth - 2 : periodMonth;
+    const fehlt: string[] = [];
+    for (let m = start; m <= periodMonth; m++) {
+      const abgeschlossen = monthClosures.some(
+        c => c.period_year === year && c.period_month === m && !c.reopened_at,
+      );
+      if (!abgeschlossen) fehlt.push(MONATE[m - 1]);
+    }
+    return fehlt;
+  }, [isQuarterly, periodMonth, year, monthClosures]);
 
   function handlePrint() {
     const params = isQuarterly ? `year=${year}&quarter=${periodNum}` : `year=${year}&month=${periodNum}`;
@@ -321,14 +338,27 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
             {existingRow && (
               <button
                 onClick={handleUebermitteln}
-                disabled={submitting}
-                className="inline-flex items-center gap-1.5 bg-white border-2 border-income text-income hover:bg-income hover:text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50"
+                disabled={submitting || offeneMonate.length > 0}
+                title={offeneMonate.length > 0
+                  ? `Zuerst im Monatsabschluss abschließen: ${offeneMonate.join(', ')} ${year}`
+                  : undefined}
+                className="inline-flex items-center gap-1.5 bg-white border-2 border-income text-income hover:bg-income hover:text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-income"
               >
                 {submitting ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <Send size={14} strokeWidth={2} />}
                 Als übermittelt markieren
               </button>
             )}
           </div>
+          {/* Voraussetzung Monatsabschluss (Migration 043) */}
+          {offeneMonate.length > 0 && (
+            <p className="w-full text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 leading-relaxed">
+              Vor der Übermittlung {offeneMonate.length === 1 ? 'muss dieser Monat' : 'müssen diese Monate'}{' '}
+              abgeschlossen sein: <strong>{offeneMonate.join(', ')} {year}</strong> –{' '}
+              <a href="/monatsabschluss" className="font-semibold underline underline-offset-2">
+                zum Monatsabschluss
+              </a>
+            </p>
+          )}
         </div>
       )}
 
