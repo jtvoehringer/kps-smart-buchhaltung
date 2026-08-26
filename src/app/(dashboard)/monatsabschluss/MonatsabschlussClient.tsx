@@ -109,8 +109,8 @@ export default function MonatsabschlussClient({
                     ) : (
                       <button
                         onClick={() => handleClose(m)}
-                        disabled={m.txCount === 0}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-brand hover:bg-accent px-3 py-1.5 rounded-lg transition-colors disabled:opacity-30"
+                        title={m.txCount === 0 ? 'Monat ohne Buchungen abschließen (Nullmonat)' : undefined}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-brand hover:bg-accent px-3 py-1.5 rounded-lg transition-colors"
                       >
                         <CalendarCheck size={13} strokeWidth={2} />
                         Abschließen
