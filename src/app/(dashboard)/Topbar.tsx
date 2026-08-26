@@ -1,41 +1,35 @@
 'use client';
 
 // Navy-Kopfleiste (Design-Review Welle 4, nach dem HR-Suite-PoC):
-// links das ICP-Lockup und der Produktname, in der Mitte der Mandant,
-// rechts Rolle und Release. Die dunkle Fläche lebt nur noch hier –
-// die Navigation darunter ist hell.
+// links das ICP-Lockup und der Produktname, dann der Mandant, rechts
+// Rolle, Release und Abmelden. Die dunkle Fläche lebt nur hier – die
+// Navigation darunter (TabNav) ist hell.
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function Topbar({
   companyName,
   roleLabel,
-  mobileOpen,
-  onToggleMobile,
 }: {
   companyName: string;
   roleLabel: string;
-  mobileOpen: boolean;
-  onToggleMobile: () => void;
 }) {
   const release = process.env.NEXT_PUBLIC_APP_VERSION ?? '0.9';
   const build   = process.env.NEXT_PUBLIC_BUILD_SHA;
 
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = '/login';
+  }
+
   return (
     <header className="bg-navy text-white shrink-0 z-40">
-      <div className="h-14 px-4 md:px-6 flex items-center gap-4 md:gap-5">
-        <button
-          type="button"
-          onClick={onToggleMobile}
-          aria-label={mobileOpen ? 'Menü schließen' : 'Menü öffnen'}
-          className="md:hidden -ml-1 w-9 h-9 inline-flex items-center justify-center rounded-md hover:bg-white/10"
-        >
-          {mobileOpen ? <X size={18} strokeWidth={2} /> : <Menu size={18} strokeWidth={2} />}
-        </button>
-
-        <Link href="/dashboard" className="flex items-center gap-4 md:gap-5 min-w-0 group">
+      <div className="h-14 max-w-6xl mx-auto px-4 md:px-6 flex items-center gap-3 md:gap-5">
+        <Link href="/dashboard" className="flex items-center gap-3 md:gap-5 min-w-0 shrink-0 group">
           <Image
             src="/icp-lockup-weiss.png"
             alt="ICP Solutions"
@@ -44,16 +38,16 @@ export default function Topbar({
             className="h-[26px] w-auto transition-opacity group-hover:opacity-85"
             priority
           />
-          <span className="hidden sm:block text-[15px] font-medium tracking-[0.02em] opacity-90 border-l border-white/25 pl-4 md:pl-5 whitespace-nowrap">
+          <span className="hidden sm:block text-[15px] font-medium tracking-[0.02em] opacity-90 border-l border-white/25 pl-3 md:pl-5 whitespace-nowrap">
             Smart Buchhaltung
           </span>
         </Link>
 
-        <div className="min-w-0 flex-1 truncate text-[13.5px] text-white/75 hidden md:block">
+        <div className="min-w-0 flex-1 truncate text-[13.5px] text-white/75" title={companyName}>
           {companyName}
         </div>
 
-        <div className="ml-auto flex items-center gap-2.5 shrink-0">
+        <div className="ml-auto flex items-center gap-2 md:gap-3 shrink-0">
           <span className="hidden md:inline font-mono text-[11px] tracking-[0.08em] uppercase text-white/60">
             {roleLabel}
           </span>
@@ -63,6 +57,15 @@ export default function Topbar({
           >
             REL. {release}
           </span>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="inline-flex items-center gap-1.5 h-8 px-2 md:px-2.5 rounded-md text-[13px] text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+            title="Abmelden"
+          >
+            <LogOut size={16} strokeWidth={1.75} />
+            <span className="hidden md:inline">Abmelden</span>
+          </button>
         </div>
       </div>
     </header>
