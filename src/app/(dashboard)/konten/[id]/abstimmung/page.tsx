@@ -119,12 +119,12 @@ export default async function KontoabstimmungPage({ params }: { params: Promise<
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/konten" className="text-gray-400 hover:text-gray-600 transition-colors text-sm">
+        <Link href="/konten" className="text-ink-3 hover:text-navy transition-colors text-sm">
           ← Konten
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
-          <Scale size={22} strokeWidth={1.75} className="text-accent-dark" />
+        <span className="text-ink-3">/</span>
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em] flex items-center gap-2">
+          <Scale size={22} strokeWidth={1.75} className="text-navy" />
           Kontoabstimmung – {account.name}
         </h1>
       </div>

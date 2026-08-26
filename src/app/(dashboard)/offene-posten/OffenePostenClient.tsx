@@ -226,31 +226,31 @@ export default function OffenePostenClient({
     <div className="space-y-8">
       {/* ── Ausgangsrechnungen ─────────────────────────────────────── */}
       <section className="space-y-4">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-600 uppercase tracking-wide">
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-ink-2 uppercase tracking-wide">
           <ArrowUpCircle size={16} strokeWidth={2} className="text-income" />
           Ausgangsrechnungen
         </h2>
 
         {!hasInvoicing ? (
-          <p className="text-sm text-gray-400 bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3">
+          <p className="text-sm text-ink-3 card px-4 py-3">
             Rechnungsmodul ist nicht aktiviert.
           </p>
         ) : outgoingInvoices.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center">
-            <Inbox size={28} strokeWidth={1.5} className="text-gray-300 mx-auto mb-2" />
-            <p className="text-gray-500 text-sm">Keine offenen Ausgangsrechnungen.</p>
+          <div className="card p-8 text-center">
+            <Inbox size={28} strokeWidth={1.5} className="text-ink-3 mx-auto mb-2" />
+            <p className="text-ink-2 text-sm">Keine offenen Ausgangsrechnungen.</p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4">
               <SummaryTile label="Offen" value={totalOutOpen} count={outgoingInvoices.length} color="text-amber-600" />
-              <SummaryTile label="Überfällig" value={totalOutOverdue} count={outgoingInvoices.filter(i => isOverdue(i.due_date, today)).length} color={totalOutOverdue > 0 ? 'text-red-600' : 'text-gray-400'} />
+              <SummaryTile label="Überfällig" value={totalOutOverdue} count={outgoingInvoices.filter(i => isOverdue(i.due_date, today)).length} color={totalOutOverdue > 0 ? 'text-red-600' : 'text-ink-3'} />
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="card overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                  <tr className="label-mono border-b border-line-2">
                     <th className="text-left px-4 py-3">Nummer</th>
                     <th className="text-left px-4 py-3">Kunde</th>
                     <th className="text-left px-4 py-3">Fälligkeit</th>
@@ -264,31 +264,31 @@ export default function OffenePostenClient({
                     const isBooking = outBookingId === inv.id;
                     return (
                       <Fragment key={inv.id}>
-                        <tr className="border-t border-gray-50 hover:bg-gray-50/50">
+                        <tr className="border-t border-line hover:bg-row">
                           <td className="px-4 py-3 font-mono font-medium">
                             <Link
                               href={`/rechnungen/${inv.id}`}
-                              className="text-brand hover:underline underline-offset-2"
+                              className="text-navy hover:underline underline-offset-2"
                               title="Rechnung öffnen"
                             >
                               {inv.invoice_number}
                             </Link>
                           </td>
-                          <td className="px-4 py-3 text-gray-700">
+                          <td className="px-4 py-3 text-ink">
                             {inv.customers ? (
-                              <Link href={`/kunden/${inv.customers.id}`} className="hover:text-brand transition-colors">
+                              <Link href={`/kunden/${inv.customers.id}`} className="hover:text-navy transition-colors">
                                 {inv.customers.name}
                               </Link>
                             ) : '—'}
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex items-center gap-1.5 ${overdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                            <span className={`inline-flex items-center gap-1.5 ${overdue ? 'text-red-600 font-medium' : 'text-ink-2'}`}>
                               {overdue && <AlertTriangle size={13} strokeWidth={2} />}
                               {new Date(inv.due_date).toLocaleDateString('de-AT')}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-right font-semibold text-gray-800">{formatCurrency(Number(inv.total_gross))}</td>
-                          <td className="px-4 py-3 text-right">
+                          <td className="px-4 py-3 text-right font-semibold text-ink num">{formatCurrency(Number(inv.total_gross))}</td>
+                          <td className="px-4 py-3 text-right num">
                             {!isBooking && (
                               <button onClick={() => openOutBooking(inv)}
                                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-income hover:bg-income-dark px-3 py-1.5 rounded-lg transition-colors">
@@ -303,27 +303,27 @@ export default function OffenePostenClient({
                             <td colSpan={5} className="px-4 py-3">
                               <div className="flex flex-wrap items-end gap-3">
                                 <div>
-                                  <label htmlFor={`op-${inv.id}-zahldatum`} className="block text-xs font-medium text-gray-600 mb-1">Zahlungsdatum</label>
+                                  <label htmlFor={`op-${inv.id}-zahldatum`} className="block text-xs font-medium text-ink-2 mb-1">Zahlungsdatum</label>
                                   <input id={`op-${inv.id}-zahldatum`} type="date" value={outPaymentDate} onChange={e => setOutPaymentDate(e.target.value)}
-                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
+                                    className="border border-line-2 rounded-lg px-3 py-1.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30" />
                                 </div>
                                 <div>
-                                  <label htmlFor={`op-${inv.id}-kategorie`} className="block text-xs font-medium text-gray-600 mb-1">Kategorie</label>
+                                  <label htmlFor={`op-${inv.id}-kategorie`} className="block text-xs font-medium text-ink-2 mb-1">Kategorie</label>
                                   <select id={`op-${inv.id}-kategorie`} value={outCategoryId} onChange={e => setOutCategoryId(e.target.value)}
-                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                                    className="border border-line-2 rounded-lg px-3 py-1.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30">
                                     {incomeCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                   </select>
                                 </div>
                                 <div>
-                                  <label htmlFor={`op-${inv.id}-aus-konto`} className="block text-xs font-medium text-gray-600 mb-1">Bezahlt über</label>
+                                  <label htmlFor={`op-${inv.id}-aus-konto`} className="block text-xs font-medium text-ink-2 mb-1">Bezahlt über</label>
                                   {accounts.length === 0 ? (
-                                    <p className="text-xs text-gray-400 py-2">
+                                    <p className="text-xs text-ink-3 py-2">
                                       Noch keine Konten angelegt –{' '}
-                                      <Link href="/konten/neu" className="text-brand underline underline-offset-2">Konto anlegen</Link>
+                                      <Link href="/konten/neu" className="text-navy underline underline-offset-2">Konto anlegen</Link>
                                     </p>
                                   ) : (
                                     <select id={`op-${inv.id}-aus-konto`} value={outAccountId} onChange={e => setOutAccountId(e.target.value)}
-                                      className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                                      className="border border-line-2 rounded-lg px-3 py-1.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30">
                                       <option value="">Kein Konto</option>
                                       {accounts.map(k => (
                                         <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>
@@ -333,12 +333,12 @@ export default function OffenePostenClient({
                                 </div>
 
                                 <div>
-                                  <p className="block text-xs font-medium text-gray-600 mb-1">Umsatzsteuer</p>
-                                  <p className="text-sm text-gray-600 px-1 py-1.5">
+                                  <p className="block text-xs font-medium text-ink-2 mb-1">Umsatzsteuer</p>
+                                  <p className="text-sm text-ink-2 px-1 py-1.5">
                                     {formatCurrency(Number(inv.total_net))} netto
                                     {' + '}{formatCurrency(Number(inv.total_vat))} USt
                                   </p>
-                                  <p className="text-[11px] text-gray-400 -mt-0.5">
+                                  <p className="text-[11px] text-ink-3 -mt-0.5">
                                     Steuersätze werden aus den Positionen übernommen
                                   </p>
                                 </div>
@@ -347,7 +347,7 @@ export default function OffenePostenClient({
                                   {outSaving ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <Check size={14} strokeWidth={2} />}
                                   Buchen
                                 </button>
-                                <button onClick={() => setOutBookingId(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                <button onClick={() => setOutBookingId(null)} className="text-ink-3 hover:text-navy transition-colors">
                                   <X size={16} strokeWidth={2} />
                                 </button>
                               </div>
@@ -368,7 +368,7 @@ export default function OffenePostenClient({
       {/* ── Eingangsrechnungen ─────────────────────────────────────── */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-600 uppercase tracking-wide">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-ink-2 uppercase tracking-wide">
             <ArrowDownCircle size={16} strokeWidth={2} className="text-expense" />
             Eingangsrechnungen
           </h2>
@@ -382,21 +382,21 @@ export default function OffenePostenClient({
         )}
 
         {incomingInvoices.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center">
-            <Inbox size={28} strokeWidth={1.5} className="text-gray-300 mx-auto mb-2" />
-            <p className="text-gray-500 text-sm">Keine offenen Eingangsrechnungen.</p>
+          <div className="card p-8 text-center">
+            <Inbox size={28} strokeWidth={1.5} className="text-ink-3 mx-auto mb-2" />
+            <p className="text-ink-2 text-sm">Keine offenen Eingangsrechnungen.</p>
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4">
               <SummaryTile label="Offen" value={totalInOpen} count={incomingInvoices.length} color="text-amber-600" />
-              <SummaryTile label="Überfällig" value={totalInOverdue} count={incomingInvoices.filter(i => isOverdue(i.due_date, today)).length} color={totalInOverdue > 0 ? 'text-red-600' : 'text-gray-400'} />
+              <SummaryTile label="Überfällig" value={totalInOverdue} count={incomingInvoices.filter(i => isOverdue(i.due_date, today)).length} color={totalInOverdue > 0 ? 'text-red-600' : 'text-ink-3'} />
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="card overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                  <tr className="label-mono border-b border-line-2">
                     <th className="text-left px-4 py-3">Lieferant</th>
                     <th className="text-left px-4 py-3">Nummer</th>
                     <th className="text-left px-4 py-3">Fälligkeit</th>
@@ -410,26 +410,26 @@ export default function OffenePostenClient({
                     const isBooking = inBookingId === inv.id;
                     return (
                       <Fragment key={inv.id}>
-                        <tr className="border-t border-gray-50 hover:bg-gray-50/50">
-                          <td className="px-4 py-3 text-gray-700">
+                        <tr className="border-t border-line hover:bg-row">
+                          <td className="px-4 py-3 text-ink">
                             {inv.supplier_id ? (
-                              <Link href={`/lieferanten/${inv.supplier_id}`} className="inline-flex items-center gap-1.5 hover:text-brand transition-colors">
+                              <Link href={`/lieferanten/${inv.supplier_id}`} className="inline-flex items-center gap-1.5 hover:text-navy transition-colors">
                                 {inv.vendor_name}
-                                {inv.beleg_storage_path && <Paperclip size={12} strokeWidth={2} className="text-gray-300" />}
+                                {inv.beleg_storage_path && <Paperclip size={12} strokeWidth={2} className="text-ink-3" />}
                               </Link>
                             ) : (
                               <span className="inline-flex items-center gap-1.5">
                                 {inv.vendor_name}
-                                {inv.beleg_storage_path && <Paperclip size={12} strokeWidth={2} className="text-gray-300" />}
+                                {inv.beleg_storage_path && <Paperclip size={12} strokeWidth={2} className="text-ink-3" />}
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-3 font-mono text-gray-500">
+                          <td className="px-4 py-3 font-mono text-ink-2">
                             {inv.beleg_storage_path ? (
                               <button
                                 type="button"
                                 onClick={() => belegOeffnen(inv.beleg_storage_path!)}
-                                className="text-brand font-medium hover:underline underline-offset-2 disabled:opacity-50"
+                                className="text-navy font-medium hover:underline underline-offset-2 disabled:opacity-50"
                                 disabled={belegLaedt === inv.beleg_storage_path}
                                 title="Beleg öffnen"
                               >
@@ -440,13 +440,13 @@ export default function OffenePostenClient({
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <span className={`inline-flex items-center gap-1.5 ${overdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                            <span className={`inline-flex items-center gap-1.5 ${overdue ? 'text-red-600 font-medium' : 'text-ink-2'}`}>
                               {overdue && <AlertTriangle size={13} strokeWidth={2} />}
                               {new Date(inv.due_date).toLocaleDateString('de-AT')}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-right font-semibold text-gray-800">{formatCurrency(Number(inv.amount_gross))}</td>
-                          <td className="px-4 py-3 text-right">
+                          <td className="px-4 py-3 text-right font-semibold text-ink num">{formatCurrency(Number(inv.amount_gross))}</td>
+                          <td className="px-4 py-3 text-right num">
                             {!isBooking && (
                               <button onClick={() => openInBooking(inv)}
                                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-expense hover:bg-expense-dark px-3 py-1.5 rounded-lg transition-colors">
@@ -461,27 +461,27 @@ export default function OffenePostenClient({
                             <td colSpan={5} className="px-4 py-3">
                               <div className="flex flex-wrap items-end gap-3">
                                 <div>
-                                  <label htmlFor={`op-${inv.id}-zahldatum`} className="block text-xs font-medium text-gray-600 mb-1">Zahlungsdatum</label>
+                                  <label htmlFor={`op-${inv.id}-zahldatum`} className="block text-xs font-medium text-ink-2 mb-1">Zahlungsdatum</label>
                                   <input id={`op-${inv.id}-zahldatum`} type="date" value={inPaymentDate} onChange={e => setInPaymentDate(e.target.value)}
-                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
+                                    className="border border-line-2 rounded-lg px-3 py-1.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30" />
                                 </div>
                                 <div>
-                                  <label htmlFor={`op-${inv.id}-kategorie`} className="block text-xs font-medium text-gray-600 mb-1">Kategorie</label>
+                                  <label htmlFor={`op-${inv.id}-kategorie`} className="block text-xs font-medium text-ink-2 mb-1">Kategorie</label>
                                   <select id={`op-${inv.id}-kategorie`} value={inCategoryId} onChange={e => setInCategoryId(e.target.value)}
-                                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                                    className="border border-line-2 rounded-lg px-3 py-1.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30">
                                     {expenseCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                   </select>
                                 </div>
                                 <div>
-                                  <label htmlFor={`op-${inv.id}-ein-konto`} className="block text-xs font-medium text-gray-600 mb-1">Bezahlt über</label>
+                                  <label htmlFor={`op-${inv.id}-ein-konto`} className="block text-xs font-medium text-ink-2 mb-1">Bezahlt über</label>
                                   {accounts.length === 0 ? (
-                                    <p className="text-xs text-gray-400 py-2">
+                                    <p className="text-xs text-ink-3 py-2">
                                       Noch keine Konten angelegt –{' '}
-                                      <Link href="/konten/neu" className="text-brand underline underline-offset-2">Konto anlegen</Link>
+                                      <Link href="/konten/neu" className="text-navy underline underline-offset-2">Konto anlegen</Link>
                                     </p>
                                   ) : (
                                     <select id={`op-${inv.id}-ein-konto`} value={inAccountId} onChange={e => setInAccountId(e.target.value)}
-                                      className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+                                      className="border border-line-2 rounded-lg px-3 py-1.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30">
                                       <option value="">Kein Konto</option>
                                       {accounts.map(k => (
                                         <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>
@@ -490,13 +490,13 @@ export default function OffenePostenClient({
                                   )}
                                 </div>
 
-                                <span className="text-xs text-gray-400 pb-2">USt {inv.vat_rate}% (bei Erfassung festgelegt)</span>
+                                <span className="text-xs text-ink-3 pb-2">USt {inv.vat_rate}% (bei Erfassung festgelegt)</span>
                                 <button onClick={() => handleInBuchen(inv)} disabled={inSaving}
                                   className="inline-flex items-center gap-1.5 bg-expense hover:bg-expense-dark text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
                                   {inSaving ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <Check size={14} strokeWidth={2} />}
                                   Buchen
                                 </button>
-                                <button onClick={() => setInBookingId(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                                <button onClick={() => setInBookingId(null)} className="text-ink-3 hover:text-navy transition-colors">
                                   <X size={16} strokeWidth={2} />
                                 </button>
                               </div>
@@ -519,10 +519,10 @@ export default function OffenePostenClient({
 
 function SummaryTile({ label, value, count, color }: { label: string; value: number; count: number; color: string }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-      <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">{label}</p>
-      <p className={`text-xl font-bold ${color}`}>{formatCurrency(value)}</p>
-      <p className="text-xs text-gray-400 mt-0.5">{count} {count === 1 ? 'Rechnung' : 'Rechnungen'}</p>
+    <div className="card p-4">
+      <p className="label-mono font-medium mb-1">{label}</p>
+      <p className={`num text-[24px] font-semibold ${color}`}>{formatCurrency(value)}</p>
+      <p className="text-xs text-ink-3 mt-0.5">{count} {count === 1 ? 'Rechnung' : 'Rechnungen'}</p>
     </div>
   );
 }

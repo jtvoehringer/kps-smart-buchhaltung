@@ -25,11 +25,11 @@ export default async function NeuerKundePage() {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/kunden" className="text-gray-400 hover:text-gray-600 transition-colors text-sm">
+        <Link href="/kunden" className="text-ink-3 hover:text-navy transition-colors text-sm">
           ← Kunden
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-brand">Neuer Kunde</h1>
+        <span className="text-ink-3">/</span>
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">Neuer Kunde</h1>
       </div>
       <KundeForm clientId={membership.client_id} />
     </div>

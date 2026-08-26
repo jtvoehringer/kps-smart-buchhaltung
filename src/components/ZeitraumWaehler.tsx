@@ -28,15 +28,15 @@ export default function ZeitraumWaehler<T extends string | number>({
         onClick={() => aelter !== undefined && onChange(aelter)}
         disabled={aelter === undefined}
         aria-label="Früherer Zeitraum"
-        className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
+        className="w-8 h-8 rounded-md border border-line-2 bg-card text-ink-2 hover:bg-row hover:text-navy disabled:opacity-30 transition-colors"
       >‹</button>
-      <span className={`font-bold text-brand text-lg text-center ${breite}`}>{wert}</span>
+      <span className={`num font-semibold text-navy text-[17px] text-center ${breite}`}>{wert}</span>
       <button
         type="button"
         onClick={() => neuer !== undefined && onChange(neuer)}
         disabled={neuer === undefined}
         aria-label="Späterer Zeitraum"
-        className="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
+        className="w-8 h-8 rounded-md border border-line-2 bg-card text-ink-2 hover:bg-row hover:text-navy disabled:opacity-30 transition-colors"
       >›</button>
     </div>
   );

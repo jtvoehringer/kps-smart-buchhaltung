@@ -47,11 +47,11 @@ export default async function KontoBearbeitenPage({ params }: { params: Promise<
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/konten" className="text-gray-400 hover:text-gray-600 transition-colors text-sm">
+        <Link href="/konten" className="text-ink-3 hover:text-navy transition-colors text-sm">
           ← Konten
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-brand">{account.name}</h1>
+        <span className="text-ink-3">/</span>
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">{account.name}</h1>
       </div>
       <KontoForm clientId={membership.client_id} initial={initial} />
     </div>

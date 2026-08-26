@@ -8,6 +8,7 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, CheckCircle2, FileText, Landmark, Plus, Receipt } from 'lucide-react';
+import { Badge, Button, Card, CardHeader, Tile } from '@/components/ui';
 import { formatCurrency } from '@/lib/utils';
 import { offeneUvaPerioden, type EingereichtePeriode } from '@/lib/steuer/uva-faelligkeit';
 
@@ -235,165 +236,151 @@ export default function DashboardClient({
   } as const;
 
   const zeigeUeberfaellige = overdueRows.slice(0, 6);
+  const dringende = aufgaben.filter(a => a.dringend).length;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="px-6 py-7 pb-16 max-w-6xl mx-auto">
       {/* Kopfzeile mit direkter nächster Aktion */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-brand">{companyName}</h1>
-          <p className="text-gray-500 text-sm">{MONATE[monat - 1]} {jahr}</p>
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em] truncate">{companyName}</h1>
+          <p className="text-ink-2 text-[14.5px] mt-1">
+            {MONATE[monat - 1]} {jahr}
+            {aufgaben.length > 0 && (
+              <> · {aufgaben.length} {aufgaben.length === 1 ? 'Aufgabe' : 'Aufgaben'}{dringende > 0 ? `, ${dringende} dringend` : ''}</>
+            )}
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link
-            href="/rechnungen/neu"
-            className="px-4 py-2 text-sm border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-          >
-            Rechnung schreiben
-          </Link>
-          <Link
-            href="/buchungen/neu"
-            className="px-4 py-2 text-sm bg-brand text-white rounded-lg hover:bg-accent transition-colors font-medium inline-flex items-center gap-1.5"
-          >
+          <Button href="/rechnungen/neu" variant="secondary">Rechnung schreiben</Button>
+          <Button href="/buchungen/neu">
             <Plus size={16} strokeWidth={2.5} />
             Buchung erfassen
-          </Link>
+          </Button>
         </div>
       </div>
 
       {/* Kennzahlen: aktueller Monat, Vormonat als Bezugsgröße */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Einnahmen im Monat</p>
-          <p className="text-2xl font-bold text-income tabular-nums">{formatCurrency(kpi.einnahmen)}</p>
-          <p className="text-xs text-gray-400 mt-1 tabular-nums">Vormonat: {formatCurrency(kpiVm.einnahmen)}</p>
-        </div>
-        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Ausgaben im Monat</p>
-          <p className="text-2xl font-bold text-expense tabular-nums">{formatCurrency(kpi.ausgaben)}</p>
-          <p className="text-xs text-gray-400 mt-1 tabular-nums">Vormonat: {formatCurrency(kpiVm.ausgaben)}</p>
-        </div>
-        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Saldo im Monat</p>
-          <p className={`text-2xl font-bold tabular-nums ${saldo >= 0 ? 'text-income' : 'text-expense'}`}>
-            {formatCurrency(Math.abs(saldo))}
-          </p>
-          <p className="text-xs text-gray-400 mt-1 tabular-nums">Vormonat: {formatCurrency(Math.abs(saldoVm))}</p>
-        </div>
-        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">USt-Saldo im Monat</p>
-          <p className={`text-2xl font-bold tabular-nums ${kpi.ust >= 0 ? 'text-expense' : 'text-income'}`}>
-            {formatCurrency(Math.abs(kpi.ust))}
-          </p>
-          <p className="text-xs text-gray-400 mt-1 tabular-nums">Vormonat: {formatCurrency(Math.abs(kpiVm.ust))}</p>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Tile
+          label="Einnahmen im Monat"
+          value={formatCurrency(kpi.einnahmen)}
+          detail={<>Vormonat <span className="num">{formatCurrency(kpiVm.einnahmen)}</span></>}
+        />
+        <Tile
+          label="Ausgaben im Monat"
+          tone="ink"
+          value={formatCurrency(kpi.ausgaben)}
+          detail={<>Vormonat <span className="num">{formatCurrency(kpiVm.ausgaben)}</span></>}
+        />
+        <Tile
+          label="Saldo im Monat"
+          tone={saldo >= 0 ? 'navy' : 'ink'}
+          value={<>{saldo < 0 && '−'}{formatCurrency(Math.abs(saldo))}</>}
+          detail={<>Vormonat <span className="num">{saldoVm < 0 && '−'}{formatCurrency(Math.abs(saldoVm))}</span></>}
+        />
+        <Tile
+          label="USt-Saldo im Monat"
+          tone="ink"
+          value={formatCurrency(Math.abs(kpi.ust))}
+          detail={kpi.ust >= 0 ? 'Zahllast' : 'Gutschrift'}
+        />
       </div>
 
       {/* Offene Posten kompakt */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <Link href="/offene-posten" className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:border-accent/40 transition-colors block">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Offene Ausgangsrechnungen</p>
-          <p className="text-2xl font-bold text-brand tabular-nums">{outOpenCount > 0 ? formatCurrency(outOpenTotal) : '—'}</p>
-          <p className="text-xs text-gray-400 mt-1">{outOpenCount} {outOpenCount === 1 ? 'Rechnung' : 'Rechnungen'} offen</p>
-        </Link>
-        <Link href="/offene-posten" className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:border-accent/40 transition-colors block">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Offene Eingangsrechnungen</p>
-          <p className="text-2xl font-bold text-brand tabular-nums">{inOpenCount > 0 ? formatCurrency(inOpenTotal) : '—'}</p>
-          <p className="text-xs text-gray-400 mt-1">{inOpenCount} {inOpenCount === 1 ? 'Rechnung' : 'Rechnungen'} offen</p>
-        </Link>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <Tile
+          href="/offene-posten"
+          label="Offene Ausgangsrechnungen"
+          value={outOpenCount > 0 ? formatCurrency(outOpenTotal) : '—'}
+          detail={`${outOpenCount} ${outOpenCount === 1 ? 'Rechnung' : 'Rechnungen'} offen`}
+        />
+        <Tile
+          href="/offene-posten"
+          label="Offene Eingangsrechnungen"
+          tone="ink"
+          value={inOpenCount > 0 ? formatCurrency(inOpenTotal) : '—'}
+          detail={`${inOpenCount} ${inOpenCount === 1 ? 'Rechnung' : 'Rechnungen'} offen`}
+        />
       </div>
 
-      {/* Aufgaben – jede Zeile hat eine nächste Aktion */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-4">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-800">Aufgaben</h2>
-        </div>
-        {aufgaben.length === 0 ? (
-          <div className="px-6 py-8 text-center">
-            <CheckCircle2 size={28} strokeWidth={1.75} className="mx-auto text-income mb-2" />
-            <p className="text-sm text-gray-600 font-medium">Alles erledigt – keine Aufgaben offen.</p>
-            <p className="text-xs text-gray-400 mt-1">
-              Neue Belege kannst du jederzeit unter{' '}
-              <Link href="/buchungen/neu" className="text-brand hover:underline">Buchung erfassen</Link> eintragen.
-            </p>
-          </div>
-        ) : (
-          <ul className="divide-y divide-gray-50">
-            {aufgaben.map(a => (
-              <li key={a.key} className="flex items-center gap-3 px-6 py-3.5">
-                <span className={`flex-shrink-0 ${a.dringend ? 'text-expense' : 'text-gray-400'}`}>
-                  {AUFGABEN_ICONS[a.icon]}
-                </span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-sm text-gray-700">{a.text}</span>
-                  {a.detail && <span className="block text-xs text-gray-400 tabular-nums">{a.detail}</span>}
-                </span>
-                <Link
-                  href={a.href}
-                  className={`flex-shrink-0 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
-                    a.dringend
-                      ? 'border-expense/30 text-expense hover:bg-expense/5'
-                      : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {a.cta}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* Überfällige Rechnungen im Detail */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-8">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-800 flex items-center gap-2">
-            {overdueRows.length > 0 && <AlertTriangle size={16} strokeWidth={2} className="text-expense" />}
-            Überfällige Rechnungen
-          </h2>
-          <Link href="/offene-posten" className="text-xs text-brand hover:text-accent font-medium hover:underline">
-            Alle offenen Posten →
-          </Link>
-        </div>
-        {overdueRows.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            <p className="text-sm">Keine überfälligen Rechnungen</p>
-          </div>
-        ) : (
-          <>
-            <ul className="divide-y divide-gray-50">
-              {zeigeUeberfaellige.map(r => {
-                const days = Math.floor((today.getTime() - new Date(r.dueDate).getTime()) / 86400000);
-                return (
-                  <li key={`${r.kind}-${r.id}`} className="flex items-center gap-3 px-6 py-3">
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                      r.kind === 'out' ? 'bg-income/10 text-income' : 'bg-expense/10 text-expense'
-                    }`}>
-                      {r.kind === 'out' ? 'Ausgang' : 'Eingang'}
-                    </span>
-                    <span className="flex-1 min-w-0">
-                      <span className="block text-sm text-gray-700 truncate">{r.label}</span>
-                      <span className="block text-xs text-expense">{days} {days === 1 ? 'Tag' : 'Tage'} überfällig</span>
-                    </span>
-                    <span className="text-sm font-medium text-gray-800 flex-shrink-0 text-right tabular-nums">{formatCurrency(r.amount)}</span>
-                  </li>
-                );
-              })}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+        {/* Aufgaben – jede Zeile hat eine nächste Aktion */}
+        <Card padded={false}>
+          <CardHeader title="Nächste Schritte" border>
+            {aufgaben.length > 0 && <Badge tone={dringende > 0 ? 'warn' : 'gray'}>{aufgaben.length} offen</Badge>}
+          </CardHeader>
+          {aufgaben.length === 0 ? (
+            <div className="px-5 py-8 text-center">
+              <CheckCircle2 size={28} strokeWidth={1.75} className="mx-auto text-good mb-2" />
+              <p className="text-sm text-ink font-medium">Alles erledigt – keine Aufgaben offen.</p>
+              <p className="text-[12.5px] text-ink-3 mt-1">
+                Neue Belege kannst du jederzeit unter{' '}
+                <Link href="/buchungen/neu" className="text-navy hover:underline">Buchung erfassen</Link> eintragen.
+              </p>
+            </div>
+          ) : (
+            <ul>
+              {aufgaben.map(a => (
+                <li key={a.key} className="flex items-center gap-3 px-5 py-3 border-b border-line last:border-b-0">
+                  <span className={`shrink-0 ${a.dringend ? 'text-warn' : 'text-ink-3'}`}>
+                    {AUFGABEN_ICONS[a.icon]}
+                  </span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm text-ink">{a.text}</span>
+                    {a.detail && <span className="block text-[12.5px] text-ink-3 num">{a.detail}</span>}
+                  </span>
+                  {a.dringend && <Badge tone="warn" className="hidden sm:inline-flex">Dringend</Badge>}
+                  <Button href={a.href} variant="ghost" size="sm">{a.cta}</Button>
+                </li>
+              ))}
             </ul>
-            {overdueRows.length > zeigeUeberfaellige.length && (
-              <div className="px-6 py-3 border-t border-gray-50 text-center">
-                <Link href="/offene-posten" className="text-xs text-brand hover:underline">
-                  + {overdueRows.length - zeigeUeberfaellige.length} weitere anzeigen
-                </Link>
-              </div>
-            )}
-          </>
-        )}
+          )}
+        </Card>
+
+        {/* Überfällige Rechnungen im Detail */}
+        <Card padded={false}>
+          <CardHeader title="Überfällige Rechnungen" border>
+            <Link href="/offene-posten" className="text-[12.5px] text-navy font-medium hover:underline underline-offset-2">
+              Alle offenen Posten →
+            </Link>
+          </CardHeader>
+          {overdueRows.length === 0 ? (
+            <div className="text-center py-8 text-ink-3">
+              <p className="text-sm">Keine überfälligen Rechnungen</p>
+            </div>
+          ) : (
+            <>
+              <ul>
+                {zeigeUeberfaellige.map(r => {
+                  const days = Math.floor((today.getTime() - new Date(r.dueDate).getTime()) / 86400000);
+                  return (
+                    <li key={`${r.kind}-${r.id}`} className="flex items-center gap-3 px-5 py-3 border-b border-line last:border-b-0">
+                      <Badge tone={r.kind === 'out' ? 'navy' : 'gray'}>{r.kind === 'out' ? 'Ausgang' : 'Eingang'}</Badge>
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-sm text-ink truncate">{r.label}</span>
+                        <span className="block text-[12.5px] text-crit">{days} {days === 1 ? 'Tag' : 'Tage'} überfällig</span>
+                      </span>
+                      <span className="num text-[13px] font-semibold text-ink shrink-0 text-right">{formatCurrency(r.amount)}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+              {overdueRows.length > zeigeUeberfaellige.length && (
+                <div className="px-5 py-3 border-t border-line text-center">
+                  <Link href="/offene-posten" className="text-[12.5px] text-navy hover:underline">
+                    + {overdueRows.length - zeigeUeberfaellige.length} weitere anzeigen
+                  </Link>
+                </div>
+              )}
+            </>
+          )}
+        </Card>
       </div>
 
       {/* Auswertung */}
-      <div className="text-right">
-        <Link href="/monatsuebersicht" className="text-sm text-brand hover:underline underline-offset-2">
+      <div className="text-right mt-4">
+        <Link href="/monatsuebersicht" className="text-[13px] text-navy hover:underline underline-offset-2">
           Zur Monatsübersicht →
         </Link>
       </div>

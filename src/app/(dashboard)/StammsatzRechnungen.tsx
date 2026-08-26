@@ -18,7 +18,7 @@ const STATUS_LABEL: Record<string, string> = {
   draft: 'Entwurf', open: 'Offen', paid: 'Bezahlt', cancelled: 'Storniert',
 };
 const STATUS_STYLE: Record<string, string> = {
-  draft:     'bg-gray-100 text-gray-500',
+  draft:     'bg-well text-ink-2',
   open:      'bg-amber-100 text-amber-700',
   paid:      'bg-green-100 text-green-700',
   cancelled: 'bg-red-50 text-red-400',
@@ -43,11 +43,11 @@ export default function StammsatzRechnungen({
   const offenSum = offen.reduce((s, z) => s + Number(z.brutto), 0);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
+    <div className="card p-6 space-y-4">
       <div className="flex items-baseline justify-between gap-3 flex-wrap">
-        <h2 className="font-semibold text-gray-800">{titel}</h2>
+        <h2 className="font-semibold text-ink">{titel}</h2>
         {zeilen.length > 0 && (
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-ink-3">
             {gezaehlt.length} {gezaehlt.length === 1 ? 'Rechnung' : 'Rechnungen'} ·{' '}
             {formatCurrency(gesamt)} gesamt
             {offen.length > 0 && (
@@ -58,12 +58,12 @@ export default function StammsatzRechnungen({
       </div>
 
       {zeilen.length === 0 ? (
-        <p className="text-sm text-gray-400 py-6 text-center">{leerText}</p>
+        <p className="text-sm text-ink-3 py-6 text-center">{leerText}</p>
       ) : (
         <div className="overflow-x-auto -mx-2">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-xs text-gray-400 uppercase tracking-wide border-b border-gray-100">
+              <tr className="label-mono border-b border-line-2">
                 <th className="text-left  px-2 py-2 font-medium">Nummer</th>
                 <th className="text-left  px-2 py-2 font-medium">Datum</th>
                 <th className="text-left  px-2 py-2 font-medium">Fällig</th>
@@ -73,24 +73,24 @@ export default function StammsatzRechnungen({
             </thead>
             <tbody>
               {zeilen.map(z => {
-                const zelleNummer = z.nummer ?? <span className="text-gray-300 italic">ohne Nummer</span>;
+                const zelleNummer = z.nummer ?? <span className="text-ink-3 italic">ohne Nummer</span>;
                 return (
-                  <tr key={z.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60">
-                    <td className="px-2 py-2 font-mono text-xs text-gray-700">
+                  <tr key={z.id} className="border-b border-line last:border-0 hover:bg-row/60">
+                    <td className="px-2 py-2 font-mono text-xs text-ink">
                       {z.href ? (
-                        <Link href={z.href} className="hover:text-brand hover:underline">
+                        <Link href={z.href} className="hover:text-navy hover:underline">
                           {zelleNummer}
                         </Link>
                       ) : zelleNummer}
                     </td>
-                    <td className="px-2 py-2 text-gray-500">{datum(z.datum)}</td>
-                    <td className="px-2 py-2 text-gray-500">{datum(z.faellig)}</td>
+                    <td className="px-2 py-2 text-ink-2">{datum(z.datum)}</td>
+                    <td className="px-2 py-2 text-ink-2">{datum(z.faellig)}</td>
                     <td className="px-2 py-2">
-                      <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[z.status] ?? 'bg-gray-100 text-gray-500'}`}>
+                      <span className={`text-[11px] px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-medium ${STATUS_STYLE[z.status] ?? 'bg-well text-ink-2'}`}>
                         {STATUS_LABEL[z.status] ?? z.status}
                       </span>
                     </td>
-                    <td className="px-2 py-2 text-right font-medium text-gray-800">
+                    <td className="px-2 py-2 text-right font-medium text-ink num">
                       {formatCurrency(Number(z.brutto))}
                     </td>
                   </tr>

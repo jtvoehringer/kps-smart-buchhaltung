@@ -79,8 +79,8 @@ export default function UmbuchungForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <p className="text-sm text-gray-500 leading-relaxed">
+      <div className="card p-6 space-y-4">
+        <p className="text-sm text-ink-2 leading-relaxed">
           Eine Umbuchung verschiebt Geld zwischen zwei eigenen Konten –
           zum Beispiel den monatlichen Ausgleich des Kreditkartensaldos vom
           Girokonto. Sie ist <strong>keine Ausgabe</strong> und zählt daher
@@ -95,8 +95,8 @@ export default function UmbuchungForm({
         )}
 
         <div>
-          <label htmlFor="umb-von" className="block text-sm font-medium text-gray-700 mb-1">
-            Von Konto <span className="text-gray-400 font-normal">(wird belastet)</span>
+          <label htmlFor="umb-von" className="block text-sm font-medium text-ink mb-1">
+            Von Konto <span className="text-ink-3 font-normal">(wird belastet)</span>
           </label>
           <select
             id="umb-von"
@@ -107,7 +107,7 @@ export default function UmbuchungForm({
               // Ziel darf nie gleich der Quelle sein
               if (toId === v) setToId(accounts.find(a => a.id !== v)!.id);
             }}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+            className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
           >
             {accounts.map(a => (
               <option key={a.id} value={a.id}>
@@ -117,19 +117,19 @@ export default function UmbuchungForm({
           </select>
         </div>
 
-        <div className="flex justify-center text-gray-300">
+        <div className="flex justify-center text-ink-3">
           <ArrowDown size={18} strokeWidth={2} />
         </div>
 
         <div>
-          <label htmlFor="umb-nach" className="block text-sm font-medium text-gray-700 mb-1">
-            Auf Konto <span className="text-gray-400 font-normal">(erhält den Betrag)</span>
+          <label htmlFor="umb-nach" className="block text-sm font-medium text-ink mb-1">
+            Auf Konto <span className="text-ink-3 font-normal">(erhält den Betrag)</span>
           </label>
           <select
             id="umb-nach"
             value={toId}
             onChange={e => setToId(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+            className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
           >
             {accounts.filter(a => a.id !== fromId).map(a => (
               <option key={a.id} value={a.id}>
@@ -141,18 +141,18 @@ export default function UmbuchungForm({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor="umb-datum" className="block text-sm font-medium text-gray-700 mb-1">Datum</label>
+            <label htmlFor="umb-datum" className="block text-sm font-medium text-ink mb-1">Datum</label>
             <input
               id="umb-datum"
               type="date"
               value={datum}
               onChange={e => setDatum(e.target.value)}
               required
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
             />
           </div>
           <div>
-            <label htmlFor="umb-betrag" className="block text-sm font-medium text-gray-700 mb-1">Betrag (€)</label>
+            <label htmlFor="umb-betrag" className="block text-sm font-medium text-ink mb-1">Betrag (€)</label>
             <input
               id="umb-betrag"
               type="text"
@@ -161,14 +161,14 @@ export default function UmbuchungForm({
               onChange={e => setBetrag(e.target.value)}
               placeholder="z. B. 1.250,00"
               required
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-right tabular-nums focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm text-right num focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
             />
           </div>
         </div>
 
         <div>
-          <label htmlFor="umb-text" className="block text-sm font-medium text-gray-700 mb-1">
-            Beschreibung <span className="text-gray-400 font-normal">(optional)</span>
+          <label htmlFor="umb-text" className="block text-sm font-medium text-ink mb-1">
+            Beschreibung <span className="text-ink-3 font-normal">(optional)</span>
           </label>
           <input
             id="umb-text"
@@ -176,7 +176,7 @@ export default function UmbuchungForm({
             value={text}
             onChange={e => setText(e.target.value)}
             placeholder="z. B. Kreditkartenabrechnung Juli"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+            className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
           />
         </div>
       </div>
@@ -185,14 +185,14 @@ export default function UmbuchungForm({
         <button
           type="button"
           onClick={() => router.push('/konten')}
-          className="px-4 py-2.5 text-sm border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+          className="px-4 py-2.5 text-sm border border-line-2 text-ink-2 rounded-xl hover:bg-row transition-colors font-medium"
         >
           Abbrechen
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="px-5 py-2.5 text-sm bg-brand text-white rounded-xl hover:bg-accent transition-colors font-semibold disabled:opacity-50"
+          className="px-5 py-2.5 text-sm bg-navy text-white rounded-xl hover:bg-navy-2 transition-colors font-semibold disabled:opacity-50"
         >
           {saving ? 'Wird gespeichert…' : `Umbuchen: ${kontoName(fromId)} → ${kontoName(toId)}`}
         </button>

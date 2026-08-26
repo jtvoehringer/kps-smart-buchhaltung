@@ -5,6 +5,7 @@ import { formatCurrency } from '@/lib/utils';
 import { CalendarRange } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import ZeitraumWaehler from '@/components/ZeitraumWaehler';
+import { BarChart, Card, CardHeader, Legend } from '@/components/ui';
 
 /** Eine Zeile aus monatssummen() – bereits in der DB aggregiert */
 type Monatssumme = {
@@ -59,10 +60,23 @@ export default function MonatsuebersichtClient({
         <ZeitraumWaehler<number> werte={availableYears} wert={selectedYear} onChange={setSelectedYear} />
       </PageHeader>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      {/* Verlauf als Balken mit direkter Beschriftung (Welle 4) */}
+      {(totalIncome > 0 || totalExpense > 0) && (
+        <Card>
+          <CardHeader title={`Verlauf ${selectedYear}`}>
+            <Legend items={[{ color: 'bg-chart-1', label: 'Einnahmen' }, { color: 'bg-chart-2', label: 'Ausgaben' }]} />
+          </CardHeader>
+          <BarChart
+            rows={monthly.filter(m => m.income > 0 || m.expense > 0).map(m => ({ label: m.label, value: m.income, value2: m.expense }))}
+            format={v => formatCurrency(v)}
+          />
+        </Card>
+      )}
+
+      <div className="card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+            <tr className="label-mono border-b border-line-2">
               <th className="text-left px-6 py-3">Monat</th>
               <th className="text-right px-4 py-3">Einnahmen</th>
               <th className="text-right px-4 py-3">Ausgaben</th>
@@ -72,28 +86,28 @@ export default function MonatsuebersichtClient({
           </thead>
           <tbody>
             {monthly.map((m, i) => (
-              <tr key={m.label} className={`border-t border-gray-50 hover:bg-gray-50 ${i % 2 === 0 ? '' : 'bg-gray-50/30'}`}>
-                <td className="px-6 py-3 font-medium text-gray-700">{m.label}</td>
-                <td className="px-4 py-3 text-right text-income">{m.income > 0 ? formatCurrency(m.income) : '—'}</td>
-                <td className="px-4 py-3 text-right text-expense">{m.expense > 0 ? formatCurrency(m.expense) : '—'}</td>
-                <td className={`px-4 py-3 text-right font-medium ${m.balance >= 0 ? 'text-income' : 'text-expense'}`}>
+              <tr key={m.label} className={`border-t border-line hover:bg-row ${i % 2 === 0 ? '' : 'bg-row/30'}`}>
+                <td className="px-6 py-3 font-medium text-ink">{m.label}</td>
+                <td className="px-4 py-3 text-right text-income num">{m.income > 0 ? formatCurrency(m.income) : '—'}</td>
+                <td className="px-4 py-3 text-right text-expense num">{m.expense > 0 ? formatCurrency(m.expense) : '—'}</td>
+                <td className={`px-4 py-3 text-right font-medium ${m.balance >= 0 ? 'text-income' : 'text-expense'} num`}>
                   {m.income > 0 || m.expense > 0 ? formatCurrency(Math.abs(m.balance)) : '—'}
                 </td>
-                <td className={`px-6 py-3 text-right ${m.vat >= 0 ? 'text-expense' : 'text-income'}`}>
+                <td className={`px-6 py-3 text-right ${m.vat >= 0 ? 'text-expense' : 'text-income'} num`}>
                   {m.income > 0 || m.expense > 0 ? formatCurrency(Math.abs(m.vat)) : '—'}
                 </td>
               </tr>
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t-2 border-gray-200 bg-brand/5 font-semibold">
-              <td className="px-6 py-3 text-brand">Jahrestotal</td>
-              <td className="px-4 py-3 text-right text-income">{formatCurrency(totalIncome)}</td>
-              <td className="px-4 py-3 text-right text-expense">{formatCurrency(totalExpense)}</td>
-              <td className={`px-4 py-3 text-right ${totalIncome - totalExpense >= 0 ? 'text-income' : 'text-expense'}`}>
+            <tr className="border-t-2 border-line-2 bg-navy/5 font-semibold">
+              <td className="px-6 py-3 text-navy">Jahrestotal</td>
+              <td className="px-4 py-3 text-right text-income num">{formatCurrency(totalIncome)}</td>
+              <td className="px-4 py-3 text-right text-expense num">{formatCurrency(totalExpense)}</td>
+              <td className={`px-4 py-3 text-right ${totalIncome - totalExpense >= 0 ? 'text-income' : 'text-expense'} num`}>
                 {formatCurrency(Math.abs(totalIncome - totalExpense))}
               </td>
-              <td className={`px-6 py-3 text-right ${totalVat >= 0 ? 'text-expense' : 'text-income'}`}>
+              <td className={`px-6 py-3 text-right ${totalVat >= 0 ? 'text-expense' : 'text-income'} num`}>
                 {formatCurrency(Math.abs(totalVat))}
               </td>
             </tr>

@@ -237,14 +237,14 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
   if (!vatLiable) {
     return (
       <div className="p-6 max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-brand mb-2">UVA-Meldung</h1>
-        <p className="text-gray-500 text-sm mb-6">{companyName}</p>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-          <Info size={32} strokeWidth={1.5} className="text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-600">
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em] mb-2">UVA-Meldung</h1>
+        <p className="text-ink-2 text-sm mb-6">{companyName}</p>
+        <div className="card p-8 text-center">
+          <Info size={32} strokeWidth={1.5} className="text-ink-3 mx-auto mb-3" />
+          <p className="text-ink-2">
             Dieses Unternehmen ist laut Einstellungen <strong>nicht umsatzsteuerpflichtig</strong> (Kleinunternehmerregelung).
           </p>
-          <p className="text-sm text-gray-400 mt-2">UVA-Meldungen sind daher nicht erforderlich.</p>
+          <p className="text-sm text-ink-3 mt-2">UVA-Meldungen sind daher nicht erforderlich.</p>
         </div>
       </div>
     );
@@ -255,14 +255,14 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
       {/* Header */}
       <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-brand">Umsatzsteuervoranmeldung</h1>
-          <p className="text-gray-500 text-sm">{companyName}</p>
+          <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">Umsatzsteuervoranmeldung</h1>
+          <p className="text-ink-2 text-sm">{companyName}</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={handlePrint}
             title="UVA als PDF drucken / speichern"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border-2 border-brand text-brand hover:bg-brand hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border-2 border-navy text-navy hover:bg-navy hover:text-white transition-colors"
           >
             <Printer size={15} strokeWidth={2} />
             PDF / Drucken
@@ -270,7 +270,7 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
           <select
             value={year}
             onChange={e => setYear(Number(e.target.value))}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand/20"
+            className="border border-line-2 rounded-lg px-3 py-2 text-sm font-medium text-ink bg-white focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/20"
           >
             {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
@@ -285,8 +285,8 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
             onClick={() => setPeriodNum(n)}
             className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
               periodNum === n
-                ? 'bg-brand text-white shadow-sm'
-                : 'bg-white text-gray-500 border border-gray-200 hover:border-brand/30 hover:text-brand'
+                ? 'bg-navy text-white'
+                : 'bg-white text-ink-2 border border-line-2 hover:border-navy/30 hover:text-navy'
             }`}
           >
             {submitted && <Lock size={12} strokeWidth={2} />}
@@ -297,27 +297,27 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
 
       {/* Status-Banner */}
       <div className={`rounded-xl px-5 py-3 mb-6 flex items-center gap-3 border ${
-        isSubmitted ? 'bg-gray-50 border-gray-200' : 'bg-amber-50 border-amber-200'
+        isSubmitted ? 'bg-row border-line-2' : 'bg-amber-50 border-amber-200'
       }`}>
         {isSubmitted ? (
           <>
-            <Lock size={18} strokeWidth={2} className="text-gray-400 flex-shrink-0" />
+            <Lock size={18} strokeWidth={2} className="text-ink-3 shrink-0" />
             <div>
-              <span className="text-sm font-semibold text-gray-700">Übermittelt</span>
+              <span className="text-sm font-semibold text-ink">Übermittelt</span>
               {formatDateTime(existingRow?.submitted_at ?? null) && (
-                <span className="text-sm text-gray-500 ml-2">am {formatDateTime(existingRow!.submitted_at)}</span>
+                <span className="text-sm text-ink-2 ml-2">am {formatDateTime(existingRow!.submitted_at)}</span>
               )}
-              <span className="text-sm text-gray-400 ml-2">· Buchungen dieses Zeitraums sind gesperrt</span>
+              <span className="text-sm text-ink-3 ml-2">· Buchungen dieses Zeitraums sind gesperrt</span>
             </div>
           </>
         ) : (
           <>
-            <CalendarClock size={18} strokeWidth={2} className="text-amber-500 flex-shrink-0" />
+            <CalendarClock size={18} strokeWidth={2} className="text-amber-500 shrink-0" />
             <div>
               <span className="text-sm font-semibold text-amber-800">Fälligkeit {periodLabel}:</span>
               <span className="text-sm text-amber-700 ml-2">{faelligkeit}</span>
               {existingRow && (
-                <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Entwurf gespeichert</span>
+                <span className="ml-2 text-[11px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-semibold">Entwurf gespeichert</span>
               )}
             </div>
           </>
@@ -326,8 +326,8 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
 
       {/* Berechnen / Übermitteln */}
       {!isSubmitted && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6 flex flex-wrap items-center gap-3 justify-between">
-          <p className="text-xs text-gray-500 max-w-md">
+        <div className="card p-5 mb-6 flex flex-wrap items-center gap-3 justify-between">
+          <p className="text-xs text-ink-2 max-w-md">
             Berechnet USt und VSt aus den Buchungen dieses Zeitraums und speichert die Meldung als Entwurf
             (kann beliebig oft wiederholt werden, solange sie nicht übermittelt ist).
           </p>
@@ -335,7 +335,7 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
             <button
               onClick={handleBerechnen}
               disabled={saving || ladeSummen || anzahlBuchungen === 0}
-              className="inline-flex items-center gap-1.5 bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 bg-navy hover:bg-navy-2 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50"
             >
               {saving ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <Calculator size={14} strokeWidth={2} />}
               Berechnen &amp; Speichern
@@ -371,7 +371,7 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
 
       {/* Keine Buchungen */}
       {ladeSummen ? (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center text-gray-400 text-sm">
+        <div className="card p-10 text-center text-ink-3 text-sm">
           Summen werden geladen…
         </div>
       ) : ladeFehler ? (
@@ -379,9 +379,9 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
           {ladeFehler}
         </div>
       ) : anzahlBuchungen === 0 ? (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center">
-          <Inbox size={32} strokeWidth={1.5} className="text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">Keine Buchungen im {periodLabel} vorhanden.</p>
+        <div className="card p-10 text-center">
+          <Inbox size={32} strokeWidth={1.5} className="text-ink-3 mx-auto mb-3" />
+          <p className="text-ink-2">Keine Buchungen im {periodLabel} vorhanden.</p>
         </div>
       ) : (
         <div className="space-y-5">
@@ -440,7 +440,7 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
         </div>
       )}
 
-      <p className="mt-6 text-xs text-gray-400 text-center">
+      <p className="mt-6 text-xs text-ink-3 text-center">
         Diese Berechnung dient als Orientierungshilfe. Maßgeblich ist die offizielle Erklärung über FinanzOnline.
       </p>
     </div>
@@ -455,11 +455,11 @@ function UVATable({
 }: {
   title: string; subtitle: string; color: 'blue' | 'teal'; rows: RowData[]; total: number; totalLabel: string;
 }) {
-  const headerColor = color === 'blue' ? 'bg-brand' : 'bg-income';
+  const headerColor = color === 'blue' ? 'bg-navy' : 'bg-income';
   const activeRows = rows.filter(r => r.bgl > 0 || r.steuer > 0);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="card overflow-hidden">
       <div className={`${headerColor} px-5 py-3`}>
         <h2 className="text-white font-semibold text-sm">{title}</h2>
         <p className="text-white/60 text-xs">{subtitle}</p>
@@ -467,32 +467,32 @@ function UVATable({
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50">
-              <th className="text-left px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Bezeichnung</th>
-              <th className="text-right px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Bemessungsgrundlage</th>
-              <th className="text-right px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Steuerbetrag</th>
+            <tr className="border-b border-line bg-row">
+              <th className="text-left px-5 py-2.5 label-monor">Bezeichnung</th>
+              <th className="text-right px-5 py-2.5 label-monor">Bemessungsgrundlage</th>
+              <th className="text-right px-5 py-2.5 label-monor">Steuerbetrag</th>
             </tr>
           </thead>
           <tbody>
             {activeRows.length === 0 ? (
-              <tr><td colSpan={3} className="px-5 py-4 text-center text-gray-400 text-sm">Keine Buchungen in diesem Zeitraum</td></tr>
+              <tr><td colSpan={3} className="px-5 py-4 text-center text-ink-3 text-sm">Keine Buchungen in diesem Zeitraum</td></tr>
             ) : (
               activeRows.map(row => (
-                <tr key={row.label} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="px-5 py-3 text-gray-700">{row.label}</td>
-                  <td className="px-5 py-3 text-right text-gray-700 font-mono text-sm">{formatEur(row.bgl)}</td>
-                  <td className="px-5 py-3 text-right font-mono text-sm">
-                    {row.rate === 0 ? <span className="text-gray-400">–</span> : <span className="text-gray-900 font-medium">{formatEur(row.steuer)}</span>}
+                <tr key={row.label} className="border-b border-line hover:bg-row">
+                  <td className="px-5 py-3 text-ink">{row.label}</td>
+                  <td className="px-5 py-3 text-right text-ink font-mono text-sm num">{formatEur(row.bgl)}</td>
+                  <td className="px-5 py-3 text-right font-mono text-sm num">
+                    {row.rate === 0 ? <span className="text-ink-3">–</span> : <span className="text-ink font-medium">{formatEur(row.steuer)}</span>}
                   </td>
                 </tr>
               ))
             )}
           </tbody>
           <tfoot>
-            <tr className="bg-gray-50 border-t border-gray-200">
-              <td className="px-5 py-3 font-semibold text-gray-700">{totalLabel}</td>
+            <tr className="bg-row border-t border-line-2">
+              <td className="px-5 py-3 font-semibold text-ink">{totalLabel}</td>
               <td className="px-5 py-3"></td>
-              <td className="px-5 py-3 text-right font-bold text-gray-900 font-mono">{formatEur(total)}</td>
+              <td className="px-5 py-3 text-right font-bold text-ink font-mono num">{formatEur(total)}</td>
             </tr>
           </tfoot>
         </table>
@@ -514,18 +514,18 @@ function ZahllastCard({
 
   return (
     <div className={`rounded-2xl border ${bgColor} p-6`}>
-      <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-4">Ergebnis {periodLabel} (Kz 095)</h2>
+      <h2 className="text-sm font-semibold text-ink-2 uppercase tracking-wider mb-4">Ergebnis {periodLabel} (Kz 095)</h2>
       <div className="flex flex-wrap gap-8 items-end">
         <div>
-          <p className="text-xs text-gray-500 mb-0.5">Umsatzsteuer</p>
-          <p className="text-lg font-bold text-gray-800 font-mono">{formatEur(totalUSt)}</p>
+          <p className="text-xs text-ink-2 mb-0.5">Umsatzsteuer</p>
+          <p className="num text-lg font-semibold text-ink">{formatEur(totalUSt)}</p>
         </div>
-        <div className="text-gray-400 text-xl font-light">−</div>
+        <div className="text-ink-3 text-xl font-light">−</div>
         <div>
-          <p className="text-xs text-gray-500 mb-0.5">Vorsteuer</p>
-          <p className="text-lg font-bold text-gray-800 font-mono">{formatEur(totalVSt)}</p>
+          <p className="text-xs text-ink-2 mb-0.5">Vorsteuer</p>
+          <p className="num text-lg font-semibold text-ink">{formatEur(totalVSt)}</p>
         </div>
-        <div className="text-gray-400 text-xl font-light">=</div>
+        <div className="text-ink-3 text-xl font-light">=</div>
         <div className="flex-1 min-w-[160px]">
           <p className={`inline-flex items-center gap-1.5 text-xs font-semibold mb-0.5 uppercase tracking-wider ${labelColor}`}>
             {isGutschrift ? <CheckCircle2 size={13} strokeWidth={2.5} /> : <AlertTriangle size={13} strokeWidth={2.5} />}

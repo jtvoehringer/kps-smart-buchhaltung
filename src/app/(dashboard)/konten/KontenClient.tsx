@@ -49,12 +49,12 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
 
   if (accounts.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
-        <CreditCard size={32} strokeWidth={1.5} className="text-gray-300 mx-auto mb-3" />
-        <p className="text-gray-500 text-sm mb-4">Noch keine Konten angelegt.</p>
+      <div className="card p-12 text-center">
+        <CreditCard size={32} strokeWidth={1.5} className="text-ink-3 mx-auto mb-3" />
+        <p className="text-ink-2 text-sm mb-4">Noch keine Konten angelegt.</p>
         <Link
           href="/konten/neu"
-          className="inline-block bg-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-accent transition-colors"
+          className="inline-block bg-navy text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-navy-2 transition-colors"
         >
           Erstes Konto anlegen
         </Link>
@@ -63,7 +63,7 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="card overflow-hidden">
       {fehler && (
         <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
           {fehler}
@@ -71,7 +71,7 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
       )}
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+          <tr className="label-mono border-b border-line-2">
             <th className="text-left px-4 py-3">Bezeichnung</th>
             <th className="text-left px-4 py-3">Art</th>
             <th className="text-left px-4 py-3">IBAN</th>
@@ -80,19 +80,19 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
         </thead>
         <tbody>
           {accounts.map(a => (
-            <tr key={a.id} className="border-t border-gray-50 hover:bg-gray-50/50">
-              <td className="px-4 py-3 font-medium text-gray-800">{a.name}</td>
+            <tr key={a.id} className="border-t border-line hover:bg-row">
+              <td className="px-4 py-3 font-medium text-ink">{a.name}</td>
               <td className="px-4 py-3">
                 <span className={`text-xs font-medium px-2 py-1 rounded-lg ${TYPE_BADGE[a.type]}`}>
                   {TYPE_LABELS[a.type]}
                 </span>
               </td>
-              <td className="px-4 py-3 text-gray-500 font-mono text-xs">{a.iban ?? '—'}</td>
-              <td className="px-4 py-3 text-right">
+              <td className="px-4 py-3 text-ink-2 font-mono text-xs">{a.iban ?? '—'}</td>
+              <td className="px-4 py-3 text-right num">
                 <div className="flex items-center justify-end gap-3">
                   <Link
                     href={`/konten/${a.id}/abstimmung`}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-accent transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-navy hover:text-navy transition-colors"
                     title="Kontoabstimmung"
                   >
                     <Scale size={14} strokeWidth={1.75} />
@@ -100,7 +100,7 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
                   </Link>
                   <Link
                     href={`/konten/${a.id}`}
-                    className="text-gray-300 hover:text-brand transition-colors"
+                    className="text-ink-3 hover:text-navy transition-colors"
                     title="Bearbeiten"
                   >
                     <Pencil size={15} strokeWidth={1.75} />
@@ -108,7 +108,7 @@ export default function KontenClient({ accounts }: { accounts: Account[] }) {
                   <button
                     onClick={() => handleDeactivate(a.id)}
                     disabled={deletingId === a.id}
-                    className="text-gray-300 hover:text-red-500 transition-colors disabled:opacity-50"
+                    className="text-ink-3 hover:text-red-500 transition-colors disabled:opacity-50"
                     title="Deaktivieren"
                   >
                     <X size={16} strokeWidth={2} />

@@ -46,11 +46,11 @@ export default async function RechnungBearbeitenPage({ params }: { params: Promi
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Link href={`/rechnungen/${id}`}
-          className="text-gray-400 hover:text-gray-600 transition-colors text-sm">
+          className="text-ink-3 hover:text-navy transition-colors text-sm">
           ← Rechnung
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-brand">Entwurf bearbeiten</h1>
+        <span className="text-ink-3">/</span>
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">Entwurf bearbeiten</h1>
       </div>
       <RechnungForm
         clientId={membership.client_id}

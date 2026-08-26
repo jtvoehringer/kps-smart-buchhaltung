@@ -35,23 +35,23 @@ export default async function KontenPage() {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
-            <CreditCard size={24} strokeWidth={1.75} className="text-accent-dark" />
+          <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em] flex items-center gap-2">
+            <CreditCard size={24} strokeWidth={1.75} className="text-navy" />
             Konten
           </h1>
-          <p className="text-gray-500 text-sm">Kontokorrent, Kreditkarte, Kreditkonto – Grundlage für Bank-Import und Kontoabstimmung</p>
+          <p className="text-ink-2 text-sm">Kontokorrent, Kreditkarte, Kreditkonto – Grundlage für Bank-Import und Kontoabstimmung</p>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href="/konten/umbuchung"
-            className="inline-flex items-center gap-1.5 border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+            className="inline-flex items-center gap-1.5 border border-line-2 text-ink hover:bg-row text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
           >
             <ArrowLeftRight size={15} strokeWidth={2} />
             Umbuchung erfassen
           </Link>
           <Link
             href="/konten/neu"
-            className="bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+            className="bg-navy hover:bg-navy-2 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
           >
             + Neues Konto
           </Link>

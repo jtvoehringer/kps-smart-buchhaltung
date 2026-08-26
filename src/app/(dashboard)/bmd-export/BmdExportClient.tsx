@@ -72,19 +72,19 @@ export default function BmdExportClient({ clients }: Props) {
   return (
     <div className="space-y-6">
       {/* Auswahlkarte */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+      <div className="card p-6">
+        <h2 className="text-sm font-semibold text-ink uppercase tracking-wide mb-4">
           Export-Parameter
         </h2>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {/* Mandant – bei genau einem (Klienten-Sicht) keine Auswahl */}
           <div className={clients.length === 1 ? 'hidden' : 'sm:col-span-3'}>
-            <label htmlFor="bmdExportClient-0" className="block text-xs font-medium text-gray-500 mb-1">Mandant</label>
+            <label htmlFor="bmdExportClient-0" className="block text-xs font-medium text-ink-2 mb-1">Mandant</label>
             <select id="bmdExportClient-0"
               value={clientId}
               onChange={e => { setClientId(e.target.value); setPreviewRows(null); setSummen(null); }}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 bg-white"
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30 bg-white"
             >
               {clients.length === 0 && (
                 <option value="">Keine Mandanten gefunden</option>
@@ -97,29 +97,29 @@ export default function BmdExportClient({ clients }: Props) {
 
           {/* Datum von */}
           <div>
-            <label htmlFor="bmdExportClient-1" className="block text-xs font-medium text-gray-500 mb-1">Datum von</label>
+            <label htmlFor="bmdExportClient-1" className="block text-xs font-medium text-ink-2 mb-1">Datum von</label>
             <input id="bmdExportClient-1"
               type="date"
               value={dateFrom}
               onChange={e => { setDateFrom(e.target.value); setPreviewRows(null); setSummen(null); }}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30"
             />
           </div>
 
           {/* Datum bis */}
           <div>
-            <label htmlFor="bmdExportClient-2" className="block text-xs font-medium text-gray-500 mb-1">Datum bis</label>
+            <label htmlFor="bmdExportClient-2" className="block text-xs font-medium text-ink-2 mb-1">Datum bis</label>
             <input id="bmdExportClient-2"
               type="date"
               value={dateTo}
               onChange={e => { setDateTo(e.target.value); setPreviewRows(null); setSummen(null); }}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30"
             />
           </div>
 
           {/* Schnellwahl */}
           <div className="flex flex-col justify-end gap-1">
-            <span id="gruppe-schnellwahl" className="block text-xs font-medium text-gray-500 mb-1">Schnellwahl</span>
+            <span id="gruppe-schnellwahl" className="block text-xs font-medium text-ink-2 mb-1">Schnellwahl</span>
         <div role="group" aria-labelledby="gruppe-schnellwahl" className="flex gap-1 flex-wrap">
               {[currentYear, currentYear - 1].map(y => (
                 <button
@@ -131,7 +131,7 @@ export default function BmdExportClient({ clients }: Props) {
                     setPreviewRows(null);
                     setSummen(null);
                   }}
-                  className="text-xs px-2.5 py-1 rounded-md border border-brand/20 text-brand hover:bg-brand/5 transition-colors"
+                  className="text-xs px-2.5 py-1 rounded-md border border-navy/20 text-navy hover:bg-navy/5 transition-colors"
                 >
                   {y}
                 </button>
@@ -146,7 +146,7 @@ export default function BmdExportClient({ clients }: Props) {
                     key={q}
                     type="button"
                     onClick={() => { setDateFrom(from); setDateTo(to); setPreviewRows(null); setSummen(null); }}
-                    className="text-xs px-2.5 py-1 rounded-md border border-brand/20 text-brand hover:bg-brand/5 transition-colors"
+                    className="text-xs px-2.5 py-1 rounded-md border border-navy/20 text-navy hover:bg-navy/5 transition-colors"
                   >
                     Q{q}
                   </button>
@@ -160,14 +160,14 @@ export default function BmdExportClient({ clients }: Props) {
           <button
             onClick={fetchPreview}
             disabled={!clientId || loading}
-            className="flex-1 sm:flex-none px-5 py-2 rounded-lg border border-brand text-brand text-sm font-medium hover:bg-brand/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 sm:flex-none px-5 py-2 rounded-lg border border-navy text-navy text-sm font-medium hover:bg-navy/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Lädt…' : 'Vorschau'}
           </button>
           <button
             onClick={downloadCsv}
             disabled={!clientId || loading}
-            className="flex-1 sm:flex-none px-5 py-2 rounded-lg bg-brand hover:bg-accent text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 sm:flex-none px-5 py-2 rounded-lg bg-navy hover:bg-navy-2 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Exportiert…' : 'CSV herunterladen'}
           </button>
@@ -180,25 +180,25 @@ export default function BmdExportClient({ clients }: Props) {
 
       {/* Vorschau-Tabelle */}
       {previewRows !== null && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="font-semibold text-gray-800">
+        <div className="card overflow-hidden">
+          <div className="px-6 py-4 border-b border-line flex items-center justify-between">
+            <h2 className="font-semibold text-ink">
               Vorschau — {previewRows.length} Buchungen
             </h2>
             {previewRows.length > 0 && (
-              <span className="text-xs text-gray-400">BMD NTCS EA-Import Format</span>
+              <span className="text-xs text-ink-3">BMD NTCS EA-Import Format</span>
             )}
           </div>
 
           {previewRows.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-ink-3">
                             <p className="text-sm">Keine Buchungen im gewählten Zeitraum</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-gray-50 text-gray-400 uppercase tracking-wide border-b border-gray-100">
+                  <tr className="label-mono border-b border-line-2">
                     <th className="text-left px-4 py-2.5">Datum</th>
                     <th className="text-left px-4 py-2.5">BelegNr</th>
                     <th className="text-left px-4 py-2.5">Text</th>
@@ -213,17 +213,17 @@ export default function BmdExportClient({ clients }: Props) {
                 </thead>
                 <tbody>
                   {previewRows.map((row, i) => (
-                    <tr key={i} className={`border-t border-gray-50 ${row.type === 'income' ? '' : 'text-red-700'}`}>
-                      <td className="px-4 py-2 text-gray-700 whitespace-nowrap">{row.datum}</td>
-                      <td className="px-4 py-2 text-gray-500">{row.belegnr}</td>
-                      <td className="px-4 py-2 text-gray-700 max-w-[180px] truncate">{row.text}</td>
-                      <td className="px-4 py-2 text-right tabular-nums">{row.netto}</td>
-                      <td className="px-4 py-2 text-right tabular-nums">{row.steuerProzent}%</td>
-                      <td className="px-4 py-2 text-right tabular-nums">{row.steuer}</td>
-                      <td className="px-4 py-2 text-right tabular-nums font-medium">{row.brutto}</td>
-                      <td className="px-4 py-2 text-center text-gray-500">{row.konto}</td>
-                      <td className="px-4 py-2 text-center font-mono text-[11px] text-gray-500">{row.steuercode}</td>
-                      <td className="px-4 py-2 text-gray-400 max-w-[220px] truncate" title={row.hinweis}>
+                    <tr key={i} className={`border-t border-line ${row.type === 'income' ? '' : 'text-red-700'}`}>
+                      <td className="px-4 py-2 text-ink whitespace-nowrap">{row.datum}</td>
+                      <td className="px-4 py-2 text-ink-2">{row.belegnr}</td>
+                      <td className="px-4 py-2 text-ink max-w-[180px] truncate">{row.text}</td>
+                      <td className="px-4 py-2 text-right num">{row.netto}</td>
+                      <td className="px-4 py-2 text-right num">{row.steuerProzent}%</td>
+                      <td className="px-4 py-2 text-right num">{row.steuer}</td>
+                      <td className="px-4 py-2 text-right num font-medium">{row.brutto}</td>
+                      <td className="px-4 py-2 text-center text-ink-2">{row.konto}</td>
+                      <td className="px-4 py-2 text-center font-mono text-[11px] text-ink-2">{row.steuercode}</td>
+                      <td className="px-4 py-2 text-ink-3 max-w-[220px] truncate" title={row.hinweis}>
                         {row.hinweis}
                       </td>
                     </tr>
@@ -231,12 +231,12 @@ export default function BmdExportClient({ clients }: Props) {
                 </tbody>
                 {summen && (
                   <tfoot>
-                    <tr className="border-t-2 border-gray-200 bg-gray-50 font-semibold text-gray-700">
+                    <tr className="border-t-2 border-line-2 bg-row font-semibold text-ink">
                       <td className="px-4 py-2.5" colSpan={3}>Kontrollsumme</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums">{eur(summen.netto)}</td>
+                      <td className="px-4 py-2.5 text-right num">{eur(summen.netto)}</td>
                       <td />
-                      <td className="px-4 py-2.5 text-right tabular-nums">{eur(summen.steuer)}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums">{eur(summen.brutto)}</td>
+                      <td className="px-4 py-2.5 text-right num">{eur(summen.steuer)}</td>
+                      <td className="px-4 py-2.5 text-right num">{eur(summen.brutto)}</td>
                       <td colSpan={3} />
                     </tr>
                   </tfoot>
@@ -248,7 +248,7 @@ export default function BmdExportClient({ clients }: Props) {
       )}
 
       {/* Hinweis */}
-      <div className="rounded-xl border border-accent/40 bg-surface-band px-5 py-4 text-sm text-accent-dark">
+      <div className="rounded-xl border border-accent/40 bg-surface-band px-5 py-4 text-sm text-navy">
         <p className="font-semibold mb-1">BMD NTCS EA-Import</p>
         <p className="text-xs leading-relaxed opacity-80">
           Semikolon-getrennt, Zeichensatz Windows-1252, Textfelder nach RFC 4180 eingefasst.

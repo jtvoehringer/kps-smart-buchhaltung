@@ -23,10 +23,10 @@ const INKLUSIV_LEISTUNGEN = [
 
 export default function InklusivCard() {
   return (
-    <div className="bg-white rounded-xl border border-brand/20 shadow-sm p-5 mb-5">
+    <div className="bg-white rounded-xl border border-navy/20 p-5 mb-5">
       <div className="flex items-center gap-2 mb-4">
-        <h2 className="font-semibold text-gray-700">Inklusivleistungen</h2>
-        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+        <h2 className="font-semibold text-ink">Inklusivleistungen</h2>
+        <span className="text-[11px] bg-green-100 text-green-700 px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-semibold">
           Fixer Bestandteil
         </span>
       </div>
@@ -35,18 +35,18 @@ export default function InklusivCard() {
         {INKLUSIV_LEISTUNGEN.map(mod => (
           <div
             key={mod.label}
-            className="flex items-center gap-3 p-4 rounded-xl border-2 border-brand bg-brand/5"
+            className="flex items-center gap-3 p-4 rounded-xl border-2 border-navy bg-navy/5"
           >
             <span className="text-2xl">{mod.icon}</span>
             <div>
-              <span className="font-medium text-gray-800 text-sm">{mod.label}</span>
-              <p className="text-xs text-gray-400 mt-0.5">{mod.description}</p>
+              <span className="font-medium text-ink text-sm">{mod.label}</span>
+              <p className="text-xs text-ink-3 mt-0.5">{mod.description}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <p className="text-xs text-gray-400 mt-3">
+      <p className="text-xs text-ink-3 mt-3">
         Diese Leistungen sind seit dem Vollintegrations-Update für alle Mandanten aktiv
         und nicht mehr einzeln zu- oder abschaltbar.
       </p>

@@ -61,10 +61,10 @@ export default function MonatsabschlussClient({
     <div className="space-y-4">
       {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+            <tr className="label-mono border-b border-line-2">
               <th className="text-left px-4 py-3">Monat</th>
               <th className="text-right px-4 py-3">Buchungen</th>
               <th className="text-right px-4 py-3">Einnahmen</th>
@@ -78,14 +78,14 @@ export default function MonatsabschlussClient({
               const key = `${m.year}-${m.month}`;
               const busy = busyKey === key;
               return (
-                <tr key={key} className="border-t border-gray-50 hover:bg-gray-50/50">
-                  <td className="px-4 py-3 font-medium text-gray-800">{m.label}</td>
-                  <td className="px-4 py-3 text-right text-gray-500">{m.txCount}</td>
-                  <td className="px-4 py-3 text-right text-income font-medium">{formatCurrency(m.income)}</td>
-                  <td className="px-4 py-3 text-right text-expense font-medium">{formatCurrency(m.expense)}</td>
+                <tr key={key} className="border-t border-line hover:bg-row">
+                  <td className="px-4 py-3 font-medium text-ink">{m.label}</td>
+                  <td className="px-4 py-3 text-right text-ink-2 num">{m.txCount}</td>
+                  <td className="px-4 py-3 text-right text-income font-medium num">{formatCurrency(m.income)}</td>
+                  <td className="px-4 py-3 text-right text-expense font-medium num">{formatCurrency(m.expense)}</td>
                   <td className="px-4 py-3 text-center">
                     {m.closed ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gray-500 px-2.5 py-1 rounded-lg">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-row0 px-2.5 py-1 rounded-lg">
                         <Lock size={12} strokeWidth={2} /> Abgeschlossen
                       </span>
                     ) : (
@@ -94,14 +94,14 @@ export default function MonatsabschlussClient({
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right num">
                     {busy ? (
-                      <Loader2 size={16} strokeWidth={2} className="animate-spin text-gray-400 inline-block" />
+                      <Loader2 size={16} strokeWidth={2} className="animate-spin text-ink-3 inline-block" />
                     ) : m.closed ? (
                       canReopen && (
                         <button
                           onClick={() => handleReopen(m)}
-                          className="text-xs font-semibold text-gray-500 hover:text-brand transition-colors"
+                          className="text-xs font-semibold text-ink-2 hover:text-navy transition-colors"
                         >
                           Wieder öffnen
                         </button>
@@ -110,7 +110,7 @@ export default function MonatsabschlussClient({
                       <button
                         onClick={() => handleClose(m)}
                         title={m.txCount === 0 ? 'Monat ohne Buchungen abschließen (Nullmonat)' : undefined}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-brand hover:bg-accent px-3 py-1.5 rounded-lg transition-colors"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-navy hover:bg-navy-2 px-3 py-1.5 rounded-lg transition-colors"
                       >
                         <CalendarCheck size={13} strokeWidth={2} />
                         Abschließen

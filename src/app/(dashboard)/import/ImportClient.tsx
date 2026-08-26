@@ -432,12 +432,12 @@ export default function ImportClient({
           onDrop={onDrop}
           onClick={() => fileInput.current?.click()}
           className={`border-2 border-dashed rounded-2xl px-8 py-12 text-center cursor-pointer transition-colors ${
-            dragOver ? 'border-brand bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+            dragOver ? 'border-navy bg-blue-50' : 'border-line-2 hover:border-line-2 hover:bg-row'
           }`}
         >
-                    <p className="text-gray-700 font-semibold mb-1">Kontoauszug hierher ziehen</p>
-          <p className="text-sm text-gray-400 mb-4">CAMT.053 (.xml) oder Bank-CSV (.csv)</p>
-          <p className="text-xs text-gray-300">Raiffeisen · Erste/Sparkasse · BAWAG · Bank Austria</p>
+                    <p className="text-ink font-semibold mb-1">Kontoauszug hierher ziehen</p>
+          <p className="text-sm text-ink-3 mb-4">CAMT.053 (.xml) oder Bank-CSV (.csv)</p>
+          <p className="text-xs text-ink-3">Raiffeisen · Erste/Sparkasse · BAWAG · Bank Austria</p>
           <input
             ref={fileInput}
             type="file"
@@ -459,27 +459,27 @@ export default function ImportClient({
       {/* ── Ergebnis-Header ── */}
       {rows.length > 0 && (
         <>
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-wrap gap-4 items-center justify-between">
+          <div className="card p-4 flex flex-wrap gap-4 items-center justify-between">
             <div className="space-y-0.5">
-              <p className="font-semibold text-gray-800">
+              <p className="font-semibold text-ink">
                 {fileName}
-                <span className="ml-2 text-xs font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{bankHint}</span>
+                <span className="ml-2 text-xs font-normal text-ink-3 bg-well px-2 py-0.5 rounded-sm">{bankHint}</span>
               </p>
-              {iban && <p className="text-xs text-gray-500">IBAN: {iban}</p>}
-              <p className="text-sm text-gray-500">
+              {iban && <p className="text-xs text-ink-2">IBAN: {iban}</p>}
+              <p className="text-sm text-ink-2">
                 {rows.length} Zeilen · {incomeRows.length} Einnahmen · {expenseRows.length} Ausgaben
                 {dupCount > 0 && <span className="ml-2 text-amber-600">{dupCount} bereits importiert</span>}
-                {matchCount > 0 && <span className="ml-2 text-brand">{matchCount} mit Offenen Posten verknüpft</span>}
+                {matchCount > 0 && <span className="ml-2 text-navy">{matchCount} mit Offenen Posten verknüpft</span>}
               </p>
             </div>
             <div className="flex items-center gap-3">
               {accounts.length > 0 && (
                 <div>
-                  <label htmlFor="importClient-0" className="text-xs font-medium text-gray-500 block mb-1">Konto</label>
+                  <label htmlFor="importClient-0" className="text-xs font-medium text-ink-2 block mb-1">Konto</label>
                   <select id="importClient-0"
                     value={accountId}
                     onChange={e => setAccountId(e.target.value)}
-                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="border border-line-2 rounded-lg px-3 py-1.5 text-sm focus:outline-hidden focus:ring-1 focus:ring-signal/30 focus:border-signal"
                   >
                     <option value="">– kein Konto –</option>
                     {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -488,7 +488,7 @@ export default function ImportClient({
               )}
               <button
                 onClick={() => { setRows([]); setFileName(''); setImportMsg(''); }}
-                className="text-xs text-gray-400 hover:text-gray-600 underline"
+                className="text-xs text-ink-3 hover:text-navy underline"
               >
                 Andere Datei wählen
               </button>
@@ -509,13 +509,13 @@ export default function ImportClient({
                 <div className="flex gap-3 mt-2">
                   <button
                     onClick={() => router.push('/buchungen')}
-                    className="px-4 py-1.5 bg-brand text-white text-xs font-semibold rounded-lg hover:bg-accent transition-colors"
+                    className="px-4 py-1.5 bg-navy text-white text-xs font-semibold rounded-lg hover:bg-navy-2 transition-colors"
                   >
                     → Buchungsübersicht
                   </button>
                   <button
                     onClick={() => { setRows([]); setFileName(''); setImportMsg(''); setBankHint(''); setIban(''); }}
-                    className="px-4 py-1.5 bg-white text-gray-600 text-xs font-medium rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                    className="px-4 py-1.5 bg-white text-ink-2 text-xs font-medium rounded-lg border border-line-2 hover:bg-row transition-colors"
                   >
                     Weitere Datei importieren
                   </button>
@@ -525,15 +525,15 @@ export default function ImportClient({
           )}
 
           {/* ── Vorschau-Tabelle ── */}
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3 bg-gray-50">
+          <div className="card overflow-hidden">
+            <div className="px-4 py-3 border-b border-line flex items-center gap-3 bg-row">
               <input
                 type="checkbox"
                 checked={selectedCount > 0 && selectedCount === rows.filter(r => !r.isDuplicate).length}
                 onChange={e => toggleAll(e.target.checked)}
                 className="w-4 h-4 accent-brand"
               />
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <span className="label-mono">
                 {selectedCount} von {rows.filter(r => !r.isDuplicate).length} ausgewählt
               </span>
             </div>
@@ -541,7 +541,7 @@ export default function ImportClient({
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-xs text-gray-400 uppercase tracking-wide border-b border-gray-100">
+                  <tr className="label-mono border-b border-line-2">
                     <th className="w-8 px-4 py-2"></th>
                     <th className="text-left px-3 py-2">Datum</th>
                     <th className="text-left px-3 py-2">Beschreibung / Gegenpartei</th>
@@ -554,9 +554,9 @@ export default function ImportClient({
                   {rows.map((row, idx) => (
                     <tr
                       key={idx}
-                      className={`border-t border-gray-50 ${
+                      className={`border-t border-line ${
                         row.isDuplicate
-                          ? 'opacity-40 bg-gray-50'
+                          ? 'opacity-40 bg-row'
                           : row.selected
                           ? 'bg-blue-50/30'
                           : ''
@@ -574,27 +574,27 @@ export default function ImportClient({
                           />
                         )}
                       </td>
-                      <td className="px-3 py-2 text-gray-600 whitespace-nowrap text-xs">
+                      <td className="px-3 py-2 text-ink-2 whitespace-nowrap text-xs">
                         {new Date(row.date).toLocaleDateString('de-AT')}
                       </td>
                       <td className="px-3 py-2 max-w-xs">
                         {row.counterpart && (
-                          <p className="font-medium text-gray-700 truncate text-xs">{row.counterpart}</p>
+                          <p className="font-medium text-ink truncate text-xs">{row.counterpart}</p>
                         )}
-                        <p className="text-gray-400 truncate text-xs" title={row.description}>
+                        <p className="text-ink-3 truncate text-xs" title={row.description}>
                           {row.description || '—'}
                         </p>
                       </td>
                       <td className={`px-3 py-2 text-right font-semibold whitespace-nowrap ${
                         row.type === 'income' ? 'text-income' : 'text-expense'
-                      }`}>
+                      } num`}>
                         {row.type === 'income' ? '+' : '−'}{formatCurrency(row.amount)}
                       </td>
                       <td className="px-3 py-2">
                         {!row.isDuplicate && row.match && row.linked ? (
                           <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1.5">
-                            <Link2 size={13} strokeWidth={2} className="text-brand flex-shrink-0" />
-                            <span className="text-xs text-brand font-medium truncate flex-1">
+                            <Link2 size={13} strokeWidth={2} className="text-navy shrink-0" />
+                            <span className="text-xs text-navy font-medium truncate flex-1">
                               {row.match.kind === 'invoice'
                                 ? `${row.match.invoice.invoice_number} · ${row.match.invoice.customer_name}`
                                 : `${row.match.invoice.vendor_name}${row.match.invoice.invoice_number ? ` · ${row.match.invoice.invoice_number}` : ''}`}
@@ -603,7 +603,7 @@ export default function ImportClient({
                               type="button"
                               onClick={() => toggleLinked(idx)}
                               title="Verknüpfung lösen und normal buchen"
-                              className="text-blue-300 hover:text-blue-600 flex-shrink-0"
+                              className="text-blue-300 hover:text-blue-600 shrink-0"
                             >
                               <Unlink size={13} strokeWidth={2} />
                             </button>
@@ -613,8 +613,8 @@ export default function ImportClient({
                             <select
                               value={row.categoryId}
                               onChange={e => setCat(idx, e.target.value)}
-                              className={`w-full border rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-brand ${
-                                !row.categoryId ? 'border-amber-300 bg-amber-50' : 'border-gray-200'
+                              className={`w-full border rounded-lg px-2 py-1 text-xs focus:outline-hidden focus:ring-1 focus:ring-signal/30 focus:border-signal ${
+                                !row.categoryId ? 'border-amber-300 bg-amber-50' : 'border-line-2'
                               }`}
                             >
                               <option value="">– Kategorie wählen –</option>
@@ -634,7 +634,7 @@ export default function ImportClient({
                                 type="button"
                                 onClick={() => toggleLinked(idx)}
                                 title="Vorgeschlagene Verknüpfung wieder übernehmen"
-                                className="text-gray-300 hover:text-brand flex-shrink-0"
+                                className="text-ink-3 hover:text-navy shrink-0"
                               >
                                 <Link2 size={13} strokeWidth={2} />
                               </button>
@@ -669,7 +669,7 @@ export default function ImportClient({
                 <button
                   onClick={handleImport}
                   disabled={importing || importable === 0}
-                  className="px-6 py-3 bg-brand hover:bg-accent text-white font-semibold rounded-xl transition-colors disabled:opacity-40"
+                  className="px-6 py-3 bg-navy hover:bg-navy-2 text-white font-semibold rounded-xl transition-colors disabled:opacity-40"
                 >
                   {importing
                     ? (fortschritt

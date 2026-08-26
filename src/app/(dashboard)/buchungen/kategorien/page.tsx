@@ -39,16 +39,16 @@ export default async function KategorienPage() {
       <div className="mb-6">
         <Link
           href="/buchungen"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand transition-colors mb-3"
+          className="inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-navy transition-colors mb-3"
         >
           <ArrowLeft size={14} strokeWidth={2} />
           Zurück zu Buchungen
         </Link>
-        <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
-          <Tags size={24} strokeWidth={1.75} className="text-accent-dark" />
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em] flex items-center gap-2">
+          <Tags size={24} strokeWidth={1.75} className="text-navy" />
           Kategorien
         </h1>
-        <p className="text-gray-500 text-sm mt-0.5">
+        <p className="text-ink-2 text-sm mt-0.5">
           Einnahmen- und Ausgabenkategorien für die Buchungserfassung
         </p>
       </div>
@@ -89,27 +89,27 @@ function KategorieListe({
   accentClass: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
+    <div className="card overflow-hidden">
+      <div className="px-4 py-3 border-b border-line flex items-center gap-2 bg-row">
         {icon}
         <h2 className={`font-semibold text-sm ${accentClass}`}>{title}</h2>
-        <span className="ml-auto text-xs text-gray-400">{categories.length}</span>
+        <span className="ml-auto text-xs text-ink-3">{categories.length}</span>
       </div>
       {categories.length === 0 ? (
-        <div className="text-center py-8 text-gray-400 text-sm">Keine Kategorien</div>
+        <div className="text-center py-8 text-ink-3 text-sm">Keine Kategorien</div>
       ) : (
-        <ul className="divide-y divide-gray-50">
+        <ul className="divide-y divide-line">
           {categories.map(c => (
             <li key={c.id} className="px-4 py-2.5 flex items-center justify-between text-sm">
-              <span className="text-gray-700 flex items-center gap-2">
+              <span className="text-ink flex items-center gap-2">
                 {c.name}
                 {c.is_system && (
                   <span title="System-Kategorie">
-                    <ShieldCheck size={13} strokeWidth={2} className="text-gray-300" />
+                    <ShieldCheck size={13} strokeWidth={2} className="text-ink-3" />
                   </span>
                 )}
               </span>
-              <span className="flex items-center gap-3 text-xs text-gray-400">
+              <span className="flex items-center gap-3 text-xs text-ink-3">
                 {c.konto_nr && <span>{c.konto_nr}</span>}
                 <span className="font-medium">{c.vat_rate}%</span>
               </span>

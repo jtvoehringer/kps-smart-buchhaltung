@@ -63,11 +63,11 @@ export default async function RechnungDetailPage({ params }: { params: Promise<{
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/rechnungen" className="text-gray-400 hover:text-gray-600 transition-colors text-sm">
+        <Link href="/rechnungen" className="text-ink-3 hover:text-navy transition-colors text-sm">
           ← Rechnungen
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-brand">
+        <span className="text-ink-3">/</span>
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">
           {invoice.invoice_number || 'Entwurf'}
         </h1>
       </div>

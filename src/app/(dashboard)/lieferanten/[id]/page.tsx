@@ -70,11 +70,11 @@ export default async function LieferantBearbeitenPage({ params }: { params: Prom
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/lieferanten" className="text-gray-400 hover:text-gray-600 transition-colors text-sm">
+        <Link href="/lieferanten" className="text-ink-3 hover:text-navy transition-colors text-sm">
           ← Lieferanten
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-brand">{supplier.name}</h1>
+        <span className="text-ink-3">/</span>
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">{supplier.name}</h1>
       </div>
       <LieferantForm clientId={membership.client_id} initial={initial} />
 

@@ -121,7 +121,7 @@ export default function AbstimmungClient({
       )}
 
       {openingDate && imEroeffnungssaldo > 0 && (
-        <p className="text-sm text-gray-600 bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg leading-relaxed">
+        <p className="text-sm text-ink-2 bg-row border border-line-2 px-4 py-3 rounded-lg leading-relaxed">
           {imEroeffnungssaldo === 1
             ? 'Eine Bewegung liegt'
             : `${imEroeffnungssaldo} Bewegungen liegen`}{' '}
@@ -148,34 +148,34 @@ export default function AbstimmungClient({
       )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-          <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Eröffnungssaldo</p>
-          <p className="text-xl font-bold text-gray-700">{formatCurrency(Number(openingBalance) || 0)}</p>
+        <div className="card p-4">
+          <p className="label-mono font-medium mb-1">Eröffnungssaldo</p>
+          <p className="num text-[22px] font-semibold text-ink">{formatCurrency(Number(openingBalance) || 0)}</p>
           {openingDate && (
-            <p className="text-[11px] text-gray-400 mt-0.5">
+            <p className="text-[11px] text-ink-3 mt-0.5">
               per {new Date(openingDate).toLocaleDateString('de-AT')}
             </p>
           )}
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-          <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Kontostand rechnerisch</p>
-          <p className={`text-xl font-bold ${endBalance >= 0 ? 'text-brand' : 'text-expense'}`}>{formatCurrency(endBalance)}</p>
+        <div className="card p-4">
+          <p className="label-mono font-medium mb-1">Kontostand rechnerisch</p>
+          <p className={`num text-[22px] font-semibold ${endBalance >= 0 ? 'text-navy' : 'text-expense'}`}>{formatCurrency(endBalance)}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-          <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Buchungen</p>
-          <p className="text-xl font-bold text-gray-700">{rows.length}</p>
+        <div className="card p-4">
+          <p className="label-mono font-medium mb-1">Buchungen</p>
+          <p className="num text-[22px] font-semibold text-ink">{rows.length}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-          <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Nicht abgestimmt</p>
-          <p className={`text-xl font-bold ${openCount > 0 ? 'text-amber-600' : 'text-gray-700'}`}>{openCount}</p>
+        <div className="card p-4">
+          <p className="label-mono font-medium mb-1">Nicht abgestimmt</p>
+          <p className={`num text-[22px] font-semibold ${openCount > 0 ? 'text-amber-600' : 'text-ink'}`}>{openCount}</p>
         </div>
       </div>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{accountName}</p>
+        <p className="text-sm text-ink-2">{accountName}</p>
         <button
           onClick={() => setHidePrivate(v => !v)}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 bg-white border border-gray-200 px-3 py-1.5 rounded-lg transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-2 hover:text-navy bg-white border border-line-2 px-3 py-1.5 rounded-lg transition-colors"
         >
           {hidePrivate ? <EyeOff size={13} strokeWidth={2} /> : <Eye size={13} strokeWidth={2} />}
           Privatumsätze {hidePrivate ? 'ausgeblendet' : 'anzeigen'}
@@ -183,15 +183,15 @@ export default function AbstimmungClient({
       </div>
 
       {visible.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center">
-          <p className="text-gray-500 text-sm">Diesem Konto sind noch keine Buchungen zugeordnet.</p>
-          <p className="text-gray-400 text-xs mt-1">Buchungen erhalten beim Bank-Import automatisch ein Konto.</p>
+        <div className="card p-8 text-center">
+          <p className="text-ink-2 text-sm">Diesem Konto sind noch keine Buchungen zugeordnet.</p>
+          <p className="text-ink-3 text-xs mt-1">Buchungen erhalten beim Bank-Import automatisch ein Konto.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+              <tr className="label-mono border-b border-line-2">
                 <th className="text-left px-4 py-3">Beleg-Nr</th>
                 <th className="text-left px-4 py-3">Datum</th>
                 <th className="text-left px-4 py-3">Beschreibung</th>
@@ -204,19 +204,19 @@ export default function AbstimmungClient({
             </thead>
             <tbody>
               {visible.map(r => (
-                <tr key={r.id} className={`border-t border-gray-50 hover:bg-gray-50/50 ${r.is_private ? 'opacity-50' : ''}`}>
-                  <td className="px-4 py-3 text-gray-400 font-mono text-[11px] whitespace-nowrap">
+                <tr key={r.id} className={`border-t border-line hover:bg-row ${r.is_private ? 'opacity-50' : ''}`}>
+                  <td className="px-4 py-3 text-ink-3 font-mono text-[11px] whitespace-nowrap">
                     {belegNr(r)}
                   </td>
-                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap text-xs">
+                  <td className="px-4 py-3 text-ink-2 whitespace-nowrap text-xs">
                     {new Date(r.booking_date).toLocaleDateString('de-AT')}
                   </td>
-                  <td className="px-4 py-3 text-gray-700 max-w-xs truncate" title={r.description ?? ''}>
+                  <td className="px-4 py-3 text-ink max-w-xs truncate" title={r.description ?? ''}>
                     {r.description ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                  <td className="px-4 py-3 text-ink-2 text-xs whitespace-nowrap">
                     {r.kind === 'umbuchung' ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded bg-accent/15 text-accent-dark"
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-sm bg-accent/15 text-navy"
                         title="Umbuchung – keine Einnahme/Ausgabe, zählt nicht in UVA, E/A-Rechnung oder BMD-Export">
                         <ArrowLeftRight size={11} strokeWidth={2} />
                         {r.richtung === 'out' ? `an ${r.gegenkonto}` : `von ${r.gegenkonto}`}
@@ -225,17 +225,17 @@ export default function AbstimmungClient({
                       r.category?.name ?? '—'
                     )}
                   </td>
-                  <td className={`px-4 py-3 text-right font-semibold whitespace-nowrap ${r.type === 'income' ? 'text-income' : 'text-expense'}`}>
+                  <td className={`px-4 py-3 text-right font-semibold whitespace-nowrap ${r.type === 'income' ? 'text-income' : 'text-expense'} num`}>
                     {r.type === 'income' ? '+' : '−'}{formatCurrency(Number(r.amount_gross))}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-500 whitespace-nowrap">{formatCurrency(r.balance)}</td>
+                  <td className="px-4 py-3 text-right text-ink-2 whitespace-nowrap num">{formatCurrency(r.balance)}</td>
                   <td className="px-4 py-3 text-center">
                     {r.kind === 'umbuchung' ? (
                       // Umbuchungen können nicht privat sein – stattdessen löschen
                       <button
                         onClick={() => deleteUmbuchung(r.id)}
                         disabled={busyId === r.id}
-                        className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-md border border-gray-200 text-gray-400 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-md border border-line-2 text-ink-3 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-50"
                         title="Umbuchung löschen (aus beiden Abstimmungen)"
                       >
                         <X size={11} strokeWidth={2} />
@@ -246,7 +246,7 @@ export default function AbstimmungClient({
                         onClick={() => togglePrivate(r.id, r.is_private)}
                         disabled={busyId === r.id}
                         className={`w-5 h-5 rounded-md border inline-flex items-center justify-center transition-colors disabled:opacity-50 ${
-                          r.is_private ? 'bg-gray-400 border-gray-400 text-white' : 'border-gray-300 hover:border-gray-400'
+                          r.is_private ? 'bg-ink-3 border-line-2 text-white' : 'border-line-2 hover:border-line-2'
                         }`}
                         title="Als Privatumsatz markieren"
                       >
@@ -259,7 +259,7 @@ export default function AbstimmungClient({
                       onClick={() => toggleReconciled(r)}
                       disabled={busyId === r.id}
                       className={`w-5 h-5 rounded-md border inline-flex items-center justify-center transition-colors disabled:opacity-50 ${
-                        r.is_reconciled ? 'bg-brand border-brand text-white' : 'border-gray-300 hover:border-gray-400'
+                        r.is_reconciled ? 'bg-navy border-navy text-white' : 'border-line-2 hover:border-line-2'
                       }`}
                       title="Mit Kontoauszug abgestimmt"
                     >
@@ -270,12 +270,12 @@ export default function AbstimmungClient({
               ))}
               {/* colSpan 4: Beleg-Nr, Datum, Beschreibung, Kategorie – der
                   Eröffnungssaldo steht damit in der Saldo-Spalte. */}
-              <tr className="border-t-2 border-gray-200 bg-gray-50/60 text-gray-500">
+              <tr className="border-t-2 border-line-2 bg-row/60 text-ink-2">
                 <td className="px-4 py-3 text-[11px]" colSpan={4}>
                   Eröffnungssaldo{openingDate && ` per ${new Date(openingDate).toLocaleDateString('de-AT')}`}
                 </td>
-                <td className="px-4 py-3 text-right text-gray-400">—</td>
-                <td className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                <td className="px-4 py-3 text-right text-ink-3 num">—</td>
+                <td className="px-4 py-3 text-right font-medium whitespace-nowrap num">
                   {formatCurrency(Number(openingBalance) || 0)}
                 </td>
                 <td colSpan={2} />

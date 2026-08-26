@@ -251,9 +251,9 @@ export default function EinstellungenForm({
       <SectionHeader title="Buchhaltung" />
 
       {/* Buchungsmodus */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">Buchungsmodus</h2>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">Buchungsmodus</h2>
+        <p className="text-sm text-ink-2 mb-4">
           Legt fest ob beim Erfassen einer Buchung der Netto- oder Bruttobetrag eingegeben wird.
         </p>
         <div className="flex gap-3">
@@ -273,9 +273,9 @@ export default function EinstellungenForm({
       </div>
 
       {/* USt-Voranmeldungszeitraum */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">USt-Voranmeldungszeitraum</h2>
-        <p className="text-sm text-gray-500 mb-4">Wie oft wird die UVA eingereicht?</p>
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">USt-Voranmeldungszeitraum</h2>
+        <p className="text-sm text-ink-2 mb-4">Wie oft wird die UVA eingereicht?</p>
         <div className="flex gap-3">
           <PeriodButton active={vatPeriod === 'monthly'}   onClick={() => setVatPeriod('monthly')}   label="Monatlich" />
           <PeriodButton active={vatPeriod === 'quarterly'} onClick={() => setVatPeriod('quarterly')} label="Vierteljährlich" />
@@ -283,9 +283,9 @@ export default function EinstellungenForm({
       </div>
 
       {/* Betriebsbeginn (Migration 044) */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">Betriebsbeginn</h2>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">Betriebsbeginn</h2>
+        <p className="text-sm text-ink-2 mb-4">
           Offizieller Beginn der betrieblichen Tätigkeit – z.&nbsp;B. bei einem
           Rumpfwirtschaftsjahr. Monate davor verlangen keinen Monatsabschluss
           und tauchen nicht in den Aufgaben auf. Leer lassen, wenn keine
@@ -295,14 +295,14 @@ export default function EinstellungenForm({
           type="date"
           value={betriebsbeginn}
           onChange={e => setBetriebsbeginn(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+          className="border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
         />
       </div>
 
       {/* USt-Status: Kleinunternehmer / Regelbesteuerung */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">USt-Status</h2>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">USt-Status</h2>
+        <p className="text-sm text-ink-2 mb-4">
           Kleinunternehmerregelung gem. § 6 Abs. 1 Z 27 UStG oder reguläre Umsatzsteuerpflicht.
         </p>
         <div className="flex gap-3 mb-3">
@@ -327,7 +327,7 @@ export default function EinstellungenForm({
         )}
 
         {ustStatus === 'regelbesteuerung' && (
-          <div className="mt-2 border-t border-gray-100 pt-3">
+          <div className="mt-2 border-t border-line pt-3">
             <label className="flex items-start gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
@@ -335,7 +335,7 @@ export default function EinstellungenForm({
                 onChange={e => setRegelOptiert(e.target.checked)}
                 className="mt-0.5"
               />
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-ink">
                 Freiwilliger Verzicht auf die Kleinunternehmerregelung
                 (Regelbesteuerungsantrag, Formular <strong>U12</strong>) – die Umsatzgrenze
                 wäre sonst nicht überschritten.
@@ -344,14 +344,14 @@ export default function EinstellungenForm({
 
             {regelOptiert && (
               <div className="mt-3 flex items-center gap-3 pl-6">
-                <label htmlFor="einstellungenForm-0" className="text-xs text-gray-500 font-medium">Jahr der Verzichtserklärung</label>
+                <label htmlFor="einstellungenForm-0" className="text-xs text-ink-2 font-medium">Jahr der Verzichtserklärung</label>
                 <input id="einstellungenForm-0"
                   type="number"
                   value={regelJahr}
                   onChange={e => setRegelJahr(Number(e.target.value))}
-                  className="w-24 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+                  className="w-24 border border-line-2 rounded-lg px-3 py-1.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
                 />
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-ink-3">
                   bindend bis Ende {regelJahr + 4} (5 Kalenderjahre), Widerruf erst danach möglich
                 </span>
               </div>
@@ -361,9 +361,9 @@ export default function EinstellungenForm({
       </div>
 
       {/* UID-Nummer */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">UID-Nummer</h2>
-        <p className="text-sm text-gray-500 mb-3">Österreichische Umsatzsteuer-Identifikationsnummer</p>
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">UID-Nummer</h2>
+        <p className="text-sm text-ink-2 mb-3">Österreichische Umsatzsteuer-Identifikationsnummer</p>
         <input
           type="text"
           placeholder="ATU12345678"
@@ -374,9 +374,9 @@ export default function EinstellungenForm({
       </div>
 
       {/* Belegverwaltung */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">Belegverwaltung</h2>
-        <p className="text-sm text-gray-500">
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">Belegverwaltung</h2>
+        <p className="text-sm text-ink-2">
           Das Anhängen von Belegen (PDF, JPG, PNG) ist bei jeder Buchung verfügbar.
         </p>
         <p className="text-xs text-blue-600 mt-2 bg-blue-50 px-3 py-1.5 rounded-lg inline-block">
@@ -391,17 +391,17 @@ export default function EinstellungenForm({
       />
 
       {/* Logo */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">Firmenlogo</h2>
-        <p className="text-sm text-gray-500 mb-4">PNG, JPG oder SVG, max. 2 MB – erscheint oben auf der Rechnung</p>
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">Firmenlogo</h2>
+        <p className="text-sm text-ink-2 mb-4">PNG, JPG oder SVG, max. 2 MB – erscheint oben auf der Rechnung</p>
         <div className="flex items-center gap-4">
           {logoUrl ? (
-            <div className="w-24 h-16 border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+            <div className="w-24 h-16 border border-line-2 rounded-lg overflow-hidden bg-row flex items-center justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={logoUrl} alt="Logo" className="max-w-full max-h-full object-contain p-1" />
             </div>
           ) : (
-            <div className="w-24 h-16 border-2 border-dashed border-gray-200 rounded-lg flex items-center justify-center text-gray-300 text-xs text-center leading-tight px-1">
+            <div className="w-24 h-16 border-2 border-dashed border-line-2 rounded-lg flex items-center justify-center text-ink-3 text-xs text-center leading-tight px-1">
               Kein Logo
             </div>
           )}
@@ -410,7 +410,7 @@ export default function EinstellungenForm({
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={logoUploading}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm border border-line-2 rounded-lg hover:bg-row transition-colors disabled:opacity-50"
             >
               {logoUploading ? 'Wird hochgeladen…' : logoUrl ? 'Logo ersetzen' : 'Logo hochladen'}
             </button>
@@ -435,34 +435,34 @@ export default function EinstellungenForm({
       </div>
 
       {/* Primärfarbe */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">Primärfarbe</h2>
-        <p className="text-sm text-gray-500 mb-4">Wird für Rechnungskopf und Akzente verwendet</p>
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">Primärfarbe</h2>
+        <p className="text-sm text-ink-2 mb-4">Wird für Rechnungskopf und Akzente verwendet</p>
         <div className="flex items-center gap-4">
           <input
             type="color"
             value={brandColor}
             onChange={e => setBrandColor(e.target.value)}
-            className="w-12 h-10 rounded cursor-pointer border border-gray-200"
+            className="w-12 h-10 rounded-sm cursor-pointer border border-line-2"
           />
           <input
             type="text"
             value={brandColor}
             onChange={e => setBrandColor(e.target.value)}
             placeholder="#47A6CC"
-            className="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand"
+            className="w-32 border border-line-2 rounded-lg px-3 py-2 text-sm font-mono focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
           />
           <div
-            className="flex-1 h-10 rounded-lg border border-gray-100"
+            className="flex-1 h-10 rounded-lg border border-line"
             style={{ backgroundColor: brandColor }}
           />
         </div>
       </div>
 
       {/* Firmenadresse */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">Firmenadresse</h2>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">Firmenadresse</h2>
+        <p className="text-sm text-ink-2 mb-4">
           Erscheint in der linken Fußzeilenspalte der Rechnung – und, je nach Einstellung unten,
           zusätzlich im Rechnungskopf.
         </p>
@@ -476,12 +476,12 @@ export default function EinstellungenForm({
             <input
               type="text" placeholder="PLZ"
               value={companyZip} onChange={e => setCompanyZip(e.target.value)}
-              className="w-28 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-28 border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
             />
             <input
               type="text" placeholder="Ort"
               value={companyCity} onChange={e => setCompanyCity(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+              className="flex-1 border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
             />
           </div>
           <input
@@ -493,12 +493,12 @@ export default function EinstellungenForm({
             <input
               type="tel" placeholder="Telefon"
               value={companyPhone} onChange={e => setCompanyPhone(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+              className="flex-1 border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
             />
             <input
               type="email" placeholder="E-Mail"
               value={companyEmail} onChange={e => setCompanyEmail(e.target.value)}
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+              className="flex-1 border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
             />
           </div>
           <input
@@ -512,8 +512,8 @@ export default function EinstellungenForm({
               die Angaben stehen ohnehin vollständig in der Fußzeile. */}
           <label className={`flex items-start gap-3 rounded-lg border p-3 mt-1 ${
             logoUrl
-              ? 'border-gray-200 cursor-pointer hover:bg-gray-50'
-              : 'border-gray-100 bg-gray-50 cursor-not-allowed'
+              ? 'border-line-2 cursor-pointer hover:bg-row'
+              : 'border-line bg-row cursor-not-allowed'
           }`}>
             <input
               type="checkbox"
@@ -523,10 +523,10 @@ export default function EinstellungenForm({
               className="mt-0.5 w-4 h-4 accent-brand"
             />
             <span className="text-sm">
-              <span className="font-medium text-gray-700">
+              <span className="font-medium text-ink">
                 Firmenname und Adresse auch im Rechnungskopf zeigen
               </span>
-              <span className="block text-xs text-gray-500 mt-0.5 leading-relaxed">
+              <span className="block text-xs text-ink-2 mt-0.5 leading-relaxed">
                 {logoUrl
                   ? 'Ausgeschaltet steht im Rechnungskopf nur das Logo. Firmenwortlaut, Adresse, Kontakt, Bankverbindung und UID bleiben in der Fußzeile – die Rechnung erfüllt § 11 UStG also weiterhin.'
                   : 'Erst wählbar, wenn oben ein Logo hinterlegt ist – sonst bliebe der Rechnungskopf leer.'}
@@ -537,15 +537,15 @@ export default function EinstellungenForm({
       </div>
 
       {/* Bankverbindung */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">Bankverbindung</h2>
-        <p className="text-sm text-gray-500 mb-4">Wird im Zahlungshinweis auf der Rechnung angezeigt</p>
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">Bankverbindung</h2>
+        <p className="text-sm text-ink-2 mb-4">Wird im Zahlungshinweis auf der Rechnung angezeigt</p>
         <div className="space-y-3">
           {/* Sichtbare Beschriftungen statt bloßer Platzhalter: die
               verschwinden beim Ausfüllen, und Passwortmanager tragen
               dann gern den Kontoinhaber ins Bankfeld ein. */}
           <div>
-            <label htmlFor="bank-iban" className="text-xs font-medium text-gray-500 block mb-1">IBAN</label>
+            <label htmlFor="bank-iban" className="text-xs font-medium text-ink-2 block mb-1">IBAN</label>
             <input
               id="bank-iban" type="text" placeholder="AT.. .... .... .... ...."
               autoComplete="off" data-1p-ignore data-lpignore="true"
@@ -555,27 +555,27 @@ export default function EinstellungenForm({
           </div>
           <div className="flex gap-3">
             <div className="w-44">
-              <label htmlFor="bank-bic" className="text-xs font-medium text-gray-500 block mb-1">BIC (optional)</label>
+              <label htmlFor="bank-bic" className="text-xs font-medium text-ink-2 block mb-1">BIC (optional)</label>
               <input
                 id="bank-bic" type="text" placeholder="z.B. GIBAATWWXXX"
                 autoComplete="off" data-1p-ignore data-lpignore="true"
                 value={bic} onChange={e => setBic(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
               />
             </div>
             <div className="flex-1">
-              <label htmlFor="bank-name" className="text-xs font-medium text-gray-500 block mb-1">
+              <label htmlFor="bank-name" className="text-xs font-medium text-ink-2 block mb-1">
                 Name des Kreditinstituts (optional)
               </label>
               <input
                 id="bank-name" type="text" placeholder="z.B. Erste Bank – nicht der Kontoinhaber"
                 autoComplete="off" data-1p-ignore data-lpignore="true"
                 value={bankName} onChange={e => setBankName(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
               />
             </div>
           </div>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-ink-3">
             Diese drei Angaben erscheinen in der rechten Fußzeilenspalte der Rechnung.
             Der Kontoinhaber gehört nicht hierher – er ergibt sich aus dem Firmenwortlaut.
           </p>
@@ -583,12 +583,12 @@ export default function EinstellungenForm({
       </div>
 
       {/* Rechnungsnummer */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-3">Rechnungsnummer</h2>
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-3">Rechnungsnummer</h2>
         <div className="space-y-3">
           <div className="flex gap-3 items-end">
             <div className="flex-1">
-              <label htmlFor="einstellungenForm-1" className="text-xs text-gray-500 font-medium block mb-1">Prefix</label>
+              <label htmlFor="einstellungenForm-1" className="text-xs text-ink-2 font-medium block mb-1">Prefix</label>
               <input id="einstellungenForm-1"
                 type="text" placeholder="RE-"
                 value={invoicePrefix} onChange={e => setInvoicePrefix(e.target.value)}
@@ -596,7 +596,7 @@ export default function EinstellungenForm({
               />
             </div>
             <div className="w-28">
-              <label htmlFor="einstellungenForm-2" className="text-xs text-gray-500 font-medium block mb-1">Nächste Nr.</label>
+              <label htmlFor="einstellungenForm-2" className="text-xs text-ink-2 font-medium block mb-1">Nächste Nr.</label>
               <input id="einstellungenForm-2"
                 type="number" min={1}
                 value={invoiceNextNr} onChange={e => setInvoiceNextNr(Number(e.target.value))}
@@ -604,7 +604,7 @@ export default function EinstellungenForm({
               />
             </div>
             <div className="w-36">
-              <label htmlFor="einstellungenForm-3" className="text-xs text-gray-500 font-medium block mb-1">Stellen</label>
+              <label htmlFor="einstellungenForm-3" className="text-xs text-ink-2 font-medium block mb-1">Stellen</label>
               <select id="einstellungenForm-3"
                 value={invoiceNrDigits}
                 onChange={e => setInvoiceNrDigits(Number(e.target.value))}
@@ -616,7 +616,7 @@ export default function EinstellungenForm({
               </select>
             </div>
             <div className="w-40">
-              <label htmlFor="einstellungenForm-4" className="text-xs text-gray-500 font-medium block mb-1">Suffix</label>
+              <label htmlFor="einstellungenForm-4" className="text-xs text-ink-2 font-medium block mb-1">Suffix</label>
               <input id="einstellungenForm-4"
                 type="text" placeholder="/{JJ}"
                 value={invoiceSuffix} onChange={e => setInvoiceSuffix(e.target.value)}
@@ -624,23 +624,23 @@ export default function EinstellungenForm({
               />
             </div>
           </div>
-          <p className="text-xs text-gray-400 leading-relaxed">
+          <p className="text-xs text-ink-3 leading-relaxed">
             Platzhalter im Suffix: <span className="font-mono">{'{JJ}'}</span> für das zweistellige Jahr,{' '}
             <span className="font-mono">{'{JJJJ}'}</span> für das vierstellige. Leer lassen für kein Suffix.
             Das Jahr richtet sich nach dem Rechnungsdatum.
           </p>
-          <div className="bg-gray-50 rounded-lg px-4 py-3 flex items-center gap-3 flex-wrap">
-            <span className="text-xs text-gray-400">Vorschau nächste Rechnung:</span>
-            <span className="font-mono font-semibold text-brand">{nrPreview}</span>
+          <div className="bg-row rounded-lg px-4 py-3 flex items-center gap-3 flex-wrap">
+            <span className="text-xs text-ink-3">Vorschau nächste Rechnung:</span>
+            <span className="font-mono font-semibold text-navy">{nrPreview}</span>
           </div>
           {hatJahresSuffix ? (
-            <p className="text-xs text-accent-dark bg-surface-band rounded-lg px-4 py-2.5 leading-relaxed">
+            <p className="text-xs text-navy bg-surface-band rounded-lg px-4 py-2.5 leading-relaxed">
               Der Zähler beginnt zu jedem Jahreswechsel wieder bei 1 – im Beispiel oben also{' '}
               <span className="font-mono">{nrPreviewNaechstesJahr}</span> für die erste Rechnung des Folgejahres.
               Die Nummern bleiben eindeutig, weil das Jahr Teil der Nummer ist.
             </p>
           ) : (
-            <p className="text-xs text-gray-400 bg-gray-50 rounded-lg px-4 py-2.5 leading-relaxed">
+            <p className="text-xs text-ink-3 bg-row rounded-lg px-4 py-2.5 leading-relaxed">
               Ohne Jahresplatzhalter läuft der Zähler durchgehend über alle Jahre weiter.
             </p>
           )}
@@ -648,9 +648,9 @@ export default function EinstellungenForm({
       </div>
 
       {/* Fußzeile */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-1">Rechnungsfußzeile</h2>
-        <p className="text-sm text-gray-500 mb-4">
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-1">Rechnungsfußzeile</h2>
+        <p className="text-sm text-ink-2 mb-4">
           Die Fußzeile ist dreispaltig. Firmenwortlaut, Adresse, Kontaktdaten, Bankverbindung
           und UID werden automatisch aus den Feldern oben eingesetzt – hier ergänzen Sie nur,
           was zusätzlich in der jeweiligen Spalte stehen soll.
@@ -658,36 +658,36 @@ export default function EinstellungenForm({
 
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label htmlFor="fz-links" className="text-xs font-medium text-gray-500 block mb-1">Links</label>
+            <label htmlFor="fz-links" className="text-xs font-medium text-ink-2 block mb-1">Links</label>
             <textarea id="fz-links" rows={3}
               placeholder="z.B. FN 415469i · HG Wr. Neustadt"
               value={footerLeft} onChange={e => setFooterLeft(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none" />
-            <p className="text-xs text-gray-400 mt-1">Unter Firma und Adresse</p>
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30 resize-none" />
+            <p className="text-xs text-ink-3 mt-1">Unter Firma und Adresse</p>
           </div>
           <div>
-            <label htmlFor="fz-mitte" className="text-xs font-medium text-gray-500 block mb-1">Mitte</label>
+            <label htmlFor="fz-mitte" className="text-xs font-medium text-ink-2 block mb-1">Mitte</label>
             <textarea id="fz-mitte" rows={3}
               placeholder="z.B. Gerichtsstand Wiener Neustadt"
               value={footerCenter} onChange={e => setFooterCenter(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none" />
-            <p className="text-xs text-gray-400 mt-1">Unter Telefon, E-Mail und Web</p>
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30 resize-none" />
+            <p className="text-xs text-ink-3 mt-1">Unter Telefon, E-Mail und Web</p>
           </div>
           <div>
-            <label htmlFor="fz-rechts" className="text-xs font-medium text-gray-500 block mb-1">Rechts</label>
+            <label htmlFor="fz-rechts" className="text-xs font-medium text-ink-2 block mb-1">Rechts</label>
             <textarea id="fz-rechts" rows={3}
               placeholder="z.B. Eigentumsvorbehalt bis zur vollständigen Bezahlung"
               value={footerRight} onChange={e => setFooterRight(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none" />
-            <p className="text-xs text-gray-400 mt-1">Unter Bankverbindung und UID</p>
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30 resize-none" />
+            <p className="text-xs text-ink-3 mt-1">Unter Bankverbindung und UID</p>
           </div>
         </div>
 
         {/* Vorschau – so steht es auf der Rechnung */}
-        <p className="text-xs font-medium text-gray-500 mt-5 mb-2">So sieht die Fußzeile auf der Rechnung aus</p>
-        <div className="border-t border-gray-200 pt-3 grid grid-cols-3 gap-4 text-[11px] text-gray-400 leading-relaxed bg-gray-50 rounded-lg px-4 pb-3">
+        <p className="text-xs font-medium text-ink-2 mt-5 mb-2">So sieht die Fußzeile auf der Rechnung aus</p>
+        <div className="border-t border-line-2 pt-3 grid grid-cols-3 gap-4 text-[11px] text-ink-3 leading-relaxed bg-row rounded-lg px-4 pb-3">
           <div>
-            <p className="font-semibold text-gray-500">{client.company_name || 'Firmenwortlaut'}</p>
+            <p className="font-semibold text-ink-2">{client.company_name || 'Firmenwortlaut'}</p>
             {companyStreet && <p>{companyStreet}</p>}
             {(companyZip || companyCity) && <p>{[companyZip, companyCity].filter(Boolean).join(' ')}</p>}
             {footerLeft && <p className="whitespace-pre-line">{footerLeft}</p>}
@@ -726,7 +726,7 @@ export default function EinstellungenForm({
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-brand hover:bg-accent text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
+        className="w-full bg-navy hover:bg-navy-2 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
       >
         {loading ? 'Speichern…' : 'Alle Einstellungen speichern'}
       </button>
@@ -736,7 +736,7 @@ export default function EinstellungenForm({
 
 // ── Hilfsstyles & Subkomponenten ──────────────────────────────
 
-const inputCls = 'w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
+const inputCls = 'w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30';
 
 function formatEuro(n: number) {
   return n.toLocaleString('de-AT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
@@ -745,8 +745,8 @@ function formatEuro(n: number) {
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="pt-2 pb-1">
-      <h2 className="text-base font-bold text-brand uppercase tracking-wide">{title}</h2>
-      {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
+      <h2 className="text-base font-bold text-navy uppercase tracking-wide">{title}</h2>
+      {subtitle && <p className="text-xs text-ink-3 mt-0.5">{subtitle}</p>}
     </div>
   );
 }
@@ -760,11 +760,11 @@ function ModeButton({ active, onClick, label, sub }: {
       onClick={onClick}
       style={active ? { backgroundColor: '#14355C', color: 'white', borderColor: '#14355C' } : {}}
       className={`flex-1 py-4 rounded-xl border-2 text-sm transition-all ${
-        active ? '' : 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700'
+        active ? '' : 'border-line-2 text-ink-2 hover:border-line-2 hover:text-navy'
       }`}
     >
       <div className="font-semibold">{label}</div>
-      <div className={`text-xs mt-1 ${active ? 'opacity-80' : 'text-gray-400'}`}>{sub}</div>
+      <div className={`text-xs mt-1 ${active ? 'opacity-80' : 'text-ink-3'}`}>{sub}</div>
     </button>
   );
 }
@@ -776,7 +776,7 @@ function PeriodButton({ active, onClick, label }: { active: boolean; onClick: ()
       onClick={onClick}
       style={active ? { backgroundColor: '#14355C', color: 'white', borderColor: '#14355C' } : {}}
       className={`flex-1 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
-        active ? '' : 'border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700'
+        active ? '' : 'border-line-2 text-ink-2 hover:border-line-2 hover:text-navy'
       }`}
     >
       {label}

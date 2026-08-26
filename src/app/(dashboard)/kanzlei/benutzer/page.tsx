@@ -53,11 +53,11 @@ export default async function BenutzerPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="mb-6 flex items-center gap-2">
-        <Link href="/kanzlei" className="text-gray-400 hover:text-gray-600 text-sm transition-colors">
+        <Link href="/kanzlei" className="text-ink-3 hover:text-navy text-sm transition-colors">
           ← Kanzlei
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-brand">Benutzerverwaltung</h1>
+        <span className="text-ink-3">/</span>
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">Benutzerverwaltung</h1>
       </div>
 
       <BenutzerClient users={mapped} myRole={me.role} myId={user.id} />

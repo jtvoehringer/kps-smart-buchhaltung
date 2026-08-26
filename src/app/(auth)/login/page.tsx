@@ -32,21 +32,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#E3F2FD]">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-bg px-4">
+      <div className="card p-8 w-full max-w-md">
 
         {/* Logo / Titel */}
         <div className="mb-8 text-center">
           <div className="flex justify-center mb-3">
             <Image src="/icp-lockup-navy.png" alt="ICP Solutions" width={170} height={50} priority />
           </div>
-          <h1 className="text-2xl font-bold text-brand">Smart Buchhaltung</h1>
-          <p className="text-gray-500 text-sm mt-1">Bitte melden Sie sich an</p>
+          <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">Smart Buchhaltung</h1>
+          <p className="text-ink-2 text-sm mt-1">Bitte melden Sie sich an</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4" suppressHydrationWarning>
           <div>
-            <label htmlFor="page-0" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="page-0" className="block text-sm font-medium text-ink mb-1">
               E-Mail-Adresse
             </label>
             <input id="page-0"
@@ -57,13 +57,13 @@ export default function LoginPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="max@mustermann.at"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
               suppressHydrationWarning
             />
           </div>
 
           <div>
-            <label htmlFor="page-1" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="page-1" className="block text-sm font-medium text-ink mb-1">
               Passwort
             </label>
             <input id="page-1"
@@ -74,7 +74,7 @@ export default function LoginPage() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
               suppressHydrationWarning
             />
           </div>
@@ -86,19 +86,19 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-brand hover:bg-accent text-white font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-50"
+            className="w-full bg-navy hover:bg-navy-2 text-white font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-50"
           >
             {loading ? 'Anmelden…' : 'Anmelden'}
           </button>
         </form>
 
         <p className="text-center mt-4">
-          <a href="/passwort-vergessen" className="text-xs text-gray-400 hover:text-brand">
+          <a href="/passwort-vergessen" className="text-xs text-ink-3 hover:text-navy">
             Passwort vergessen?
           </a>
         </p>
-        <p className="text-center text-xs text-gray-400 mt-3">
-          Bereitgestellt von IC&amp;P Consultants e.U.
+        <p className="text-center text-xs text-ink-3 mt-3">
+          Bereitgestellt von ICP Solutions
         </p>
       </div>
     </div>

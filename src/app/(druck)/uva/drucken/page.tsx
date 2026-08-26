@@ -356,7 +356,7 @@ export default async function UVADruckenPage({
             Maßgeblich ist die Erklärung über FinanzOnline (finanz.at). Bitte mit Ihrem Steuerberater abstimmen.
           </div>
           <div className="footer-meta">
-            IC&amp;P Consultants e.U.<br />
+            ICP Solutions<br />
             Smart Buchhaltung
           </div>
         </div>

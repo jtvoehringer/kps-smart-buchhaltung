@@ -130,8 +130,8 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-gray-700">Belege</span>
-        <span className="text-xs text-gray-400">(optional · PDF, JPG, PNG · max. {MAX_SIZE_MB} MB)</span>
+        <span className="text-sm font-semibold text-ink">Belege</span>
+        <span className="text-xs text-ink-3">(optional · PDF, JPG, PNG · max. {MAX_SIZE_MB} MB)</span>
       </div>
 
       {/* Bestehende Belege */}
@@ -140,24 +140,24 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
           {attachments.map(att => (
             <li
               key={att.id}
-              className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 group"
+              className="flex items-center gap-3 bg-row rounded-lg px-3 py-2 group"
             >
               <span className="text-lg">{fileIcon(att.file_name)}</span>
               <button
                 type="button"
                 onClick={() => openAttachment(att)}
-                className="flex-1 text-left text-sm text-brand hover:underline truncate"
+                className="flex-1 text-left text-sm text-navy hover:underline truncate"
                 title={att.file_name}
               >
                 {att.file_name}
               </button>
-              <span className="text-xs text-gray-400 flex-shrink-0">
+              <span className="text-xs text-ink-3 shrink-0">
                 {new Date(att.uploaded_at).toLocaleDateString('de-AT')}
               </span>
               <button
                 type="button"
                 onClick={() => deleteAttachment(att)}
-                className="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"
+                className="text-ink-3 hover:text-red-500 transition-colors shrink-0"
                 title="Beleg löschen"
               >
                 ✕
@@ -170,10 +170,10 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
       {/* Kamera-Direktaufnahme */}
       <div className="flex items-center gap-2">
         <button type="button" onClick={() => cameraInput.current?.click()}
-          className="inline-flex items-center gap-1 text-xs text-white font-medium bg-brand hover:bg-accent px-3 py-1.5 rounded-lg transition-colors">
+          className="inline-flex items-center gap-1 text-xs text-white font-medium bg-navy hover:bg-navy-2 px-3 py-1.5 rounded-lg transition-colors">
           Foto aufnehmen
         </button>
-        <span className="text-xs text-gray-400">oder Datei unten hochladen</span>
+        <span className="text-xs text-ink-3">oder Datei unten hochladen</span>
       </div>
       <input ref={cameraInput} type="file" accept="image/*" capture="environment"
         onChange={e => handleFiles(e.target.files)} className="hidden" />
@@ -186,13 +186,13 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
         onClick={() => fileInput.current?.click()}
         className={`border-2 border-dashed rounded-xl px-4 py-6 text-center cursor-pointer transition-colors ${
           dragOver
-            ? 'border-brand bg-blue-50'
-            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+            ? 'border-navy bg-blue-50'
+            : 'border-line-2 hover:border-line-2 hover:bg-row'
         }`}
       >
         {uploading ? (
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-            <svg className="animate-spin h-4 w-4 text-brand" viewBox="0 0 24 24" fill="none">
+          <div className="flex items-center justify-center gap-2 text-sm text-ink-2">
+            <svg className="animate-spin h-4 w-4 text-navy" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
             </svg>
@@ -201,8 +201,8 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
         ) : (
           <>
             <div className="text-2xl mb-1">⬆️</div>
-            <p className="text-sm text-gray-500">
-              Datei hierher ziehen oder <span className="text-brand font-medium">auswählen</span>
+            <p className="text-sm text-ink-2">
+              Datei hierher ziehen oder <span className="text-navy font-medium">auswählen</span>
             </p>
           </>
         )}

@@ -18,14 +18,14 @@ export default function PageHeader({
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-      <div>
-        <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
-          {Icon && <Icon size={22} strokeWidth={1.75} className="text-accent-dark" />}
+      <div className="min-w-0">
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em] flex items-center gap-2">
+          {Icon && <Icon size={22} strokeWidth={1.75} className="text-ink-3 shrink-0" />}
           {title}
         </h1>
-        {subtitle && <p className="text-gray-500 text-sm">{subtitle}</p>}
+        {subtitle && <p className="text-ink-2 text-[14.5px] mt-1 max-w-[70ch]">{subtitle}</p>}
       </div>
-      {children && <div className="flex items-center gap-2">{children}</div>}
+      {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
     </div>
   );
 }

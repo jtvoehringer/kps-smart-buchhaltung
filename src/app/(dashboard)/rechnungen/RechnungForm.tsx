@@ -284,17 +284,17 @@ export default function RechnungForm({
     setLoading(false);
   }
 
-  const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand';
+  const inputCls = 'w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30';
 
   return (
     <div className="space-y-5 max-w-4xl">
 
       {/* Kopfdaten */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-4">Rechnungskopf</h2>
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-4">Rechnungskopf</h2>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label htmlFor="rechnungForm-0" className="text-xs font-medium text-gray-500 block mb-1">Kunde <span className="text-red-400">*</span></label>
+            <label htmlFor="rechnungForm-0" className="text-xs font-medium text-ink-2 block mb-1">Kunde <span className="text-red-400">*</span></label>
             <select id="rechnungForm-0" value={customerId} onChange={e => kundeWaehlen(e.target.value)} className={inputCls}>
               <option value="">— Kunden auswählen —</option>
               {customers.map(c => (
@@ -303,19 +303,19 @@ export default function RechnungForm({
             </select>
           </div>
           <div className="col-span-2">
-            <label htmlFor="rechnungForm-1" className="text-xs font-medium text-gray-500 block mb-1">
-              z.H. / Ansprechpartner <span className="text-gray-300">(optional)</span>
+            <label htmlFor="rechnungForm-1" className="text-xs font-medium text-ink-2 block mb-1">
+              z.H. / Ansprechpartner <span className="text-ink-3">(optional)</span>
             </label>
             <input id="rechnungForm-1" type="text" placeholder="z.B. Hrn. AL Ing. Harald Nirschl"
               value={contactPerson} onChange={e => setContactPerson(e.target.value)}
               className={inputCls} />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-ink-3 mt-1">
               Wird beim Kundenwechsel aus dem Kundenstamm übernommen und erscheint auf der
               Rechnung als „z.H."-Zeile. Änderungen hier gelten nur für diese Rechnung.
             </p>
           </div>
           <div>
-            <label htmlFor="rechnungForm-2" className="text-xs font-medium text-gray-500 block mb-1">Rechnungsdatum</label>
+            <label htmlFor="rechnungForm-2" className="text-xs font-medium text-ink-2 block mb-1">Rechnungsdatum</label>
             <input id="rechnungForm-2" type="date" value={invoiceDate}
               onChange={e => {
                 setInvoiceDate(e.target.value);
@@ -324,11 +324,11 @@ export default function RechnungForm({
               className={inputCls} />
           </div>
           <div>
-            <label htmlFor="rechnungForm-3" className="text-xs font-medium text-gray-500 block mb-1">Fällig am</label>
+            <label htmlFor="rechnungForm-3" className="text-xs font-medium text-ink-2 block mb-1">Fällig am</label>
             <input id="rechnungForm-3" type="date" value={dueDate}
               onChange={e => setDueDate(e.target.value)}
               className={inputCls} />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-ink-3 mt-1">
               {gewaehlterKunde
                 ? (zahlungsziel === 0
                     ? 'Zahlbar bei Erhalt (laut Kundenstamm)'
@@ -343,13 +343,13 @@ export default function RechnungForm({
       <datalist id="einheiten-liste">
         {EINHEITEN.map(e => <option key={e} value={e} />)}
       </datalist>
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-4">Positionen</h2>
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-4">Positionen</h2>
         <div className="space-y-3">
           {items.map((item, idx) => (
-            <div key={idx} className="grid gap-2 pb-3 border-b border-gray-50 last:border-0 last:pb-0">
+            <div key={idx} className="grid gap-2 pb-3 border-b border-line last:border-0 last:pb-0">
               <div className="flex gap-2 items-start">
-                <span className="mt-2 text-xs font-semibold text-accent-dark w-12 flex-shrink-0">
+                <span className="mt-2 text-xs font-semibold text-navy w-12 shrink-0">
                   Pos. {idx + 1}
                 </span>
                 <div className="flex-1">
@@ -362,14 +362,14 @@ export default function RechnungForm({
                 </div>
                 {items.length > 1 && (
                   <button type="button" onClick={() => removeItem(idx)}
-                    className="mt-0.5 text-gray-300 hover:text-red-400 transition-colors text-xl leading-none">
+                    className="mt-0.5 text-ink-3 hover:text-red-400 transition-colors text-xl leading-none">
                     &times;
                   </button>
                 )}
               </div>
               <div className="grid grid-cols-5 gap-2 pl-12">
                 <div>
-                  <label htmlFor={`pos-${idx}-menge`} className="text-xs text-gray-400 block mb-0.5">Menge</label>
+                  <label htmlFor={`pos-${idx}-menge`} className="text-xs text-ink-3 block mb-0.5">Menge</label>
                   {/* Text statt number: erlaubt Komma und ein leeres Feld.
                       Bei type=number blieb nach dem Leeren eine 0 stehen,
                       hinter die weitergetippt wurde ("033,25"). */}
@@ -381,13 +381,13 @@ export default function RechnungForm({
                     className={inputCls} />
                 </div>
                 <div>
-                  <label htmlFor={`pos-${idx}-einheit`} className="text-xs text-gray-400 block mb-0.5">Einheit</label>
+                  <label htmlFor={`pos-${idx}-einheit`} className="text-xs text-ink-3 block mb-0.5">Einheit</label>
                   <input id={`pos-${idx}-einheit`} type="text" list="einheiten-liste" placeholder="Stk." value={item.unit}
                     onChange={e => updateItem(idx, { unit: e.target.value })}
                     className={inputCls} />
                 </div>
                 <div>
-                  <label htmlFor={`pos-${idx}-preis`} className="text-xs text-gray-400 block mb-0.5">Einzelpreis (netto)</label>
+                  <label htmlFor={`pos-${idx}-preis`} className="text-xs text-ink-3 block mb-0.5">Einzelpreis (netto)</label>
                   <input id={`pos-${idx}-preis`}
                     type="text" inputMode="decimal" placeholder="0,00"
                     value={item.preis_text ?? String(item.unit_price ?? '').replace('.', ',')}
@@ -396,7 +396,7 @@ export default function RechnungForm({
                     className={inputCls} />
                 </div>
                 <div>
-                  <label htmlFor={`pos-${idx}-ust`} className="text-xs text-gray-400 block mb-0.5">USt %</label>
+                  <label htmlFor={`pos-${idx}-ust`} className="text-xs text-ink-3 block mb-0.5">USt %</label>
                   <select id={`pos-${idx}-ust`} value={item.vat_rate}
                     onChange={e => updateItem(idx, { vat_rate: parseInt(e.target.value) })}
                     className={inputCls}>
@@ -408,30 +408,30 @@ export default function RechnungForm({
                 </div>
                 <div>
                   {/* Folgt dem Buchungsmodus aus den Einstellungen */}
-                  <p className="text-xs text-gray-400 block mb-0.5">
+                  <p className="text-xs text-ink-3 block mb-0.5">
                     {istNettoModus ? 'Gesamt netto' : 'Gesamt brutto'}
                   </p>
-                  <div className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-right font-medium text-gray-700">
+                  <div className="border border-line-2 rounded-lg px-3 py-2 text-sm bg-row text-right font-medium text-ink">
                     {formatCurrency(istNettoModus ? item.amount_net : item.amount_gross)}
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-2 pl-12">
                 <div>
-                  <label htmlFor={`pos-${idx}-berater`} className="text-xs text-gray-400 block mb-0.5">Berater</label>
+                  <label htmlFor={`pos-${idx}-berater`} className="text-xs text-ink-3 block mb-0.5">Berater</label>
                   <input id={`pos-${idx}-berater`} type="text" placeholder="Name des Beraters"
                     value={item.berater ?? ''}
                     onChange={e => updateItem(idx, { berater: e.target.value })}
                     className={inputCls} />
                 </div>
                 <div>
-                  <label htmlFor={`pos-${idx}-von`} className="text-xs text-gray-400 block mb-0.5">Leistungszeitraum von</label>
+                  <label htmlFor={`pos-${idx}-von`} className="text-xs text-ink-3 block mb-0.5">Leistungszeitraum von</label>
                   <input id={`pos-${idx}-von`} type="date" value={item.leistung_von ?? ''}
                     onChange={e => updateItem(idx, { leistung_von: e.target.value || null })}
                     className={inputCls} />
                 </div>
                 <div>
-                  <label htmlFor={`pos-${idx}-bis`} className="text-xs text-gray-400 block mb-0.5">Leistungszeitraum bis</label>
+                  <label htmlFor={`pos-${idx}-bis`} className="text-xs text-ink-3 block mb-0.5">Leistungszeitraum bis</label>
                   <input id={`pos-${idx}-bis`} type="date" value={item.leistung_bis ?? ''}
                     onChange={e => updateItem(idx, { leistung_bis: e.target.value || null })}
                     className={inputCls} />
@@ -443,46 +443,46 @@ export default function RechnungForm({
         <button
           type="button"
           onClick={addItem}
-          className="mt-4 text-sm text-brand hover:text-accent font-medium transition-colors"
+          className="mt-4 text-sm text-navy hover:text-navy font-medium transition-colors"
         >
           + Position hinzufügen
         </button>
 
         {/* Summen */}
-        <div className="mt-5 pt-4 border-t border-gray-100 space-y-1.5 text-sm">
-          <div className="flex justify-between text-gray-500">
+        <div className="mt-5 pt-4 border-t border-line space-y-1.5 text-sm">
+          <div className="flex justify-between text-ink-2">
             <span>Netto gesamt</span>
             <span>{formatCurrency(totalNet)}</span>
           </div>
-          <div className="flex justify-between text-gray-500">
+          <div className="flex justify-between text-ink-2">
             <span>USt gesamt</span>
             <span>{formatCurrency(totalVat)}</span>
           </div>
-          <div className="flex justify-between font-bold text-gray-800 text-base pt-1 border-t border-gray-200">
+          <div className="flex justify-between font-bold text-ink text-base pt-1 border-t border-line-2">
             <span>Brutto gesamt</span>
             <span>{formatCurrency(totalGross)}</span>
           </div>
-          <div className="pt-2 text-xs text-gray-400">
+          <div className="pt-2 text-xs text-ink-3">
             Zahlungskonditionen: {zahlungsziel === 0
               ? 'zahlbar bei Erhalt'
               : `innerhalb von ${zahlungsziel} Tagen netto`}
-            {gewaehlterKunde && <span className="text-gray-300"> · laut Kundenstamm</span>}
+            {gewaehlterKunde && <span className="text-ink-3"> · laut Kundenstamm</span>}
           </div>
         </div>
       </div>
 
       {/* Notiz */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-3">Notiz / Anmerkung (erscheint auf Rechnung)</h2>
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-3">Notiz / Anmerkung (erscheint auf Rechnung)</h2>
         <textarea rows={2} placeholder="z.B. Zahlbar binnen 14 Tagen ohne Abzug…"
           value={notes} onChange={e => setNotes(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand resize-none" />
+          className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30 resize-none" />
       </div>
 
       {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
       {!istFinalisiert && (
-        <p className="text-xs text-gray-400 leading-relaxed">
+        <p className="text-xs text-ink-3 leading-relaxed">
           Beim Finalisieren wird die Rechnungsnummer vergeben und die Rechnung als offener Posten geführt.
           Die Erlösbuchung entsteht erst, wenn Sie den Zahlungseingang erfassen (Ist-Besteuerung).
         </p>
@@ -491,22 +491,22 @@ export default function RechnungForm({
       {/* Aktionen */}
       <div className="flex gap-3">
         <button type="button" onClick={() => router.push('/rechnungen')}
-          className="px-5 py-3 rounded-xl border border-gray-300 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+          className="px-5 py-3 rounded-xl border border-line-2 text-sm font-medium text-ink-2 hover:bg-row transition-colors">
           Abbrechen
         </button>
         {istFinalisiert ? (
           <button type="button" onClick={() => handleSave(false)} disabled={loading}
-            className="flex-1 py-3 rounded-xl bg-brand hover:bg-accent text-white text-sm font-semibold transition-colors disabled:opacity-50">
+            className="flex-1 py-3 rounded-xl bg-navy hover:bg-navy-2 text-white text-sm font-semibold transition-colors disabled:opacity-50">
             {loading ? 'Speichern…' : 'Änderungen speichern'}
           </button>
         ) : (
           <>
             <button type="button" onClick={() => handleSave(false)} disabled={loading}
-              className="flex-1 py-3 rounded-xl border-2 border-brand text-brand text-sm font-semibold hover:bg-brand/5 transition-colors disabled:opacity-50">
+              className="flex-1 py-3 rounded-xl border-2 border-navy text-navy text-sm font-semibold hover:bg-navy/5 transition-colors disabled:opacity-50">
               {loading ? 'Speichern…' : 'Als Entwurf speichern'}
             </button>
             <button type="button" onClick={() => handleSave(true)} disabled={loading}
-              className="flex-1 py-3 rounded-xl bg-brand hover:bg-accent text-white text-sm font-semibold transition-colors disabled:opacity-50">
+              className="flex-1 py-3 rounded-xl bg-navy hover:bg-navy-2 text-white text-sm font-semibold transition-colors disabled:opacity-50">
               {loading ? 'Finalisieren…' : 'Finalisieren'}
             </button>
           </>

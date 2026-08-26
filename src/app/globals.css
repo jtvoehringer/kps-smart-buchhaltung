@@ -1,26 +1,219 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* ============================================================
+   ICP Corporate Design – Design-Review Welle 4 (August 2026)
+
+   Tailwind v4: die Tokens leben hier im CSS (@theme), nicht mehr in
+   tailwind.config.js. Vorbild ist die Darstellung des HR-Suite-PoC:
+   flache weiße Karten mit 1-px-Rand, keine Schatten, Zahlen und
+   Labels in IBM Plex Mono, eine gedämpfte Akzentfarbe (Signal).
+
+   Navy bleibt konstant. Signal ist DIE Aktionsfarbe und die einzige
+   Größe, die eine Kanzlei austauschen kann (branding.brand_color
+   setzt --signal-rgb im Dashboard-Layout).
+   ============================================================ */
+
+@theme {
+  /* --- Marke ------------------------------------------------ */
+  --color-navy:        #14355c;
+  --color-navy-2:      #1d4576;   /* Hover auf Navy-Knöpfen */
+  --color-navy-dark:   #0e2540;   /* gedrückte Zustände */
+  --color-signal:      rgb(var(--signal-rgb));
+
+  /* --- Text (CD: Headlines Navy, Fließtext #45566B, Labels #8794A5) */
+  --color-ink:         #1c2b3e;   /* Primärtext auf Karten */
+  --color-ink-2:       #45566b;   /* Fließtext, Sekundärtext */
+  --color-ink-3:       #7a8aa0;   /* Labels, Hinweise, Fußnoten */
+  --color-kontrast:    #17181a;
+
+  /* --- Flächen und Linien ----------------------------------- */
+  --color-bg:          #f4f6f9;   /* Seitenhintergrund (CD-Fläche) */
+  --color-card:        #ffffff;
+  --color-line:        #e4e8ed;   /* Kartenrand, Tabellenzeilen */
+  --color-line-2:      #d3dae3;   /* Tabellenkopf, Eingabefelder */
+  --color-well:        #edf1f6;   /* eingesenkte Flächen (Kanban-Spalte, Band) */
+  --color-row:         #f8fafc;   /* Zeilen-Hover */
+
+  /* --- Status (gedämpft, mit heller Tonfläche) -------------- */
+  --color-good:        #1e7b4f;
+  --color-good-bg:     #e6f4ec;
+  --color-warn:        #9a6700;
+  --color-warn-bg:     #fcf1da;
+  --color-warn-bar:    #c98a1b;   /* Balken über Schwellwert */
+  --color-crit:        #b3372e;
+  --color-crit-bg:     #fbeae8;
+  --color-info:        #1d6187;
+  --color-info-bg:     #e9f3f8;
+  --color-info-line:   #cfe3ef;
+
+  /* --- Diagramme (zwei Blautöne, kein Ampelrot/-grün) -------- */
+  --color-chart-1:     #2e64b0;
+  --color-chart-2:     #3fa0c8;
+
+  /* --- Aliasnamen der Wellen 2/3 – bleiben gültig ----------- */
+  --color-brand:        #14355c;
+  --color-brand-dark:   #0e2540;
+  --color-brand-light:  #45566b;
+  --color-accent:       rgb(var(--signal-rgb));
+  --color-accent-dark:  #14355c;
+  --color-surface:      #f4f6f9;
+  --color-surface-band: #e9f3f8;
+  --color-surface-card: #e4e8ed;
+  --color-muted:        #8794a5;
+  --color-income:       #14355c;   /* Einnahme = Navy (M1: keine Ampel) */
+  --color-income-dark:  #0e2540;
+  --color-expense:      #45566b;   /* Ausgabe = Fließtext-Blau */
+  --color-expense-dark: #314052;
+
+  /* --- Neutrale Skalen auf CD-Töne gelegt ---------------------
+     Die Anwendung nutzt an ~1.400 Stellen gray-*, dazu red/amber/
+     green/blue für Hinweise. Statt jede Stelle anzufassen, zeigen
+     die Skalen selbst auf die CD-Töne: gray = bläuliches CD-Grau,
+     red/amber/green/blue = die gedämpften Statusfarben oben. Neue
+     Stellen sollen die benannten Tokens (ink, line, good …) nutzen. */
+  --color-gray-50:  #f8fafc;
+  --color-gray-100: #e8ecf1;
+  --color-gray-200: #d3dae3;
+  --color-gray-300: #c3ccd8;
+  --color-gray-400: #8794a5;
+  --color-gray-500: #6f7e93;
+  --color-gray-600: #45566b;
+  --color-gray-700: #2f3f55;
+  --color-gray-800: #1c2b3e;
+  --color-gray-900: #17181a;
+  --color-gray-950: #0e2540;
+
+  --color-red-50:  #fbeae8;
+  --color-red-100: #f5d5d1;
+  --color-red-200: #edb9b3;
+  --color-red-300: #dd8d85;
+  --color-red-400: #c9605a;
+  --color-red-500: #be4a41;
+  --color-red-600: #b3372e;
+  --color-red-700: #962d26;
+  --color-red-800: #7a241f;
+  --color-red-900: #5e1b17;
+
+  --color-amber-50:  #fcf1da;
+  --color-amber-100: #f8e4b8;
+  --color-amber-200: #eed39b;
+  --color-amber-300: #e1bf74;
+  --color-amber-400: #c98a1b;
+  --color-amber-500: #b07914;
+  --color-amber-600: #9a6700;
+  --color-amber-700: #855800;
+  --color-amber-800: #6f4a00;
+  --color-amber-900: #5a3c00;
+  --color-orange-700: #855800;
+
+  --color-green-50:  #e6f4ec;
+  --color-green-100: #cfe9d9;
+  --color-green-200: #a9d8bc;
+  --color-green-300: #7ec49e;
+  --color-green-400: #4faa7c;
+  --color-green-500: #2f9665;
+  --color-green-600: #23895a;
+  --color-green-700: #1e7b4f;
+  --color-green-800: #175f3d;
+  --color-emerald-800: #175f3d;
+
+  --color-blue-50:  #e9f3f8;
+  --color-blue-100: #d3e7f1;
+  --color-blue-200: #b5d6e6;
+  --color-blue-300: #8cc0d9;
+  --color-blue-400: #3fa0c8;
+  --color-blue-500: #2f86ad;
+  --color-blue-600: #24739a;
+  --color-blue-700: #1d6187;
+  --color-blue-800: #174e6c;
+
+  /* --- Radien wie im PoC: Karten 10 px, Knöpfe 7 px, Badges 4 px */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 7px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+
+  /* --- Schatten: das CD kennt keine – nur der Modal-Overlay ---- */
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
+  --shadow-card-hover: 0 2px 8px rgb(20 53 92 / 0.14);
+
+  --font-sans: var(--font-space-grotesk), 'Space Grotesk', Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-plex-mono), 'IBM Plex Mono', Consolas, 'Courier New', monospace;
+}
+
+/* Tailwind v4 setzt die Standard-Rahmenfarbe auf currentcolor.
+   Die Anwendung verlässt sich an vielen Stellen auf den alten
+   Standard – deshalb bleibt die CD-Linie der Standard. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Formularfelder: weiße Fläche; Zahlenfelder in Mono wie die Anzeige */
+  input, select, textarea {
+    background-color: var(--color-card);
+  }
+  input[type="number"], input[inputmode="decimal"], input[inputmode="numeric"] {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
 
 :root {
-  /* ICP Corporate Design (August 2026) – Welle 2 des Design-Reviews.
-     Navy konstant; Signal ist DIE Aktionsfarbe und die einzige Größe,
-     die eine Kanzlei austauschen kann (branding.brand_color setzt
-     --signal-rgb im Dashboard-Layout). */
+  /* CSS-Variablen für Stellen außerhalb von Tailwind (Inline-Styles,
+     Druckseiten). Navy konstant, Signal austauschbar. */
   --navy:         #14355C;
   --navy-dark:    #0E2540;
-  --signal-rgb:   71 166 204;   /* #47A6CC – als RGB für Tailwind-Opacity */
-  --flaeche:      #F5F7F9;
+  --signal-rgb:   71 166 204;   /* #47A6CC – als RGB für Opacity-Varianten */
+  --flaeche:      #F4F6F9;
   --kontrast:     #17181A;
   --text-body:    #45566B;
   --text-label:   #8794A5;
   --white:        #FFFFFF;
 
-  /* Aliasnamen der alten Token-Generation – zeigen auf das neue CD,
-     bis auch die letzte Stelle direkt die Tailwind-Tokens nutzt. */
+  /* Aliasnamen der alten Token-Generation */
   --brand:        var(--navy);
   --brand-dark:   var(--navy-dark);
   --accent:       #47A6CC;
   --accent-dark:  var(--navy);
   --surface:      var(--flaeche);
+}
+
+/* ------------------------------------------------------------
+   Wiederkehrende Bausteine als Utilities – damit die Seiten den
+   PoC-Stil mit einer Klasse bekommen, ohne 20 Utilities je Stelle.
+   ------------------------------------------------------------ */
+@utility card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xl);
+}
+
+/* Label über einer Kennzahl / Tabellenkopf: Mono, Versalien, gesperrt */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+}
+
+/* Zahlen: Mono mit Tabellenziffern */
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }

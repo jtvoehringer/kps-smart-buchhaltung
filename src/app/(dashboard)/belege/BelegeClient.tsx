@@ -59,9 +59,9 @@ const STATUS_LABELS: Record<Receipt['status'], string> = {
 
 // Keine Ampelfarben (Design-Review M1) – Rot bleibt dem Fehler vorbehalten.
 const STATUS_COLORS: Record<Receipt['status'], string> = {
-  pending:    'bg-gray-100 text-gray-600',
-  processing: 'bg-gray-100 text-gray-600',
-  processed:  'bg-accent/15 text-accent-dark',
+  pending:    'bg-well text-ink-2',
+  processing: 'bg-well text-ink-2',
+  processed:  'bg-accent/15 text-navy',
   booked:     'bg-income/10 text-income',
   error:      'bg-red-100 text-red-700',
 };
@@ -341,8 +341,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
         onDrop={onDrop}
         className={`rounded-xl border-2 border-dashed transition-all p-8 text-center ${
           dragOver
-            ? 'border-brand bg-brand/5'
-            : 'border-gray-300 hover:border-brand/50 hover:bg-gray-50'
+            ? 'border-navy bg-navy/5'
+            : 'border-line-2 hover:border-navy/50 hover:bg-row'
         }`}
       >
         <input
@@ -364,26 +364,26 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
           onChange={e => handleFiles(e.target.files)}
         />
         {uploading ? (
-          <div className="text-brand font-medium">
+          <div className="text-navy font-medium">
             <div className="text-3xl mb-2 animate-spin">⏳</div>
             Wird hochgeladen…
           </div>
         ) : (
           <>
-                        <p className="font-semibold text-gray-700">Beleg hier ablegen</p>
-            <p className="text-xs text-gray-400 mt-1 mb-4">JPG · PNG · WEBP · PDF · max. 10 MB</p>
+                        <p className="font-semibold text-ink">Beleg hier ablegen</p>
+            <p className="text-xs text-ink-3 mt-1 mb-4">JPG · PNG · WEBP · PDF · max. 10 MB</p>
             <div className="flex items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={() => cameraInputRef.current?.click()}
-                className="inline-flex items-center gap-2 bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                className="inline-flex items-center gap-2 bg-navy hover:bg-navy-2 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
               >
                 Foto aufnehmen
               </button>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-gray-300 text-gray-600 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
+                className="inline-flex items-center gap-2 bg-white border border-line-2 hover:border-line-2 text-ink-2 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors"
               >
                 Datei wählen
               </button>
@@ -399,56 +399,56 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
       {/* Status-Kacheln */}
       {receipts.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white rounded-xl border border-gray-100 p-4 text-center">
-            <p className="text-2xl font-bold text-brand">{receipts.length}</p>
-            <p className="text-xs text-gray-400 mt-0.5">Belege gesamt</p>
+          <div className="card p-4 text-center">
+            <p className="num text-[24px] font-semibold text-navy">{receipts.length}</p>
+            <p className="text-xs text-ink-3 mt-0.5">Belege gesamt</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-100 p-4 text-center">
-            <p className="text-2xl font-bold text-accent-dark">{processedCount}</p>
-            <p className="text-xs text-gray-400 mt-0.5">Erkannt, offen</p>
+          <div className="card p-4 text-center">
+            <p className="num text-[24px] font-semibold text-navy">{processedCount}</p>
+            <p className="text-xs text-ink-3 mt-0.5">Erkannt, offen</p>
           </div>
-          <div className="bg-white rounded-xl border border-gray-100 p-4 text-center">
-            <p className="text-2xl font-bold text-income">
+          <div className="card p-4 text-center">
+            <p className="num text-[24px] font-semibold text-navy">
               {receipts.filter(r => r.status === 'booked').length}
             </p>
-            <p className="text-xs text-gray-400 mt-0.5">Verbucht</p>
+            <p className="text-xs text-ink-3 mt-0.5">Verbucht</p>
           </div>
         </div>
       )}
 
       {/* Belegliste */}
       {receipts.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100 py-16 text-center text-gray-400">
-          <ScanLine size={28} strokeWidth={1.5} className="mx-auto text-gray-300 mb-3" />
+        <div className="card py-16 text-center text-ink-3">
+          <ScanLine size={28} strokeWidth={1.5} className="mx-auto text-ink-3 mb-3" />
           <p className="text-sm">Noch keine Belege hochgeladen</p>
-          <p className="text-xs text-gray-300 mt-1">Oben ein Foto oder PDF hineinziehen – der Rest passiert automatisch.</p>
+          <p className="text-xs text-ink-3 mt-1">Oben ein Foto oder PDF hineinziehen – der Rest passiert automatisch.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-6 py-3 border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+        <div className="card overflow-hidden">
+          <div className="px-6 py-3 border-b border-line label-mono">
             {pendingCount > 0 ? `${pendingCount} werden verarbeitet…` : 'Belegliste'}
           </div>
-          <ul className="divide-y divide-gray-50">
+          <ul className="divide-y divide-line">
             {receipts.map(r => (
               <li
                 key={r.id}
                 onClick={() => r.status !== 'pending' && r.status !== 'processing' && openReceipt(r)}
                 className={`flex items-center gap-4 px-6 py-3.5 transition-colors ${
                   r.status !== 'pending' && r.status !== 'processing'
-                    ? 'cursor-pointer hover:bg-gray-50'
+                    ? 'cursor-pointer hover:bg-row'
                     : 'opacity-60'
                 }`}
               >
                 {/* Icon */}
-                <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400 flex-shrink-0 w-8">
+                <span className="text-[10px] font-bold uppercase tracking-wide text-ink-3 shrink-0 w-8">
                   {r.file_type === 'application/pdf' ? 'PDF' : 'Bild'}
                 </span>
 
                 {/* Dateiname + Erkennungsergebnis */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">{r.file_name}</p>
+                  <p className="text-sm font-medium text-ink truncate">{r.file_name}</p>
                   {r.ocr_data && (
-                    <p className="text-xs text-gray-400 truncate">
+                    <p className="text-xs text-ink-3 truncate">
                       {r.ocr_data.lieferant ?? '—'} &middot; {r.ocr_data.datum ?? '—'} &middot;{' '}
                       <span className={r.ocr_data.typ === 'einnahme' ? 'text-income' : 'text-expense'}>
                         {fmt(r.ocr_data.betrag_brutto)} €
@@ -459,19 +459,19 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                     <p className="text-xs text-red-500 truncate">{r.ocr_error}</p>
                   )}
                   {r.status === 'processing' && !r.ocr_error && (
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-ink-3">
                       Läuft. Bleibt es länger stehen, rechts auf „Erneut versuchen" tippen.
                     </p>
                   )}
                 </div>
 
                 {/* Dateigröße */}
-                <span className="text-xs text-gray-400 flex-shrink-0 hidden sm:block">
+                <span className="text-xs text-ink-3 shrink-0 hidden sm:block">
                   {fileSize(r.file_size)}
                 </span>
 
                 {/* Status-Badge */}
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${STATUS_COLORS[r.status]}`}>
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] shrink-0 ${STATUS_COLORS[r.status]}`}>
                   {r.status === 'processing'
                     ? <span className="flex items-center gap-1"><Loader2 size={11} strokeWidth={2.5} className="animate-spin" /> Läuft…</span>
                     : STATUS_LABELS[r.status]
@@ -485,7 +485,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                 {(r.status === 'error' || r.status === 'processing') && (
                   <button
                     onClick={e => { e.stopPropagation(); void startOcr(r.id); }}
-                    className="text-xs text-brand hover:underline flex-shrink-0"
+                    className="text-xs text-navy hover:underline shrink-0"
                     title={r.status === 'processing'
                       ? 'Erkennung neu starten – falls sie hängengeblieben ist'
                       : 'Erkennung erneut versuchen'}
@@ -505,22 +505,22 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
           className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4"
           onClick={e => e.target === e.currentTarget && setSelected(null)}
         >
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-line">
               <div>
-                <h2 className="font-bold text-gray-800 text-base">{selected.file_name}</h2>
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[selected.status]}`}>
+                <h2 className="font-bold text-ink text-base">{selected.file_name}</h2>
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] ${STATUS_COLORS[selected.status]}`}>
                   {STATUS_LABELS[selected.status]}
                 </span>
               </div>
-              <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+              <button onClick={() => setSelected(null)} className="text-ink-3 hover:text-navy text-xl leading-none">✕</button>
             </div>
 
             {/* Erkannte Daten */}
             {selected.ocr_data || selected.status === 'processed' ? (
               <div className="px-6 py-5 space-y-4">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                <p className="label-mono">
                   KI-Erkennung — bitte prüfen und ggf. korrigieren
                 </p>
 
@@ -542,7 +542,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                 <div className="grid grid-cols-2 gap-3">
                   {/* Typ */}
                   <div className="col-span-2">
-                    <span id="gruppe-belegtyp" className="text-xs text-gray-500 font-medium block mb-1">Typ</span>
+                    <span id="gruppe-belegtyp" className="text-xs text-ink-2 font-medium block mb-1">Typ</span>
         <div role="group" aria-labelledby="gruppe-belegtyp" className="flex gap-2">
                       {(['ausgabe', 'einnahme'] as const).map(t => (
                         <button
@@ -556,7 +556,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                               ? t === 'ausgabe'
                                 ? 'border-red-500 bg-red-50 text-red-700'
                                 : 'border-green-500 bg-green-50 text-green-700'
-                              : 'border-gray-200 text-gray-500'
+                              : 'border-line-2 text-ink-2'
                           }`}
                         >
                           {t === 'ausgabe' ? 'Ausgabe' : 'Einnahme'}
@@ -567,11 +567,11 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                   {/* Kategorie */}
                   <div className="col-span-2">
-                    <label htmlFor="belegeClient-0" className="text-xs text-gray-500 font-medium block mb-1">Kategorie</label>
+                    <label htmlFor="belegeClient-0" className="text-xs text-ink-2 font-medium block mb-1">Kategorie</label>
                     <select id="belegeClient-0"
                       value={categoryId}
                       onChange={e => setCategoryId(e.target.value)}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 bg-white"
+                      className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30 bg-white"
                     >
                       <option value="">– bitte wählen –</option>
                       {categories
@@ -595,13 +595,13 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                         <label htmlFor="belegeClient-1" className="block text-xs font-medium text-amber-900 mb-1">Anlass der Bewirtung *</label>
                         <input id="belegeClient-1" type="text" required placeholder="z.B. Projektbesprechung mit Kunde XY"
                           value={bewirtungAnlass} onChange={e => setBewirtungAnlass(e.target.value)}
-                          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
                       </div>
                       <div>
                         <label htmlFor="belegeClient-2" className="block text-xs font-medium text-amber-900 mb-1">Teilnehmer *</label>
                         <input id="belegeClient-2" type="text" required placeholder="z.B. Max Mustermann (Kunde XY GmbH), Jörgen Voehringer"
                           value={bewirtungTeilnehmer} onChange={e => setBewirtungTeilnehmer(e.target.value)}
-                          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
                       </div>
                     </div>
                   )}
@@ -618,7 +618,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                       <div>
                         <label htmlFor="belegeClient-3" className="block text-xs font-medium text-amber-900 mb-1">Art der Reisekosten *</label>
                         <select id="belegeClient-3" required value={reiseTyp} onChange={e => setReiseTyp(e.target.value as typeof reiseTyp)}
-                          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+                          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white">
                           <option value="">Bitte wählen…</option>
                           <option value="kilometergeld">Kilometergeld</option>
                           <option value="fahrtkosten">Fahrtkosten (Bahn/Flug/Taxi)</option>
@@ -632,25 +632,25 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                           <label htmlFor="belegeClient-4" className="block text-xs font-medium text-amber-900 mb-1">Reiseziel *</label>
                           <input id="belegeClient-4" type="text" required placeholder="z.B. Wien" value={reiseZiel}
                             onChange={e => setReiseZiel(e.target.value)}
-                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
                         </div>
                         <div>
                           <label htmlFor="belegeClient-5" className="block text-xs font-medium text-amber-900 mb-1">Zweck der Reise *</label>
                           <input id="belegeClient-5" type="text" required placeholder="z.B. Kundentermin XY GmbH" value={reiseZweck}
                             onChange={e => setReiseZweck(e.target.value)}
-                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label htmlFor="belegeClient-6" className="block text-xs font-medium text-amber-900 mb-1">Von *</label>
                           <input id="belegeClient-6" type="date" required value={reiseVon} onChange={e => setReiseVon(e.target.value)}
-                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
                         </div>
                         <div>
                           <label htmlFor="belegeClient-7" className="block text-xs font-medium text-amber-900 mb-1">Bis *</label>
                           <input id="belegeClient-7" type="date" required value={reiseBis} onChange={e => setReiseBis(e.target.value)}
-                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                            className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
                         </div>
                       </div>
 
@@ -664,8 +664,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                               const betrag = berechneKilometergeld(parseFloat(km), editing.datum);
                               setEditing(p => ({ ...p, betrag_brutto: betrag, mwst_satz: 0, mwst_betrag: 0, betrag_netto: betrag }));
                             }}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
-                          <p className="text-xs text-gray-500">
+                            className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400" />
+                          <p className="text-xs text-ink-2">
                             Amtliches Kilometergeld PKW: {reiseSaetzeFuer(editing.datum).kmSatz.toFixed(2)} €/km · keine Vorsteuer (Pauschale)
                           </p>
                         </div>
@@ -681,8 +681,8 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                               const betrag = berechneDiaeten(parseFloat(val), editing.datum);
                               setEditing(p => ({ ...p, betrag_brutto: betrag, mwst_satz: 0, mwst_betrag: 0, betrag_netto: betrag }));
                             }}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
-                          <p className="text-xs text-gray-500">
+                            className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400" />
+                          <p className="text-xs text-ink-2">
                             Bis {reiseSaetzeFuer(editing.datum).taggeldMindestStunden} Std. kein Taggeld ·
                             darüber {(reiseSaetzeFuer(editing.datum).taggeld / 12).toFixed(2)} € je angefangener Stunde ·
                             voller Satz {reiseSaetzeFuer(editing.datum).taggeld.toFixed(2)} € ab der 12. angefangenen Stunde ·
@@ -710,18 +710,18 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                   {/* Datum */}
                   <div>
-                    <label htmlFor="belegeClient-10" className="text-xs text-gray-500 font-medium block mb-1">Datum</label>
+                    <label htmlFor="belegeClient-10" className="text-xs text-ink-2 font-medium block mb-1">Datum</label>
                     <input id="belegeClient-10"
                       type="date"
                       value={editing.datum ?? ''}
                       onChange={e => setEditing(p => ({ ...p, datum: e.target.value }))}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+                      className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30"
                     />
                   </div>
 
                   {/* MwSt-Satz */}
                   <div>
-                    <label htmlFor="belegeClient-11" className="text-xs text-gray-500 font-medium block mb-1">MwSt-Satz</label>
+                    <label htmlFor="belegeClient-11" className="text-xs text-ink-2 font-medium block mb-1">MwSt-Satz</label>
                     <select id="belegeClient-11"
                       value={editing.mwst_satz ?? 20}
                       disabled={isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten')}
@@ -736,7 +736,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                           betrag_netto: Math.round((gross - vat) * 100) / 100,
                         }));
                       }}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30 bg-white disabled:bg-well disabled:cursor-not-allowed"
                     >
                       {[0, 10, 13, 20].map(s => (
                         <option key={s} value={s}>{s} %</option>
@@ -746,7 +746,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
 
                   {/* Betrag Brutto */}
                   <div>
-                    <label htmlFor="belegeClient-12" className="text-xs text-gray-500 font-medium block mb-1">Brutto (€)</label>
+                    <label htmlFor="belegeClient-12" className="text-xs text-ink-2 font-medium block mb-1">Brutto (€)</label>
                     <input id="belegeClient-12"
                       type="number"
                       step="0.01"
@@ -763,40 +763,40 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                           betrag_netto:  Math.round((gross - vat) * 100) / 100,
                         }));
                       }}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30 disabled:bg-well disabled:cursor-not-allowed"
                     />
                   </div>
 
                   {/* MwSt-Betrag (readonly) */}
                   <div>
-                    <label htmlFor="belegeClient-13" className="text-xs text-gray-500 font-medium block mb-1">MwSt-Betrag (€)</label>
+                    <label htmlFor="belegeClient-13" className="text-xs text-ink-2 font-medium block mb-1">MwSt-Betrag (€)</label>
                     <input id="belegeClient-13"
                       type="number"
                       readOnly
                       value={fmt(editing.mwst_betrag ?? null)}
-                      className="w-full border border-gray-100 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-500"
+                      className="w-full border border-line rounded-lg px-3 py-2 text-sm bg-row text-ink-2"
                     />
                   </div>
 
                   {/* Lieferant */}
                   <div className="col-span-2">
-                    <label htmlFor="belegeClient-14" className="text-xs text-gray-500 font-medium block mb-1">Lieferant / Aussteller</label>
+                    <label htmlFor="belegeClient-14" className="text-xs text-ink-2 font-medium block mb-1">Lieferant / Aussteller</label>
                     <input id="belegeClient-14"
                       type="text"
                       value={editing.lieferant ?? ''}
                       onChange={e => setEditing(p => ({ ...p, lieferant: e.target.value }))}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+                      className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30"
                     />
                   </div>
 
                   {/* Beschreibung */}
                   <div className="col-span-2">
-                    <label htmlFor="belegeClient-15" className="text-xs text-gray-500 font-medium block mb-1">Beschreibung</label>
+                    <label htmlFor="belegeClient-15" className="text-xs text-ink-2 font-medium block mb-1">Beschreibung</label>
                     <input id="belegeClient-15"
                       type="text"
                       value={editing.beschreibung ?? ''}
                       onChange={e => setEditing(p => ({ ...p, beschreibung: e.target.value }))}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
+                      className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30"
                     />
                   </div>
                 </div>
@@ -809,7 +809,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                   <button
                     onClick={handleBook}
                     disabled={booking || !editing.betrag_brutto || !categoryId}
-                    className="w-full py-3 bg-brand hover:bg-accent text-white font-semibold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full py-3 bg-navy hover:bg-navy-2 text-white font-semibold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {booking ? 'Wird verbucht…' : 'Als Buchung übernehmen'}
                   </button>
@@ -825,13 +825,13 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                 <p className="text-red-400 text-xs mb-4">{selected.ocr_error}</p>
                 <button
                   onClick={() => { startOcr(selected.id); setSelected(null); }}
-                  className="px-5 py-2 bg-brand text-white text-sm rounded-lg hover:bg-accent"
+                  className="px-5 py-2 bg-navy text-white text-sm rounded-lg hover:bg-navy-2"
                 >
                   Nochmals versuchen
                 </button>
               </div>
             ) : (
-              <div className="px-6 py-10 text-center text-gray-400">
+              <div className="px-6 py-10 text-center text-ink-3">
                 <div className="text-3xl mb-2 animate-spin">⏳</div>
                 <p className="text-sm">Wird verarbeitet…</p>
               </div>
@@ -841,7 +841,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
       )}
 
       {/* Hinweis-Box */}
-      <div className="rounded-xl border border-accent/40 bg-surface-band px-5 py-4 text-sm text-accent-dark">
+      <div className="rounded-xl border border-accent/40 bg-surface-band px-5 py-4 text-sm text-navy">
         <p className="font-semibold mb-1">Wie es funktioniert</p>
         <p className="text-xs leading-relaxed opacity-80">
           Foto oder Scan hochladen (JPG, PNG, PDF) → KI erkennt automatisch Datum, Betrag, MwSt-Satz und Lieferant →

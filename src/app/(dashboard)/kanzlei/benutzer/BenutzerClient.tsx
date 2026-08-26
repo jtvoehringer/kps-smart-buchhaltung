@@ -24,7 +24,7 @@ const ROLLE_COLOR: Record<string, string> = {
   superadmin: 'bg-amber-100 text-amber-700',
   admin:      'bg-purple-100 text-purple-700',
   kanzlei:    'bg-blue-100 text-blue-700',
-  klient:     'bg-gray-100 text-gray-600',
+  klient:     'bg-well text-ink-2',
 };
 
 export default function BenutzerClient({
@@ -96,9 +96,9 @@ export default function BenutzerClient({
   return (
     <div className="space-y-6">
       {/* Benutzertabelle */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-800">Alle Benutzer ({users.length})</h2>
+      <div className="card overflow-hidden">
+        <div className="px-6 py-4 border-b border-line">
+          <h2 className="font-semibold text-ink">Alle Benutzer ({users.length})</h2>
         </div>
 
         {tableError && (
@@ -108,12 +108,12 @@ export default function BenutzerClient({
         )}
 
         {users.length === 0 ? (
-          <div className="text-center py-12 text-gray-400 text-sm">Keine Benutzer gefunden</div>
+          <div className="text-center py-12 text-ink-3 text-sm">Keine Benutzer gefunden</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                <tr className="label-mono border-b border-line-2">
                   <th className="text-left px-6 py-3">Name / E-Mail</th>
                   {showTenantCol && <th className="text-left px-4 py-3">Tenant</th>}
                   <th className="text-left px-4 py-3">Rolle</th>
@@ -128,23 +128,23 @@ export default function BenutzerClient({
                   const canEdit = !isProtected && !isSelf;
 
                   return (
-                    <tr key={u.id} className={`border-t border-gray-50 hover:bg-gray-50/50 ${isSelf ? 'bg-amber-50/30' : ''}`}>
+                    <tr key={u.id} className={`border-t border-line hover:bg-row ${isSelf ? 'bg-amber-50/30' : ''}`}>
                       <td className="px-6 py-3">
-                        <div className="font-medium text-gray-800 flex items-center gap-1.5">
+                        <div className="font-medium text-ink flex items-center gap-1.5">
                           {u.fullName || u.email}
-                          {isSelf && <span className="text-[10px] text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full font-medium">Ich</span>}
+                          {isSelf && <span className="text-[10px] text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-medium">Ich</span>}
                         </div>
-                        {u.fullName && <div className="text-xs text-gray-400">{u.email}</div>}
+                        {u.fullName && <div className="text-xs text-ink-3">{u.email}</div>}
                       </td>
                       {showTenantCol && (
-                        <td className="px-4 py-3 text-xs text-gray-400">{u.tenantName ?? '—'}</td>
+                        <td className="px-4 py-3 text-xs text-ink-3">{u.tenantName ?? '—'}</td>
                       )}
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ROLLE_COLOR[u.role] ?? 'bg-gray-100 text-gray-500'}`}>
+                        <span className={`text-[11px] px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-semibold ${ROLLE_COLOR[u.role] ?? 'bg-well text-ink-2'}`}>
                           {ROLLE_LABEL[u.role] ?? u.role}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-400 text-xs">
+                      <td className="px-4 py-3 text-ink-3 text-xs">
                         {u.lastLogin
                           ? new Date(u.lastLogin).toLocaleDateString('de-AT', {
                               day: '2-digit', month: '2-digit', year: 'numeric',
@@ -158,14 +158,14 @@ export default function BenutzerClient({
                             value={u.role}
                             onChange={e => handleRoleChange(u.id, e.target.value)}
                             disabled={isPending}
-                            className="text-xs border border-gray-200 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand disabled:opacity-50"
+                            className="text-xs border border-line-2 rounded-md px-2 py-1 focus:outline-hidden focus:ring-1 focus:ring-signal/30 focus:border-signal disabled:opacity-50"
                           >
                             {editableRoles.map(r => (
                               <option key={r} value={r}>{ROLLE_LABEL[r]}</option>
                             ))}
                           </select>
                         ) : (
-                          <span className="text-xs text-gray-300">
+                          <span className="text-xs text-ink-3">
                             {isSelf ? '(eigene Rolle)' : '(gesperrt)'}
                           </span>
                         )}
@@ -180,35 +180,35 @@ export default function BenutzerClient({
       </div>
 
       {/* Neuen Benutzer anlegen */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-4">Neuen Benutzer einladen</h2>
+      <div className="card p-6">
+        <h2 className="font-semibold text-ink mb-4">Neuen Benutzer einladen</h2>
         <form onSubmit={handleCreate} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="benutzerClient-0" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="benutzerClient-0" className="block text-sm font-medium text-ink mb-1">
                 E-Mail <span className="text-red-400">*</span>
               </label>
               <input id="benutzerClient-0"
                 type="email" value={email} onChange={e => setEmail(e.target.value)}
                 required placeholder="name@beispiel.at"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
               />
             </div>
             <div>
-              <label htmlFor="benutzerClient-1" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label htmlFor="benutzerClient-1" className="block text-sm font-medium text-ink mb-1">Name</label>
               <input id="benutzerClient-1"
                 type="text" value={fullName} onChange={e => setFullName(e.target.value)}
                 placeholder="Vorname Nachname"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
               />
             </div>
             <div>
-              <label htmlFor="benutzerClient-2" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="benutzerClient-2" className="block text-sm font-medium text-ink mb-1">
                 Rolle <span className="text-red-400">*</span>
               </label>
               <select id="benutzerClient-2"
                 value={role} onChange={e => setRole(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+                className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
               >
                 <option value="kanzlei">Kanzlei (Mitarbeiter)</option>
                 <option value="klient">Klient (nur Dashboard)</option>
@@ -231,7 +231,7 @@ export default function BenutzerClient({
 
           <button
             type="submit" disabled={isPending}
-            className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-brand hover:bg-accent transition-colors disabled:opacity-50"
+            className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-navy hover:bg-navy-2 transition-colors disabled:opacity-50"
           >
             {isPending ? 'Einladen…' : 'Benutzer einladen'}
           </button>

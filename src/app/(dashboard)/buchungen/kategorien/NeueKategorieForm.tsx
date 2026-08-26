@@ -62,7 +62,7 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
     return (
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+        className="inline-flex items-center gap-1.5 bg-navy hover:bg-navy-2 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
       >
         <Plus size={16} strokeWidth={2} />
         Neue Kategorie
@@ -73,14 +73,14 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-4"
+      className="card p-4 space-y-4"
     >
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-sm text-gray-700">Neue Kategorie</h3>
+        <h3 className="font-semibold text-sm text-ink">Neue Kategorie</h3>
         <button
           type="button"
           onClick={() => { setOpen(false); resetForm(); }}
-          className="text-xs text-gray-400 hover:text-gray-600"
+          className="text-xs text-ink-3 hover:text-navy"
         >
           Abbrechen
         </button>
@@ -88,18 +88,18 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div className="sm:col-span-2">
-          <label htmlFor="neueKategorieForm-0" className="block text-xs font-medium text-gray-600 mb-1">Name</label>
+          <label htmlFor="neueKategorieForm-0" className="block text-xs font-medium text-ink-2 mb-1">Name</label>
           <input id="neueKategorieForm-0"
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="z. B. Büromaterial"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+            className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
           />
         </div>
 
         <div>
-          <span id="gruppe-kategorietyp" className="block text-xs font-medium text-gray-600 mb-1">Typ</span>
+          <span id="gruppe-kategorietyp" className="block text-xs font-medium text-ink-2 mb-1">Typ</span>
         <div role="group" aria-labelledby="gruppe-kategorietyp" className="flex gap-1.5">
             <button
               type="button"
@@ -107,7 +107,7 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
               className={`flex-1 inline-flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-medium border transition-colors ${
                 type === 'income'
                   ? 'bg-income border-income text-white'
-                  : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                  : 'border-line-2 text-ink-2 hover:bg-row'
               }`}
             >
               <ArrowUpCircle size={13} strokeWidth={2} />
@@ -119,7 +119,7 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
               className={`flex-1 inline-flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-xs font-medium border transition-colors ${
                 type === 'expense'
                   ? 'bg-expense border-expense text-white'
-                  : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                  : 'border-line-2 text-ink-2 hover:bg-row'
               }`}
             >
               <ArrowDownCircle size={13} strokeWidth={2} />
@@ -129,11 +129,11 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
         </div>
 
         <div>
-          <label htmlFor="neueKategorieForm-1" className="block text-xs font-medium text-gray-600 mb-1">USt %</label>
+          <label htmlFor="neueKategorieForm-1" className="block text-xs font-medium text-ink-2 mb-1">USt %</label>
           <select id="neueKategorieForm-1"
             value={vatRate}
             onChange={e => setVatRate(Number(e.target.value) as VatRate)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+            className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
           >
             {VAT_RATES.map(r => <option key={r} value={r}>{r}%</option>)}
           </select>
@@ -142,13 +142,13 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div>
-          <label htmlFor="neueKategorieForm-2" className="block text-xs font-medium text-gray-600 mb-1">Konto-Nr. (optional)</label>
+          <label htmlFor="neueKategorieForm-2" className="block text-xs font-medium text-ink-2 mb-1">Konto-Nr. (optional)</label>
           <input id="neueKategorieForm-2"
             type="text"
             value={kontoNr}
             onChange={e => setKontoNr(e.target.value)}
             placeholder="z. B. 7300"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+            className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
           />
         </div>
       </div>
@@ -159,7 +159,7 @@ export default function NeueKategorieForm({ tenantId }: { tenantId: string | nul
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex items-center gap-1.5 bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 bg-navy hover:bg-navy-2 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 size={14} strokeWidth={2} className="animate-spin" /> : <Plus size={14} strokeWidth={2} />}
           Speichern

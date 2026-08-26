@@ -29,7 +29,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_STYLE: Record<string, string> = {
-  draft:     'bg-gray-100 text-gray-500',
+  draft:     'bg-well text-ink-2',
   open:      'bg-amber-100 text-amber-700',
   paid:      'bg-green-100 text-green-700',
   cancelled: 'bg-red-100 text-red-400',
@@ -100,11 +100,11 @@ export default function RechnungenClient({
 
   if (invoices.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
-                <p className="text-gray-500 text-sm mb-4">Noch keine Rechnungen vorhanden.</p>
+      <div className="card p-12 text-center">
+                <p className="text-ink-2 text-sm mb-4">Noch keine Rechnungen vorhanden.</p>
         <Link
           href="/rechnungen/neu"
-          className="inline-block bg-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-accent transition-colors"
+          className="inline-block bg-navy text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-navy-2 transition-colors"
         >
           Erste Rechnung erstellen
         </Link>
@@ -121,48 +121,48 @@ export default function RechnungenClient({
       )}
       {/* Kennzahlen-Kacheln */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-          <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Offen</p>
-          <p className="text-xl font-bold text-amber-600">{formatCurrency(totalOpen)}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{(() => { const n = invoices.filter(i => i.status === 'open').length; return `${n} ${n === 1 ? 'Rechnung' : 'Rechnungen'}`; })()}</p>
+        <div className="card p-4">
+          <p className="label-mono font-medium mb-1">Offen</p>
+          <p className="num text-[24px] font-semibold text-amber-600">{formatCurrency(totalOpen)}</p>
+          <p className="text-xs text-ink-3 mt-0.5">{(() => { const n = invoices.filter(i => i.status === 'open').length; return `${n} ${n === 1 ? 'Rechnung' : 'Rechnungen'}`; })()}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-          <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">Überfällig</p>
-          <p className={`text-xl font-bold ${totalOverdue > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+        <div className="card p-4">
+          <p className="label-mono font-medium mb-1">Überfällig</p>
+          <p className={`num text-[24px] font-semibold ${totalOverdue > 0 ? 'text-red-600' : 'text-ink-3'}`}>
             {formatCurrency(totalOverdue)}
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs text-ink-3 mt-0.5">
             {(() => { const n = invoices.filter(i => i.status === 'open' && new Date(i.due_date) < today).length; return `${n} ${n === 1 ? 'Rechnung' : 'Rechnungen'}`; })()}
           </p>
         </div>
       </div>
 
       {/* Filter */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-wrap gap-2">
+      <div className="card p-4 flex flex-wrap gap-2">
         {['all','draft','open','overdue','paid','cancelled'].map(s => (
           <button
             key={s}
             onClick={() => setFilterStatus(s)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               filterStatus === s
-                ? 'bg-brand text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-navy text-white'
+                : 'bg-well text-ink-2 hover:bg-line'
             }`}
           >
             {s === 'all' ? 'Alle' : s === 'overdue' ? 'Überfällig' : STATUS_LABEL[s]}
           </button>
         ))}
-        <span className="ml-auto text-sm text-gray-400 self-center">{filtered.length} Einträge</span>
+        <span className="ml-auto text-sm text-ink-3 self-center">{filtered.length} Einträge</span>
       </div>
 
       {/* Tabelle */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="card overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="text-center py-12 text-gray-400 text-sm">Keine Rechnungen in dieser Kategorie</div>
+          <div className="text-center py-12 text-ink-3 text-sm">Keine Rechnungen in dieser Kategorie</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+              <tr className="label-mono border-b border-line-2">
                 <th className="text-left px-4 py-3">Nummer</th>
                 <th className="text-left px-4 py-3">Kunde</th>
                 <th className="text-left px-4 py-3">Datum</th>
@@ -179,35 +179,35 @@ export default function RechnungenClient({
                   ? Math.floor((today.getTime() - new Date(inv.due_date).getTime()) / 86400000)
                   : 0;
                 return (
-                  <tr key={inv.id} className="border-t border-gray-50 hover:bg-gray-50/50">
+                  <tr key={inv.id} className="border-t border-line hover:bg-row">
                     <td className="px-4 py-3 font-mono font-medium">
                       <Link
                         href={`/rechnungen/${inv.id}`}
-                        className="text-brand hover:underline underline-offset-2"
+                        className="text-navy hover:underline underline-offset-2"
                         title="Rechnung öffnen"
                       >
-                        {inv.invoice_number || <span className="font-sans text-gray-400 italic">Entwurf</span>}
+                        {inv.invoice_number || <span className="font-sans text-ink-3 italic">Entwurf</span>}
                       </Link>
                     </td>
                     <td className="px-4 py-3">
                       {inv.customers ? (
                         <Link href={`/kunden/${inv.customers.id}`} className="group block">
-                          <div className="font-medium text-gray-800 group-hover:text-brand transition-colors">
+                          <div className="font-medium text-ink group-hover:text-navy transition-colors">
                             {inv.customers.name}
                           </div>
                           {inv.customers.contact_person && (
-                            <div className="text-xs text-gray-400">{inv.customers.contact_person}</div>
+                            <div className="text-xs text-ink-3">{inv.customers.contact_person}</div>
                           )}
                         </Link>
                       ) : (
-                        <div className="font-medium text-gray-400">—</div>
+                        <div className="font-medium text-ink-3">—</div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-gray-500">
+                    <td className="px-4 py-3 text-ink-2">
                       {new Date(inv.invoice_date).toLocaleDateString('de-AT')}
                     </td>
                     <td className="px-4 py-3">
-                      <div className={isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}>
+                      <div className={isOverdue ? 'text-red-600 font-medium' : 'text-ink-2'}>
                         {new Date(inv.due_date).toLocaleDateString('de-AT')}
                       </div>
                       {isOverdue && (
@@ -219,25 +219,25 @@ export default function RechnungenClient({
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-right font-semibold text-gray-800">
+                    <td className="px-4 py-3 text-right font-semibold text-ink num">
                       {formatCurrency(Number(inv.total_gross))}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[inv.status]}`}>
+                      <span className={`text-[11px] px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-semibold ${STATUS_STYLE[inv.status]}`}>
                         {STATUS_LABEL[inv.status]}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1.5">
                         {busyId === inv.id ? (
-                          <Loader2 size={15} strokeWidth={2} className="animate-spin text-gray-300" />
+                          <Loader2 size={15} strokeWidth={2} className="animate-spin text-ink-3" />
                         ) : (
                           <>
                             {inv.status === 'draft' && (
                               <Link
                                 href={`/rechnungen/${inv.id}/bearbeiten`}
                                 title="Entwurf bearbeiten"
-                                className="p-1 text-gray-300 hover:text-brand transition-colors"
+                                className="p-1 text-ink-3 hover:text-navy transition-colors"
                               >
                                 <Pencil size={15} strokeWidth={2} />
                               </Link>
@@ -246,7 +246,7 @@ export default function RechnungenClient({
                               <button
                                 onClick={() => handleStorno(inv)}
                                 title="Rechnung stornieren"
-                                className="p-1 text-gray-300 hover:text-amber-600 transition-colors"
+                                className="p-1 text-ink-3 hover:text-amber-600 transition-colors"
                               >
                                 <Ban size={15} strokeWidth={2} />
                               </button>
@@ -255,7 +255,7 @@ export default function RechnungenClient({
                               <button
                                 onClick={() => handleLoeschen(inv)}
                                 title="Entwurf löschen"
-                                className="p-1 text-gray-300 hover:text-red-500 transition-colors"
+                                className="p-1 text-ink-3 hover:text-red-500 transition-colors"
                               >
                                 <X size={16} strokeWidth={2} />
                               </button>
@@ -263,7 +263,7 @@ export default function RechnungenClient({
                             <Link
                               href={`/rechnungen/${inv.id}`}
                               title="Rechnung öffnen"
-                              className="p-1 text-gray-300 hover:text-brand transition-colors"
+                              className="p-1 text-ink-3 hover:text-navy transition-colors"
                             >
                               <ArrowRight size={15} strokeWidth={2} />
                             </Link>

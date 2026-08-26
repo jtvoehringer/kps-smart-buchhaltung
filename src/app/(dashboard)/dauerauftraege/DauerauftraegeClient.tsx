@@ -88,7 +88,7 @@ export default function DauerauftraegeClient({
       <div className="flex justify-end">
         <Link
           href="/dauerauftraege/neu"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand hover:bg-[#152d54] transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-navy hover:bg-[#152d54] transition-colors"
         >
           <span>＋</span>
           <span>Neuer Dauerauftrag</span>
@@ -131,7 +131,7 @@ export default function DauerauftraegeClient({
         </>
       )}
 
-      <div className="text-xs text-gray-400 text-center pt-2">
+      <div className="text-xs text-ink-3 text-center pt-2">
         Daueraufträge werden täglich um 06:00 Uhr UTC automatisch als Buchungen erfasst.
       </div>
     </div>
@@ -149,11 +149,11 @@ function RecurringSection({
   muted?: boolean;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className={`px-5 py-3 border-b border-gray-100 ${muted ? 'bg-gray-50' : 'bg-white'}`}>
-        <h2 className={`text-sm font-semibold ${muted ? 'text-gray-400' : 'text-gray-700'}`}>{title}</h2>
+    <div className="card overflow-hidden">
+      <div className={`px-5 py-3 border-b border-line ${muted ? 'bg-row' : 'bg-white'}`}>
+        <h2 className={`text-sm font-semibold ${muted ? 'text-ink-3' : 'text-ink'}`}>{title}</h2>
       </div>
-      <div className="divide-y divide-gray-50">
+      <div className="divide-y divide-line">
         {items.map(item => (
           <RecurringRow
             key={item.id}
@@ -184,44 +184,44 @@ function RecurringRow({
   return (
     <div className={`px-5 py-4 flex items-start gap-4 ${muted ? 'opacity-60' : ''}`}>
       {/* Typ-Badge */}
-      <div className={`mt-0.5 flex-shrink-0 w-2 h-2 rounded-full mt-2 ${isIncome ? 'bg-income' : 'bg-expense'}`} />
+      <div className={`mt-0.5 shrink-0 w-2 h-2 rounded-full mt-2 ${isIncome ? 'bg-income' : 'bg-expense'}`} />
 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-semibold text-gray-800 text-sm">{item.name}</span>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+          <span className="font-semibold text-ink text-sm">{item.name}</span>
+          <span className={`text-[11px] px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-semibold ${
             isIncome ? 'bg-teal-50 text-teal-700' : 'bg-red-50 text-red-700'
           }`}>
             {isIncome ? '↑ Einnahme' : '↓ Ausgabe'}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium">
+          <span className="text-xs px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] bg-well text-ink-2 font-medium">
             {INTERVAL_LABELS[item.interval] ?? item.interval}
           </span>
         </div>
         <div className="flex items-center gap-3 mt-1 flex-wrap">
-          <span className="text-xs text-gray-400">{item.categories?.name ?? '—'}</span>
-          <span className="text-xs text-gray-300">·</span>
-          <span className="text-xs text-gray-400">Nächste Ausführung: <span className="text-gray-600 font-medium">{formatDate(item.next_run_date)}</span></span>
+          <span className="text-xs text-ink-3">{item.categories?.name ?? '—'}</span>
+          <span className="text-xs text-ink-3">·</span>
+          <span className="text-xs text-ink-3">Nächste Ausführung: <span className="text-ink-2 font-medium">{formatDate(item.next_run_date)}</span></span>
         </div>
       </div>
 
       {/* Betrag */}
-      <div className="text-right flex-shrink-0">
+      <div className="text-right shrink-0">
         <div className={`text-sm font-bold ${isIncome ? 'text-income' : 'text-expense'}`}>
           {isIncome ? '+' : '−'} {eur(item.amount_net)}
         </div>
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-ink-3">
           Netto · {item.vat_rate} % USt
         </div>
       </div>
 
       {/* Aktionen mit Text statt reiner Icons (Design-Review Welle 3) */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={() => onToggle(item)}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-line-2 text-ink-2 hover:bg-row transition-colors disabled:opacity-40"
         >
           {item.is_active
             ? <><Pause size={13} strokeWidth={2} />{loading ? '…' : 'Pausieren'}</>
@@ -230,7 +230,7 @@ function RecurringRow({
         <button
           onClick={() => onDelete(item)}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-500 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-line-2 text-ink-2 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-40"
         >
           <X size={13} strokeWidth={2} />
           Löschen

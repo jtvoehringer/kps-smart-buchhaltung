@@ -94,11 +94,11 @@ export default async function MonatsabschlussPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
-          <CalendarCheck size={24} strokeWidth={1.75} className="text-accent-dark" />
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em] flex items-center gap-2">
+          <CalendarCheck size={24} strokeWidth={1.75} className="text-navy" />
           Monatsabschluss
         </h1>
-        <p className="text-gray-500 text-sm">
+        <p className="text-ink-2 text-sm">
           Abgeschlossene Monate sind gegen nachträgliche Buchungen gesperrt (Beleg-OCR, Offene Posten, Bank-Import und manuelle Erfassung) – so bleibt z.B. die UVA konsistent.
         </p>
       </div>

@@ -30,9 +30,9 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
     : rows;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center gap-3 justify-between">
-        <h2 className="font-semibold text-gray-800">Mandanten</h2>
+    <div className="card overflow-hidden">
+      <div className="px-6 py-4 border-b border-line flex flex-wrap items-center gap-3 justify-between">
+        <h2 className="font-semibold text-ink">Mandanten</h2>
         <div className="flex items-center gap-3">
           {rows.length > 0 && (
             <input
@@ -40,12 +40,12 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Mandant suchen…"
-              className="w-full sm:w-56 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+              className="w-full sm:w-56 border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
             />
           )}
           <Link
             href="/kanzlei/mandant-neu"
-            className="bg-brand hover:bg-accent text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+            className="bg-navy hover:bg-navy-2 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
           >
             Neuer Mandant
           </Link>
@@ -53,23 +53,23 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
       </div>
 
       {rows.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-ink-3">
           <div className="text-4xl mb-3"></div>
           <p className="text-sm">Noch keine Mandanten angelegt</p>
           <p className="text-xs mt-2">
-            <Link href="/kanzlei/mandant-neu" className="text-brand hover:underline">
+            <Link href="/kanzlei/mandant-neu" className="text-navy hover:underline">
               Ersten Mandanten anlegen →
             </Link>
           </p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-ink-3">
                     <p className="text-sm">Kein Mandant gefunden für „{query}"</p>
         </div>
       ) : (
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+            <tr className="label-mono border-b border-line-2">
               <th className="text-left px-6 py-3">Mandant</th>
               {isSuperadmin && <th className="text-left px-4 py-3">Tenant</th>}
               <th className="text-left px-4 py-3">UVA</th>
@@ -83,34 +83,34 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
           </thead>
           <tbody>
             {filtered.map(r => (
-              <tr key={r.id} className="border-t border-gray-50 hover:bg-gray-50/50">
+              <tr key={r.id} className="border-t border-line hover:bg-row">
                 <td className="px-6 py-3">
                   <Link href={`/kanzlei/mandant/${r.id}`} className="group block">
-                    <div className="font-medium text-gray-800 group-hover:text-brand group-hover:underline">
+                    <div className="font-medium text-ink group-hover:text-navy group-hover:underline">
                       {r.company_name}
                     </div>
-                    {r.uid_number && <div className="text-xs text-gray-400">{r.uid_number}</div>}
+                    {r.uid_number && <div className="text-xs text-ink-3">{r.uid_number}</div>}
                   </Link>
                 </td>
                 {isSuperadmin && (
-                  <td className="px-4 py-3 text-xs text-gray-400">{r.tenantName}</td>
+                  <td className="px-4 py-3 text-xs text-ink-3">{r.tenantName}</td>
                 )}
-                <td className="px-4 py-3 text-gray-500">
+                <td className="px-4 py-3 text-ink-2">
                   {r.vat_period === 'monthly' ? 'Monatlich' : 'Vierteljährlich'}
                 </td>
-                <td className="px-4 py-3 text-right text-income">
+                <td className="px-4 py-3 text-right text-income num">
                   {r.income > 0 ? formatCurrency(r.income) : '—'}
                 </td>
-                <td className="px-4 py-3 text-right text-expense">
+                <td className="px-4 py-3 text-right text-expense num">
                   {r.expense > 0 ? formatCurrency(r.expense) : '—'}
                 </td>
-                <td className="px-4 py-3 text-right text-gray-600">{r.count}</td>
-                <td className="px-4 py-3 text-center text-gray-500">
+                <td className="px-4 py-3 text-right text-ink-2 num">{r.count}</td>
+                <td className="px-4 py-3 text-center text-ink-2">
                   <span className="inline-flex items-center gap-1">{r.memberCount}</span>
                 </td>
                 <td className="px-4 py-3 text-center">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    r.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                  <span className={`text-[11px] px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-semibold ${
+                    r.is_active ? 'bg-green-100 text-green-700' : 'bg-well text-ink-2'
                   }`}>
                     {r.is_active ? 'Aktiv' : 'Inaktiv'}
                   </span>
@@ -118,7 +118,7 @@ export default function MandantenTable({ rows, isSuperadmin }: { rows: MandantRo
                 <td className="px-4 py-3 text-center">
                   <Link
                     href={`/kanzlei/mandant/${r.id}`}
-                    className="text-xs text-brand hover:text-accent font-medium hover:underline"
+                    className="text-xs text-navy hover:text-navy font-medium hover:underline"
                   >
                     Bearbeiten
                   </Link>

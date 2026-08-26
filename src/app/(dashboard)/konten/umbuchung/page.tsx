@@ -37,28 +37,28 @@ export default async function UmbuchungPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/konten" className="text-gray-400 hover:text-gray-600 transition-colors text-sm">
+        <Link href="/konten" className="text-ink-3 hover:text-navy transition-colors text-sm">
           ← Konten
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
-          <ArrowLeftRight size={22} strokeWidth={1.75} className="text-accent-dark" />
+        <span className="text-ink-3">/</span>
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em] flex items-center gap-2">
+          <ArrowLeftRight size={22} strokeWidth={1.75} className="text-navy" />
           Umbuchung erfassen
         </h1>
       </div>
 
       {(accounts ?? []).length < 2 ? (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
-          <CreditCard size={28} strokeWidth={1.5} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-600 text-sm font-medium">
+        <div className="card p-12 text-center">
+          <CreditCard size={28} strokeWidth={1.5} className="mx-auto text-ink-3 mb-3" />
+          <p className="text-ink-2 text-sm font-medium">
             Für eine Umbuchung braucht es mindestens zwei Konten.
           </p>
-          <p className="text-gray-400 text-xs mt-1">
+          <p className="text-ink-3 text-xs mt-1">
             Typischer Fall: Girokonto und Kreditkarte – der Saldoausgleich wird dann als Umbuchung erfasst.
           </p>
           <Link
             href="/konten/neu"
-            className="inline-block mt-4 bg-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-accent transition-colors"
+            className="inline-block mt-4 bg-navy text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-navy-2 transition-colors"
           >
             Konto anlegen
           </Link>

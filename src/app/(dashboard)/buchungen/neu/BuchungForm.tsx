@@ -244,7 +244,7 @@ export default function BuchungForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-5">
+    <form onSubmit={handleSubmit} className="card p-6 space-y-5">
 
       {/* Modus-Hinweis */}
       <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg font-medium ${isBrutto ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'}`}>
@@ -255,7 +255,7 @@ export default function BuchungForm({
 
       {/* Typ */}
       <div>
-        <span id="gruppe-buchungsart" className="block text-sm font-medium text-gray-700 mb-2">Art der Buchung</span>
+        <span id="gruppe-buchungsart" className="block text-sm font-medium text-ink mb-2">Art der Buchung</span>
         <div role="group" aria-labelledby="gruppe-buchungsart" className="flex gap-3">
           {(['income', 'expense'] as const).map(t => (
             <button
@@ -266,7 +266,7 @@ export default function BuchungForm({
               className={`flex items-center justify-center gap-1.5 flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${
                 type === t
                   ? t === 'income' ? 'bg-income text-white border-income' : 'bg-expense text-white border-expense'
-                  : t === 'income' ? 'bg-white text-gray-600 border-gray-200 hover:border-income' : 'bg-white text-gray-600 border-gray-200 hover:border-expense'
+                  : t === 'income' ? 'bg-white text-ink-2 border-line-2 hover:border-income' : 'bg-white text-ink-2 border-line-2 hover:border-expense'
               }`}
             >
               {t === 'income' ? <ArrowUpCircle size={16} strokeWidth={2} /> : <ArrowDownCircle size={16} strokeWidth={2} />}
@@ -278,16 +278,16 @@ export default function BuchungForm({
 
       {/* Datum */}
       <div>
-        <label htmlFor="buchungForm-0" className="block text-sm font-medium text-gray-700 mb-1">Buchungsdatum</label>
+        <label htmlFor="buchungForm-0" className="block text-sm font-medium text-ink mb-1">Buchungsdatum</label>
         <input id="buchungForm-0" type="date" required value={bookingDate} onChange={e => setBookingDate(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
+          className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30" />
       </div>
 
       {/* Kategorie */}
       <div>
-        <label htmlFor="buchungForm-1" className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
+        <label htmlFor="buchungForm-1" className="block text-sm font-medium text-ink mb-1">Kategorie</label>
         <select id="buchungForm-1" required value={categoryId} onChange={e => setCategoryId(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand">
+          className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30">
           {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
       </div>
@@ -295,17 +295,17 @@ export default function BuchungForm({
       {/* Betrag */}
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label htmlFor="buchungForm-2" className="block text-sm font-medium text-gray-700 mb-1">{isBrutto ? 'Brutto (€)' : 'Netto (€)'}</label>
+          <label htmlFor="buchungForm-2" className="block text-sm font-medium text-ink mb-1">{isBrutto ? 'Brutto (€)' : 'Netto (€)'}</label>
           <input id="buchungForm-2" type="number" required min="0.01" step="0.01" placeholder="0,00" value={amount}
             onChange={e => setAmount(e.target.value)}
             disabled={isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten')}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand disabled:bg-gray-100 disabled:cursor-not-allowed" />
+            className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30 disabled:bg-well disabled:cursor-not-allowed" />
         </div>
         <div>
-          <label htmlFor="buchungForm-3" className="block text-sm font-medium text-gray-700 mb-1">USt %</label>
+          <label htmlFor="buchungForm-3" className="block text-sm font-medium text-ink mb-1">USt %</label>
           <select id="buchungForm-3" value={vatRate} onChange={e => setVatRate(Number(e.target.value))}
             disabled={isEAuto || (isReisekosten && (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten'))}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand disabled:bg-gray-100 disabled:cursor-not-allowed">
+            className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30 disabled:bg-well disabled:cursor-not-allowed">
             <option value={0}>0 %</option>
             <option value={10}>10 %</option>
             <option value={13}>13 %</option>
@@ -313,8 +313,8 @@ export default function BuchungForm({
           </select>
         </div>
         <div>
-          <p className="block text-sm font-medium text-gray-700 mb-1">{isBrutto ? 'Netto (€)' : 'Brutto (€)'}</p>
-          <div className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-2.5 text-sm text-gray-700 font-medium">
+          <p className="block text-sm font-medium text-ink mb-1">{isBrutto ? 'Netto (€)' : 'Brutto (€)'}</p>
+          <div className="w-full border border-line-2 bg-row rounded-lg px-4 py-2.5 text-sm text-ink font-medium">
             {isBrutto ? displayNet : displayGross}
           </div>
         </div>
@@ -324,26 +324,26 @@ export default function BuchungForm({
           Steuersatz die Kennzahl in der UVA. Ohne dieses Feld landete
           jeder 0-%-Umsatz pauschal unter Kz 011 (Ausfuhrlieferung). */}
       <div>
-        <label htmlFor="ust-kz" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="ust-kz" className="block text-sm font-medium text-ink mb-1">
           Umsatzsteuerliche Einordnung
         </label>
         <select
           id="ust-kz"
           value={ustKennzeichen}
           onChange={e => setUstKennzeichen(e.target.value as UstKennzeichen)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+          className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
         >
           {kennzeichenFuer(type).map(k => (
             <option key={k.wert} value={k.wert}>{k.label}</option>
           ))}
         </select>
         {aktuellesKennzeichen && ustKennzeichen !== 'normal' && (
-          <p className="text-xs text-gray-500 mt-1 leading-relaxed">{aktuellesKennzeichen.hilfe}</p>
+          <p className="text-xs text-ink-2 mt-1 leading-relaxed">{aktuellesKennzeichen.hilfe}</p>
         )}
       </div>
 
       {vatAmt > 0 && !isEAuto && (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-ink-2">
           USt-Betrag: <span className="font-medium">€ {displayVat}</span>
           {isBrutto && <span className="ml-3">Netto: <span className="font-medium">€ {displayNet}</span></span>}
         </p>
@@ -362,13 +362,13 @@ export default function BuchungForm({
             <label htmlFor="buchungForm-4" className="block text-xs font-medium text-amber-900 mb-1">Anlass der Bewirtung *</label>
             <input id="buchungForm-4" type="text" required={isBewirtung} placeholder="z.B. Projektbesprechung mit Kunde XY"
               value={bewirtungAnlass} onChange={e => setBewirtungAnlass(e.target.value)}
-              className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+              className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
           </div>
           <div>
             <label htmlFor="buchungForm-5" className="block text-xs font-medium text-amber-900 mb-1">Teilnehmer *</label>
             <input id="buchungForm-5" type="text" required={isBewirtung} placeholder="z.B. Max Mustermann (Kunde XY GmbH), Jörgen Voehringer"
               value={bewirtungTeilnehmer} onChange={e => setBewirtungTeilnehmer(e.target.value)}
-              className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+              className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
           </div>
         </div>
       )}
@@ -385,7 +385,7 @@ export default function BuchungForm({
           <div>
             <label htmlFor="buchungForm-6" className="block text-xs font-medium text-amber-900 mb-1">Art der Reisekosten *</label>
             <select id="buchungForm-6" required value={reiseTyp} onChange={e => setReiseTyp(e.target.value as typeof reiseTyp)}
-              className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+              className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white">
               <option value="">Bitte wählen…</option>
               <option value="kilometergeld">Kilometergeld</option>
               <option value="fahrtkosten">Fahrtkosten (Bahn/Flug/Taxi)</option>
@@ -399,25 +399,25 @@ export default function BuchungForm({
               <label htmlFor="buchungForm-7" className="block text-xs font-medium text-amber-900 mb-1">Reiseziel *</label>
               <input id="buchungForm-7" type="text" required placeholder="z.B. Wien" value={reiseZiel}
                 onChange={e => setReiseZiel(e.target.value)}
-                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
             </div>
             <div>
               <label htmlFor="buchungForm-8" className="block text-xs font-medium text-amber-900 mb-1">Zweck der Reise *</label>
               <input id="buchungForm-8" type="text" required placeholder="z.B. Kundentermin XY GmbH" value={reiseZweck}
                 onChange={e => setReiseZweck(e.target.value)}
-                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label htmlFor="buchungForm-9" className="block text-xs font-medium text-amber-900 mb-1">Von *</label>
               <input id="buchungForm-9" type="date" required value={reiseVon} onChange={e => setReiseVon(e.target.value)}
-                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
             </div>
             <div>
               <label htmlFor="buchungForm-10" className="block text-xs font-medium text-amber-900 mb-1">Bis *</label>
               <input id="buchungForm-10" type="date" required value={reiseBis} onChange={e => setReiseBis(e.target.value)}
-                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white" />
+                className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white" />
             </div>
           </div>
 
@@ -426,8 +426,8 @@ export default function BuchungForm({
               <label htmlFor="buchungForm-11" className="block text-xs font-medium text-amber-900 mb-1">Gefahrene Kilometer *</label>
               <input id="buchungForm-11" type="number" required min="0.1" step="0.1" placeholder="z.B. 120" value={reiseKm}
                 onChange={e => setReiseKm(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
-              <p className="text-xs text-gray-500">
+                className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400" />
+              <p className="text-xs text-ink-2">
                 Amtliches Kilometergeld PKW: {eur(saetze.kmSatz)}/km · Betrag: <strong>{eur(kmBetrag)}</strong> · keine Vorsteuer (Pauschale)
               </p>
             </div>
@@ -438,13 +438,13 @@ export default function BuchungForm({
               <label htmlFor="buchungForm-12" className="block text-xs font-medium text-amber-900 mb-1">Reisedauer in Stunden *</label>
               <input id="buchungForm-12" type="number" required min="0.5" step="0.5" placeholder="z.B. 9,5 – bei Mehrtagesreisen 58" value={reiseStunden}
                 onChange={e => setReiseStunden(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
-              <p className="text-xs text-gray-500">
+                className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400" />
+              <p className="text-xs text-ink-2">
                 Bis {saetze.taggeldMindestStunden} Std. kein Taggeld · darüber {eur(saetze.taggeld / 12)} je angefangener Stunde ·
                 voller Satz {eur(saetze.taggeld)} ab der 12. angefangenen Stunde ·
                 Betrag: <strong>{eur(diaetenBetrag)}</strong> · keine Vorsteuer (Pauschale)
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-ink-3">
                 Mehrtagesreisen: Gesamtstunden eintragen. Je vollem 24-Stunden-Zeitraum wird
                 der volle Satz gerechnet, der Rest wieder nach Zwölfteln.
               </p>
@@ -473,11 +473,11 @@ export default function BuchungForm({
       {type === 'expense' && (
         <button type="button" onClick={() => setIsEAuto(v => !v)}
           className={`flex items-center gap-2.5 text-sm font-medium px-4 py-2.5 rounded-xl border-2 transition-all w-full ${
-            isEAuto ? 'bg-blue-50 border-blue-400 text-blue-800' : 'bg-white border-gray-200 text-gray-500 hover:border-blue-300 hover:text-blue-700'
+            isEAuto ? 'bg-blue-50 border-blue-400 text-blue-800' : 'bg-white border-line-2 text-ink-2 hover:border-blue-300 hover:text-blue-700'
           }`}>
           <BatteryCharging size={18} strokeWidth={1.75} className="shrink-0" />
           <span className="flex-1 text-left">Elektroauto-Anschaffung (Vorsteuer-Sonderregelung)</span>
-          <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isEAuto ? 'bg-blue-500 border-blue-500 text-white' : 'border-gray-300'}`}>
+          <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isEAuto ? 'bg-blue-500 border-blue-500 text-white' : 'border-line-2'}`}>
             {isEAuto && <Check size={12} strokeWidth={3} />}
           </span>
         </button>
@@ -492,20 +492,20 @@ export default function BuchungForm({
           </div>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="bg-white rounded-lg px-3 py-2">
-              <p className="text-xs text-gray-500">Kaufpreis brutto</p>
-              <p className="font-bold text-gray-800">{eur(eAuto.bruttoAnschaffung)}</p>
+              <p className="text-xs text-ink-2">Kaufpreis brutto</p>
+              <p className="font-bold text-ink">{eur(eAuto.bruttoAnschaffung)}</p>
             </div>
             <div className={`rounded-lg px-3 py-2 ${eAutoUeberschreitung ? 'bg-amber-100' : 'bg-white'}`}>
-              <p className="text-xs text-gray-500">Angemessenheitsgrenze (brutto)</p>
-              <p className="font-bold text-gray-800">{eur(eAuto.angemessenheitsgrenzeBrutto)}</p>
+              <p className="text-xs text-ink-2">Angemessenheitsgrenze (brutto)</p>
+              <p className="font-bold text-ink">{eur(eAuto.angemessenheitsgrenzeBrutto)}</p>
             </div>
             <div className="bg-white rounded-lg px-3 py-2">
-              <p className="text-xs text-gray-500">USt gesamt</p>
-              <p className="font-semibold text-gray-700">{eur(eAuto.vstGesamt)}</p>
+              <p className="text-xs text-ink-2">USt gesamt</p>
+              <p className="font-semibold text-ink">{eur(eAuto.vstGesamt)}</p>
             </div>
             <div className="bg-white rounded-lg px-3 py-2">
-              <p className="text-xs text-gray-500">Zu aktivieren (AfA-Basis)</p>
-              <p className="font-semibold text-gray-700">{eur(eAuto.aktivierungsNetto)}</p>
+              <p className="text-xs text-ink-2">Zu aktivieren (AfA-Basis)</p>
+              <p className="font-semibold text-ink">{eur(eAuto.aktivierungsNetto)}</p>
             </div>
           </div>
           <div className="border-t border-blue-200 pt-3 space-y-1.5">
@@ -547,29 +547,29 @@ export default function BuchungForm({
 
       {/* Beschreibung */}
       <div>
-        <label htmlFor="buchungForm-13" className="block text-sm font-medium text-gray-700 mb-1">
-          Beschreibung <span className="text-gray-400 font-normal">(optional)</span>
+        <label htmlFor="buchungForm-13" className="block text-sm font-medium text-ink mb-1">
+          Beschreibung <span className="text-ink-3 font-normal">(optional)</span>
         </label>
         <input id="buchungForm-13" type="text" placeholder="z.B. Büromaterial Dezember, Rechnung Nr. 2024-001 …"
           value={description} onChange={e => setDescription(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
+          className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30" />
       </div>
 
       {/* Belege (optional) */}
-      <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+      <div className="border border-line-2 rounded-xl p-4 space-y-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-700">
-            <Paperclip size={15} strokeWidth={2} className="text-gray-400" />
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-ink">
+            <Paperclip size={15} strokeWidth={2} className="text-ink-3" />
             Beleg anhängen
-            <span className="ml-1 text-xs text-gray-400 font-normal">(optional · PDF, JPG, PNG · max. {MAX_SIZE_MB} MB)</span>
+            <span className="ml-1 text-xs text-ink-3 font-normal">(optional · PDF, JPG, PNG · max. {MAX_SIZE_MB} MB)</span>
           </span>
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => cameraInputRef.current?.click()}
-              className="inline-flex items-center gap-1 text-xs text-white font-medium bg-brand hover:bg-accent px-3 py-1 rounded-lg transition-colors">
+              className="inline-flex items-center gap-1 text-xs text-white font-medium bg-navy hover:bg-navy-2 px-3 py-1 rounded-lg transition-colors">
               Foto aufnehmen
             </button>
             <button type="button" onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1 text-xs text-brand hover:text-accent font-medium border border-brand hover:border-accent px-3 py-1 rounded-lg transition-colors">
+              className="inline-flex items-center gap-1 text-xs text-navy hover:text-navy font-medium border border-navy hover:border-accent px-3 py-1 rounded-lg transition-colors">
               <Paperclip size={12} strokeWidth={2} />
               Datei wählen
             </button>
@@ -583,14 +583,14 @@ export default function BuchungForm({
         {selectedFiles.length > 0 && (
           <ul className="space-y-1.5">
             {selectedFiles.map((f, idx) => (
-              <li key={idx} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 text-sm">
+              <li key={idx} className="flex items-center gap-2 bg-row rounded-lg px-3 py-2 text-sm">
                 {f.name.toLowerCase().endsWith('.pdf')
-                  ? <FileText size={16} strokeWidth={1.75} className="text-gray-400 shrink-0" />
-                  : <ImageIcon size={16} strokeWidth={1.75} className="text-gray-400 shrink-0" />}
-                <span className="flex-1 truncate text-gray-700">{f.name}</span>
-                <span className="text-xs text-gray-400 flex-shrink-0">{(f.size / 1024).toFixed(0)} KB</span>
+                  ? <FileText size={16} strokeWidth={1.75} className="text-ink-3 shrink-0" />
+                  : <ImageIcon size={16} strokeWidth={1.75} className="text-ink-3 shrink-0" />}
+                <span className="flex-1 truncate text-ink">{f.name}</span>
+                <span className="text-xs text-ink-3 shrink-0">{(f.size / 1024).toFixed(0)} KB</span>
                 <button type="button" onClick={() => removeFile(idx)}
-                  className="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0">
+                  className="text-ink-3 hover:text-red-500 transition-colors shrink-0">
                   <X size={14} strokeWidth={2} />
                 </button>
               </li>
@@ -606,7 +606,7 @@ export default function BuchungForm({
       {/* Buttons */}
       <div className="flex gap-3 pt-2">
         <button type="button" onClick={() => router.back()}
-          className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">
+          className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-line-2 text-ink-2 hover:bg-row transition-colors">
           Abbrechen
         </button>
         <button type="submit" disabled={loading}

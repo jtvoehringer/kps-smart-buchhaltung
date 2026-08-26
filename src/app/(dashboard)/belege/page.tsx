@@ -32,8 +32,8 @@ export default async function BelegePage() {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-brand">Belege</h1>
-        <p className="text-gray-500 text-sm">Belege hochladen · KI erkennt Daten automatisch · Als Buchung übernehmen</p>
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">Belege</h1>
+        <p className="text-ink-2 text-sm">Belege hochladen · KI erkennt Daten automatisch · Als Buchung übernehmen</p>
       </div>
       <BelegeClient clientId={clientId} initialReceipts={(receipts ?? []) as unknown as Receipt[]} categories={categories ?? []} />
     </div>

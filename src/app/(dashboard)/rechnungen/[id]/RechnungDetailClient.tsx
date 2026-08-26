@@ -82,7 +82,7 @@ const STATUS_LABEL: Record<string, string> = {
   draft: 'Entwurf', open: 'Offen', paid: 'Bezahlt', cancelled: 'Storniert',
 };
 const STATUS_STYLE: Record<string, string> = {
-  draft: 'bg-gray-100 text-gray-500',
+  draft: 'bg-well text-ink-2',
   open:  'bg-amber-100 text-amber-700',
   paid:  'bg-green-100 text-green-700',
   cancelled: 'bg-red-100 text-red-400',
@@ -266,24 +266,24 @@ export default function RechnungDetailClient({
   return (
     <div className="space-y-5">
       {/* Aktionsleiste */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-wrap items-center gap-3">
-        <span className={`text-xs px-3 py-1 rounded-full font-medium ${STATUS_STYLE[invoice.status]}`}>
+      <div className="card p-4 flex flex-wrap items-center gap-3">
+        <span className={`text-[11px] px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-semibold ${STATUS_STYLE[invoice.status]}`}>
           {STATUS_LABEL[invoice.status]}
         </span>
         {isOverdue && (
-          <span className="text-xs px-3 py-1 rounded-full font-medium bg-red-100 text-red-600">
+          <span className="text-[11px] px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-semibold bg-red-100 text-red-600">
             Überfällig
           </span>
         )}
         {invoice.sent_at && (
-          <span className="text-xs px-3 py-1 rounded-full font-medium bg-surface-band text-accent-dark">
+          <span className="text-[11px] px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-semibold bg-surface-band text-navy">
             Versendet am {new Date(invoice.sent_at).toLocaleDateString('de-AT')}{invoice.sent_to ? ` an ${invoice.sent_to}` : ''}
           </span>
         )}
         <div className="ml-auto flex gap-2 flex-wrap">
           {invoice.status === 'draft' && (
             <Link href={`/rechnungen/${invoice.id}/bearbeiten`}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+              className="px-4 py-2 text-sm border border-line-2 rounded-lg hover:bg-row transition-colors font-medium">
               Bearbeiten
             </Link>
           )}
@@ -292,14 +292,14 @@ export default function RechnungDetailClient({
               href={`/rechnungen/${invoice.id}/drucken`}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-2 text-sm bg-brand text-white rounded-lg hover:bg-accent transition-colors font-medium"
+              className="px-4 py-2 text-sm bg-navy text-white rounded-lg hover:bg-navy-2 transition-colors font-medium"
             >
               PDF / Drucken
             </a>
           )}
           {invoice.status !== 'cancelled' && !showSend && (
             <button onClick={() => setShowSend(true)}
-              className="px-4 py-2 text-sm border border-accent text-accent-dark rounded-lg hover:bg-surface-band transition-colors font-medium">
+              className="px-4 py-2 text-sm border border-accent text-navy rounded-lg hover:bg-surface-band transition-colors font-medium">
               Per E-Mail senden
             </button>
           )}
@@ -321,26 +321,26 @@ export default function RechnungDetailClient({
       {/* Rechnung per E-Mail senden */}
       {showSend && (
         <div className="bg-white border border-accent/30 rounded-xl p-5 space-y-3">
-          <p className="text-sm font-semibold text-gray-800">Rechnung per E-Mail senden</p>
+          <p className="text-sm font-semibold text-ink">Rechnung per E-Mail senden</p>
           <div>
-            <label htmlFor="rechnungDetailClient-0" className="text-xs font-medium text-gray-500 block mb-1">Empfänger-E-Mail-Adresse</label>
+            <label htmlFor="rechnungDetailClient-0" className="text-xs font-medium text-ink-2 block mb-1">Empfänger-E-Mail-Adresse</label>
             <input id="rechnungDetailClient-0" type="email" value={sendTo} onChange={e => setSendTo(e.target.value)}
               placeholder="kunde@beispiel.at"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent" />
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-accent" />
           </div>
           <div>
-            <label htmlFor="rechnungDetailClient-1" className="text-xs font-medium text-gray-500 block mb-1">Nachricht (optional)</label>
+            <label htmlFor="rechnungDetailClient-1" className="text-xs font-medium text-ink-2 block mb-1">Nachricht (optional)</label>
             <textarea id="rechnungDetailClient-1" rows={2} value={sendMessage} onChange={e => setSendMessage(e.target.value)}
               placeholder="z.B. anbei erhalten Sie die Rechnung wie besprochen."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent resize-none" />
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-accent resize-none" />
           </div>
           {/* Zusatzanhänge: Leistungs-/Zeitnachweise gehen mit derselben Mail hinaus */}
-          <div className="border border-gray-100 rounded-lg p-3 space-y-2">
+          <div className="border border-line rounded-lg p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-medium text-gray-500">
-                Weitere Anhänge <span className="text-gray-400 font-normal">(z.B. Leistungs-/Zeitnachweis – PDF oder Bild, max. 10 MB)</span>
+              <p className="text-xs font-medium text-ink-2">
+                Weitere Anhänge <span className="text-ink-3 font-normal">(z.B. Leistungs-/Zeitnachweis – PDF oder Bild, max. 10 MB)</span>
               </p>
-              <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-accent cursor-pointer">
+              <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-navy hover:text-navy cursor-pointer">
                 {anhangLaedt ? 'Lädt…' : '+ Datei hinzufügen'}
                 <input
                   type="file" multiple className="hidden"
@@ -351,7 +351,7 @@ export default function RechnungDetailClient({
               </label>
             </div>
             {anhaenge.length === 0 ? (
-              <p className="text-xs text-gray-400">Es wird nur das Rechnungs-PDF versendet.</p>
+              <p className="text-xs text-ink-3">Es wird nur das Rechnungs-PDF versendet.</p>
             ) : (
               <ul className="space-y-1">
                 {anhaenge.map(a => (
@@ -359,16 +359,16 @@ export default function RechnungDetailClient({
                     <button
                       type="button"
                       onClick={() => void anhangOeffnen(a)}
-                      className="text-gray-700 hover:text-brand hover:underline underline-offset-2 truncate text-left"
+                      className="text-ink hover:text-navy hover:underline underline-offset-2 truncate text-left"
                       title="Anhang öffnen"
                     >
                       {a.file_name}
-                      {a.file_size != null && <span className="text-gray-400 text-xs"> · {kb(a.file_size)}</span>}
+                      {a.file_size != null && <span className="text-ink-3 text-xs"> · {kb(a.file_size)}</span>}
                     </button>
                     <button
                       type="button"
                       onClick={() => void anhangLoeschen(a)}
-                      className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0"
+                      className="text-ink-3 hover:text-red-400 transition-colors shrink-0"
                       title="Anhang entfernen"
                     >
                       ×
@@ -377,17 +377,17 @@ export default function RechnungDetailClient({
                 ))}
               </ul>
             )}
-            {anhangFehler && <p className="text-red-600 text-xs bg-red-50 px-2 py-1.5 rounded">{anhangFehler}</p>}
+            {anhangFehler && <p className="text-red-600 text-xs bg-red-50 px-2 py-1.5 rounded-sm">{anhangFehler}</p>}
           </div>
 
           {sendError && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{sendError}</p>}
           <div className="flex gap-2">
             <button onClick={handleSend} disabled={sending}
-              className="px-4 py-2 bg-accent-dark hover:bg-accent text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50">
+              className="px-4 py-2 bg-accent-dark hover:bg-navy-2 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50">
               {sending ? 'Wird gesendet…' : 'Senden'}
             </button>
             <button onClick={() => { setShowSend(false); setSendError(''); }}
-              className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">
+              className="px-4 py-2 text-sm text-ink-2 hover:text-navy">
               Abbrechen
             </button>
           </div>
@@ -408,12 +408,12 @@ export default function RechnungDetailClient({
             <div>
               <label htmlFor="pay-date" className="text-xs font-medium text-green-700 block mb-1">Zahlungsdatum</label>
               <input id="pay-date" type="date" value={paidDate} onChange={e => setPaidDate(e.target.value)}
-                className="border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
+                className="border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-green-400" />
             </div>
             <div className="flex-1 min-w-[200px]">
               <label htmlFor="pay-cat" className="text-xs font-medium text-green-700 block mb-1">Erlöskategorie</label>
               <select id="pay-cat" value={payCategoryId} onChange={e => setPayCategoryId(e.target.value)}
-                className="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+                className="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-green-400">
                 <option value="">— Kategorie wählen —</option>
                 {incomeCategories.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -429,7 +429,7 @@ export default function RechnungDetailClient({
                 </p>
               ) : (
                 <select id="pay-konto" value={payAccountId} onChange={e => setPayAccountId(e.target.value)}
-                  className="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+                  className="w-full border border-green-300 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-green-400">
                   <option value="">Kein Konto</option>
                   {accounts.map(k => (
                     <option key={k.id} value={k.id}>{k.name} ({KONTO_ART[k.type] ?? k.type})</option>
@@ -450,7 +450,7 @@ export default function RechnungDetailClient({
       {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
       {/* Rechnungsvorschau */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
+      <div className="card p-8">
         {/* Kopf – das Logo läuft immer auf die Höhe des rechten Meta-Blocks
             (RECHNUNG bis inkl. UID-Zeile; die wird auch ohne UID reserviert,
             damit alle Mandanten-Logos gleich hoch ausfallen). */}
@@ -465,15 +465,15 @@ export default function RechnungDetailClient({
                 <img src={branding.logo_url} alt="Logo" className="absolute inset-y-0 left-0 h-full w-auto max-w-full object-contain object-left" />
               </div>
             ) : (
-              <div className="text-lg font-bold text-gray-700 mb-1">
+              <div className="text-lg font-bold text-ink mb-1">
                 {/* Firmenname aus Branding-Adresse fehlt – wird im PDF-Druck via /drucken angezeigt */}
               </div>
             )}
             {absenderImKopf && (
               <>
-                {branding?.company_street && <p className="text-xs text-gray-500">{branding.company_street}</p>}
+                {branding?.company_street && <p className="text-xs text-ink-2">{branding.company_street}</p>}
                 {(branding?.company_zip || branding?.company_city) && (
-                  <p className="text-xs text-gray-500">{[branding.company_zip, branding.company_city].filter(Boolean).join(' ')}</p>
+                  <p className="text-xs text-ink-2">{[branding.company_zip, branding.company_city].filter(Boolean).join(' ')}</p>
                 )}
               </>
             )}
@@ -484,15 +484,15 @@ export default function RechnungDetailClient({
               RECHNUNG
             </h2>
             {invoice.invoice_number && (
-              <p className="text-sm font-mono text-gray-700">{invoice.invoice_number}</p>
+              <p className="text-sm font-mono text-ink">{invoice.invoice_number}</p>
             )}
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-ink-2 mt-1">
               {[branding?.company_city, new Date(invoice.invoice_date).toLocaleDateString('de-AT')].filter(Boolean).join(', ')}
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-ink-2">
               Fälligkeit: {new Date(invoice.due_date).toLocaleDateString('de-AT')}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-ink-2 mt-1">
               {invoice.customers?.uid_number ? `Ihre UID: ${invoice.customers.uid_number}` : ' '}
             </p>
           </div>
@@ -502,18 +502,18 @@ export default function RechnungDetailClient({
         {invoice.customers && (
           <Link
             href={`/kunden/${invoice.customers.id}`}
-            className="mb-8 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg inline-block min-w-[220px] transition-colors"
+            className="mb-8 p-4 bg-row hover:bg-well rounded-lg inline-block min-w-[220px] transition-colors"
             title="Zu den Kundendaten"
           >
-            <p className="font-semibold text-gray-800">{invoice.customers.name}</p>
+            <p className="font-semibold text-ink">{invoice.customers.name}</p>
             {(invoice.contact_person || invoice.customers.contact_person) && (
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-ink-2">
                 z.H. {invoice.contact_person || invoice.customers.contact_person}
               </p>
             )}
-            {invoice.customers.street && <p className="text-sm text-gray-500">{invoice.customers.street}</p>}
+            {invoice.customers.street && <p className="text-sm text-ink-2">{invoice.customers.street}</p>}
             {(invoice.customers.zip || invoice.customers.city) && (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-ink-2">
                 {[invoice.customers.zip, invoice.customers.city].filter(Boolean).join(' ')}
               </p>
             )}
@@ -523,7 +523,7 @@ export default function RechnungDetailClient({
         {/* Positionen */}
         <table className="w-full text-sm mb-6">
           <thead>
-            <tr className="border-b-2 text-xs text-gray-500 uppercase" style={{ borderColor: branding?.brand_color ?? '#35609E' }}>
+            <tr className="border-b-2 text-xs text-ink-2 uppercase" style={{ borderColor: branding?.brand_color ?? '#35609E' }}>
               <th className="text-left pb-2 w-16">Pos.</th>
               <th className="text-left pb-2">Leistung</th>
               <th className="text-left pb-2 w-24">Menge</th>
@@ -536,10 +536,10 @@ export default function RechnungDetailClient({
               <Fragment key={i}>
                 <tr className="align-top">
                   <td className="py-2 pt-3 font-semibold" style={{ color: branding?.brand_color ?? '#35609E' }}>Pos. {i + 1}</td>
-                  <td className="py-2 pt-3 text-gray-800">
+                  <td className="py-2 pt-3 text-ink">
                     <div className="font-medium">{item.description}</div>
                     {(item.leistung_von || item.leistung_bis || item.berater) && (
-                      <div className="text-xs text-gray-400 mt-0.5">
+                      <div className="text-xs text-ink-3 mt-0.5">
                         {(item.leistung_von || item.leistung_bis) && (
                           <span>
                             Leistungszeitraum: {item.leistung_von ? new Date(item.leistung_von).toLocaleDateString('de-AT') : '…'} – {item.leistung_bis ? new Date(item.leistung_bis).toLocaleDateString('de-AT') : '…'}
@@ -549,14 +549,14 @@ export default function RechnungDetailClient({
                       </div>
                     )}
                   </td>
-                  <td className="py-2 pt-3 text-left text-gray-600 whitespace-nowrap">{String(item.quantity).replace('.', ',')} {item.unit}</td>
-                  <td className="py-2 pt-3 text-left text-gray-600 whitespace-nowrap">{formatCurrency(item.unit_price)}</td>
-                  <td className="py-2 pt-3 text-right font-medium text-gray-800">{formatCurrency(item.amount_net)}</td>
+                  <td className="py-2 pt-3 text-left text-ink-2 whitespace-nowrap">{String(item.quantity).replace('.', ',')} {item.unit}</td>
+                  <td className="py-2 pt-3 text-left text-ink-2 whitespace-nowrap">{formatCurrency(item.unit_price)}</td>
+                  <td className="py-2 pt-3 text-right font-medium text-ink num">{formatCurrency(item.amount_net)}</td>
                 </tr>
-                <tr className="border-b border-gray-50">
+                <tr className="border-b border-line">
                   <td></td>
-                  <td colSpan={3} className="pb-2 text-xs text-gray-400">{item.vat_rate} % USt bezogen auf Pos. {i + 1}</td>
-                  <td className="pb-2 text-right text-xs text-gray-400">USt {formatCurrency(item.amount_vat)}</td>
+                  <td colSpan={3} className="pb-2 text-xs text-ink-3">{item.vat_rate} % USt bezogen auf Pos. {i + 1}</td>
+                  <td className="pb-2 text-right text-xs text-ink-3 num">USt {formatCurrency(item.amount_vat)}</td>
                 </tr>
               </Fragment>
             ))}
@@ -564,17 +564,17 @@ export default function RechnungDetailClient({
           {/* Summen im tfoot derselben Tabelle: Labels stehen exakt in
               der Mengenspalte, Beträge exakt in der Betragsspalte. */}
           <tfoot>
-            <tr className="text-gray-500">
+            <tr className="text-ink-2">
               <td className="pt-3"></td>
               <td></td>
               <td className="text-left py-0.5" colSpan={2}>Netto</td>
-              <td className="text-right py-0.5">{formatCurrency(Number(invoice.total_net))}</td>
+              <td className="text-right py-0.5 num">{formatCurrency(Number(invoice.total_net))}</td>
             </tr>
-            <tr className="text-gray-500">
+            <tr className="text-ink-2">
               <td></td>
               <td></td>
               <td className="text-left py-0.5" colSpan={2}>USt</td>
-              <td className="text-right py-0.5">{formatCurrency(Number(invoice.total_vat))}</td>
+              <td className="text-right py-0.5 num">{formatCurrency(Number(invoice.total_vat))}</td>
             </tr>
             <tr className="font-bold text-base"
               style={{ color: branding?.brand_color ?? '#35609E' }}>
@@ -582,19 +582,19 @@ export default function RechnungDetailClient({
               <td></td>
               <td className="text-left pt-1 border-t-2" colSpan={2}
                 style={{ borderColor: branding?.brand_color ?? '#35609E' }}>Gesamt</td>
-              <td className="text-right pt-1 border-t-2"
+              <td className="text-right pt-1 border-t-2 num"
                 style={{ borderColor: branding?.brand_color ?? '#35609E' }}>{formatCurrency(Number(invoice.total_gross))}</td>
             </tr>
             <tr>
               <td colSpan={4}></td>
-              <td className="text-right text-[10px] text-gray-400 pt-0.5">Alle Beträge in Euro</td>
+              <td className="text-right text-[10px] text-ink-3 pt-0.5 num">Alle Beträge in Euro</td>
             </tr>
           </tfoot>
         </table>
 
         {/* Zahlungshinweis */}
-        <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-gray-500">
-          <p className="font-medium text-gray-700 mb-1">Zahlungskonditionen</p>
+        <div className="mt-6 pt-4 border-t border-line text-xs text-ink-2">
+          <p className="font-medium text-ink mb-1">Zahlungskonditionen</p>
           <p>{zahlungskondition(invoice.invoice_date, invoice.due_date)}</p>
           {branding?.iban && (
             <>
@@ -605,19 +605,19 @@ export default function RechnungDetailClient({
         </div>
 
         {invoice.notes && (
-          <div className="mt-4 text-xs text-gray-500 italic">{invoice.notes}</div>
+          <div className="mt-4 text-xs text-ink-2 italic">{invoice.notes}</div>
         )}
 
         {(invoice.status === 'paid' && invoice.paid_date) && (
-          <div className="mt-4 inline-block border-2 border-green-400 text-green-600 font-bold text-sm px-4 py-2 rounded transform -rotate-2">
+          <div className="mt-4 inline-block border-2 border-green-400 text-green-600 font-bold text-sm px-4 py-2 rounded-sm transform -rotate-2">
             BEZAHLT am {new Date(invoice.paid_date).toLocaleDateString('de-AT')}
           </div>
         )}
 
         {/* Fußzeile – dieselbe Dreiteilung wie im Druck und im PDF */}
-        <div className="mt-8 pt-4 border-t border-gray-100 grid grid-cols-3 gap-6 text-[11px] text-gray-400 leading-relaxed">
+        <div className="mt-8 pt-4 border-t border-line grid grid-cols-3 gap-6 text-[11px] text-ink-3 leading-relaxed">
           <div>
-            <p className="font-semibold text-gray-500">{senderCompanyName}</p>
+            <p className="font-semibold text-ink-2">{senderCompanyName}</p>
             {branding?.company_street && <p>{branding.company_street}</p>}
             {(branding?.company_zip || branding?.company_city) && (
               <p>{[branding.company_zip, branding.company_city].filter(Boolean).join(' ')}</p>

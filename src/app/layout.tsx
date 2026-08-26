@@ -1,17 +1,28 @@
 import type { Metadata, Viewport } from 'next';
-import { Space_Grotesk, IBM_Plex_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 
 // ICP-CD: Space Grotesk für Headlines/UI, IBM Plex Mono für Labels,
-// Beträge und alles Tabellarische (font-mono).
-const schrift = Space_Grotesk({
-  subsets: ['latin'],
-  variable: '--font-sans',
+// Beträge und alles Tabellarische (font-mono). Welle 4: die Schriften
+// liegen im Projekt (aus den CD-Originalen) statt bei Google – keine
+// Anfrage an Google-Server beim Seitenaufruf, kein Build-Download.
+const schrift = localFont({
+  src: [
+    { path: './fonts/SpaceGrotesk-300_700-latin.woff2',     weight: '300 700', style: 'normal' },
+    { path: './fonts/SpaceGrotesk-300_700-latin-ext.woff2', weight: '300 700', style: 'normal' },
+  ],
+  variable: '--font-space-grotesk',
   display: 'swap',
 });
-const monoschrift = IBM_Plex_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-mono',
+const monoschrift = localFont({
+  src: [
+    { path: './fonts/IBMPlexMono-400-latin.woff2',     weight: '400', style: 'normal' },
+    { path: './fonts/IBMPlexMono-400-latin-ext.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/IBMPlexMono-500-latin.woff2',     weight: '500', style: 'normal' },
+    { path: './fonts/IBMPlexMono-500-latin-ext.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/IBMPlexMono-600-latin.woff2',     weight: '600', style: 'normal' },
+    { path: './fonts/IBMPlexMono-600-latin-ext.woff2', weight: '600', style: 'normal' },
+  ],
+  variable: '--font-plex-mono',
   display: 'swap',
 });
 import './globals.css';
@@ -48,7 +59,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de" className={`${schrift.variable} ${monoschrift.variable}`}>
-      <body className="bg-surface font-sans text-kontrast antialiased">
+      <body className="bg-bg font-sans text-ink antialiased">
         <RegisterSW />
         {children}
       </body>

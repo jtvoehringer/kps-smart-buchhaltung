@@ -102,27 +102,27 @@ export default async function KanzleiPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-brand">
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">
           {isSuperadmin ? 'Superadmin-Übersicht' : 'Kanzlei-Dashboard'}
         </h1>
-        <p className="text-gray-500 text-sm">
+        <p className="text-ink-2 text-sm">
           {isSuperadmin ? 'Alle Mandanten · Alle Tenants' : `Mandantenübersicht ${currentYear}`}
         </p>
       </div>
 
       {/* Übersichtskacheln */}
       <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Mandanten gesamt</p>
-          <p className="text-2xl font-bold text-brand">{(clients ?? []).length}</p>
+        <div className="bg-white rounded-xl p-5 border border-line">
+          <p className="text-[12.5px] text-ink-2 font-medium tracking-[0.02em] mb-1">Mandanten gesamt</p>
+          <p className="num text-[24px] font-semibold text-navy">{(clients ?? []).length}</p>
         </div>
-        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Aktive Mandanten</p>
-          <p className="text-2xl font-bold text-income">{activeCount}</p>
+        <div className="bg-white rounded-xl p-5 border border-line">
+          <p className="text-[12.5px] text-ink-2 font-medium tracking-[0.02em] mb-1">Aktive Mandanten</p>
+          <p className="num text-[24px] font-semibold text-navy">{activeCount}</p>
         </div>
-        <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Buchungen {currentYear}</p>
-          <p className="text-2xl font-bold text-brand">{totalBookings}</p>
+        <div className="bg-white rounded-xl p-5 border border-line">
+          <p className="text-[12.5px] text-ink-2 font-medium tracking-[0.02em] mb-1">Buchungen {currentYear}</p>
+          <p className="num text-[24px] font-semibold text-navy">{totalBookings}</p>
         </div>
       </div>
 

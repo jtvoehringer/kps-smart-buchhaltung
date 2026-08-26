@@ -19,13 +19,13 @@ export default function EmptyState({
   cta: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
-      {Icon && <Icon size={28} strokeWidth={1.5} className="mx-auto text-gray-300 mb-3" />}
-      <p className="text-gray-600 text-sm font-medium">{text}</p>
-      {hinweis && <p className="text-gray-400 text-xs mt-1">{hinweis}</p>}
+    <div className="card p-12 text-center">
+      {Icon && <Icon size={28} strokeWidth={1.5} className="mx-auto text-ink-3 mb-3" />}
+      <p className="text-ink text-sm font-medium">{text}</p>
+      {hinweis && <p className="text-ink-3 text-[12.5px] mt-1">{hinweis}</p>}
       <Link
         href={href}
-        className="inline-block mt-4 bg-brand text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-accent transition-colors"
+        className="inline-block mt-4 bg-navy text-white text-[13.5px] font-medium px-4 py-2 rounded-lg hover:bg-navy-2 transition-colors"
       >
         {cta}
       </Link>

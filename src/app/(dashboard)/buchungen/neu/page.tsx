@@ -30,11 +30,11 @@ export default async function BuchungNeuPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-brand flex items-center gap-2">
-          <ReceiptText size={24} strokeWidth={1.75} className="text-accent-dark" />
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em] flex items-center gap-2">
+          <ReceiptText size={24} strokeWidth={1.75} className="text-navy" />
           Buchung erfassen
         </h1>
-        <p className="text-gray-500 text-sm mt-0.5">Neue Einnahme oder Ausgabe eingeben</p>
+        <p className="text-ink-2 text-sm mt-0.5">Neue Einnahme oder Ausgabe eingeben</p>
       </div>
       <BuchungForm clientId={client.id} categories={categories ?? []} bookingMode={client.booking_mode ?? 'netto'} />
     </div>

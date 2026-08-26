@@ -53,29 +53,29 @@ export default function MandantUserManager({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className="px-5 py-4 border-b border-gray-100">
-        <h2 className="font-semibold text-gray-700">Benutzer ({members.length})</h2>
-        <p className="text-xs text-gray-400 mt-0.5">
+    <div className="card overflow-hidden">
+      <div className="px-5 py-4 border-b border-line">
+        <h2 className="font-semibold text-ink">Benutzer ({members.length})</h2>
+        <p className="text-xs text-ink-3 mt-0.5">
           Alle Benutzer mit Zugriff auf diesen Mandanten
         </p>
       </div>
 
       {/* Mitgliederliste */}
       {members.length === 0 ? (
-        <div className="px-5 py-8 text-center text-gray-400 text-sm">
+        <div className="px-5 py-8 text-center text-ink-3 text-sm">
           Noch keine Benutzer zugewiesen
         </div>
       ) : (
-        <ul className="divide-y divide-gray-50">
+        <ul className="divide-y divide-line">
           {members.map(m => (
             <li key={m.userId} className="flex items-center justify-between px-5 py-3">
               <div>
-                <div className="text-sm font-medium text-gray-700">
+                <div className="text-sm font-medium text-ink">
                   {m.fullName || m.email}
                 </div>
                 {m.fullName && (
-                  <div className="text-xs text-gray-400">{m.email}</div>
+                  <div className="text-xs text-ink-3">{m.email}</div>
                 )}
               </div>
               <button
@@ -103,8 +103,8 @@ export default function MandantUserManager({
       )}
 
       {/* Benutzer hinzufügen */}
-      <div className="px-5 py-4 border-t border-gray-100 bg-gray-50/50">
-        <h3 className="text-sm font-medium text-gray-700 mb-3">Benutzer hinzufügen</h3>
+      <div className="px-5 py-4 border-t border-line bg-row/50">
+        <h3 className="text-sm font-medium text-ink mb-3">Benutzer hinzufügen</h3>
         <form onSubmit={handleAdd} className="flex gap-2">
           <input
             type="email"
@@ -113,17 +113,17 @@ export default function MandantUserManager({
             placeholder="benutzer@beispiel.at"
             required
             disabled={isPending}
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50"
+            className="flex-1 border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30 disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={isPending || !email.trim()}
-            className="px-4 py-2 bg-brand hover:bg-accent text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-navy hover:bg-navy-2 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
           >
             {isPending ? 'Hinzufügen…' : 'Hinzufügen'}
           </button>
         </form>
-        <p className="text-xs text-gray-400 mt-2">
+        <p className="text-xs text-ink-3 mt-2">
           Neue Benutzer erhalten automatisch eine Einladungs-E-Mail.
           Bereits registrierte Benutzer erhalten sofort Zugriff.
         </p>

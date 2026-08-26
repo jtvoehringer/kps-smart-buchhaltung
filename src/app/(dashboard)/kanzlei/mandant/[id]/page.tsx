@@ -65,48 +65,48 @@ export default async function MandantDetailPage({
     <div className="p-6 max-w-3xl mx-auto">
       {/* Breadcrumb + Titel */}
       <div className="mb-6 flex items-center gap-2 flex-wrap">
-        <Link href="/kanzlei" className="text-gray-400 hover:text-gray-600 text-sm transition-colors">
+        <Link href="/kanzlei" className="text-ink-3 hover:text-navy text-sm transition-colors">
           ← Kanzlei
         </Link>
-        <span className="text-gray-300">/</span>
-        <h1 className="text-2xl font-bold text-brand">{client.company_name}</h1>
-        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-          client.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+        <span className="text-ink-3">/</span>
+        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">{client.company_name}</h1>
+        <span className={`text-[11px] px-2 py-0.5 rounded-sm font-mono uppercase tracking-[0.03em] font-semibold ${
+          client.is_active ? 'bg-green-100 text-green-700' : 'bg-well text-ink-2'
         }`}>
           {client.is_active ? 'Aktiv' : 'Inaktiv'}
         </span>
       </div>
 
       {/* Stammdaten */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-5">
-        <h2 className="font-semibold text-gray-700 mb-4">Stammdaten</h2>
+      <div className="card p-5 mb-5">
+        <h2 className="font-semibold text-ink mb-4">Stammdaten</h2>
         <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
           <div>
-            <dt className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">UID-Nummer</dt>
-            <dd className="text-gray-700">{client.uid_number || '—'}</dd>
+            <dt className="text-ink-3 text-xs uppercase tracking-wide mb-0.5">UID-Nummer</dt>
+            <dd className="text-ink">{client.uid_number || '—'}</dd>
           </div>
           <div>
-            <dt className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">UVA-Zeitraum</dt>
-            <dd className="text-gray-700">
+            <dt className="text-ink-3 text-xs uppercase tracking-wide mb-0.5">UVA-Zeitraum</dt>
+            <dd className="text-ink">
               {client.vat_period === 'monthly' ? 'Monatlich' : 'Vierteljährlich'}
             </dd>
           </div>
           <div>
-            <dt className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">USt-Status</dt>
-            <dd className="text-gray-700">
+            <dt className="text-ink-3 text-xs uppercase tracking-wide mb-0.5">USt-Status</dt>
+            <dd className="text-ink">
               {client.ust_status === 'kleinunternehmer' ? 'Kleinunternehmer (befreit)' : 'Regelbesteuerung'}
             </dd>
           </div>
           <div>
-            <dt className="text-gray-400 text-xs uppercase tracking-wide mb-0.5">Regelbesteuerungsantrag (U12)</dt>
-            <dd className="text-gray-700">
+            <dt className="text-ink-3 text-xs uppercase tracking-wide mb-0.5">Regelbesteuerungsantrag (U12)</dt>
+            <dd className="text-ink">
               {client.regelbesteuerung_optiert
                 ? `Optiert ${client.regelbesteuerung_options_jahr} · bindend bis ${client.regelbesteuerung_bindung_bis}`
                 : '—'}
             </dd>
           </div>
         </dl>
-        <p className="text-xs text-gray-400 mt-3">
+        <p className="text-xs text-ink-3 mt-3">
           Änderungen an UID, UVA-Zeitraum und USt-Status nimmt der Mandant selbst unter „Einstellungen" vor.
         </p>
       </div>

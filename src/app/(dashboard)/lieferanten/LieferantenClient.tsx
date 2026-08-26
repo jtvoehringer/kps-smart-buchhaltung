@@ -72,23 +72,23 @@ export default function LieferantenClient({
           {fehler}
         </p>
       )}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3">
+      <div className="card px-4 py-3">
         <input
           type="text"
           placeholder="Suche nach Name, Firma, E-Mail, Ort…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full text-sm focus:outline-none text-gray-700 placeholder-gray-400"
+          className="w-full text-sm focus:outline-hidden text-ink placeholder-ink-3"
         />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
+      <div className="card overflow-x-auto">
         {filtered.length === 0 ? (
-          <div className="text-center py-10 text-gray-400 text-sm">Keine Treffer</div>
+          <div className="text-center py-10 text-ink-3 text-sm">Keine Treffer</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+              <tr className="label-mono border-b border-line-2">
                 <th className="text-left px-4 py-3">Name / Firma</th>
                 <th className="text-left px-4 py-3">Adresse</th>
                 <th className="text-left px-4 py-3">Kontakt</th>
@@ -98,32 +98,32 @@ export default function LieferantenClient({
             </thead>
             <tbody>
               {filtered.map(s => (
-                <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50/50">
+                <tr key={s.id} className="border-t border-line hover:bg-row">
                   <td className="px-4 py-3">
                     <Link href={`/lieferanten/${s.id}`} className="group block">
-                      <div className="font-medium text-gray-800 group-hover:text-brand transition-colors">{s.name}</div>
+                      <div className="font-medium text-ink group-hover:text-navy transition-colors">{s.name}</div>
                       {s.contact_person && (
-                        <div className="text-xs text-gray-400">{s.contact_person}</div>
+                        <div className="text-xs text-ink-3">{s.contact_person}</div>
                       )}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-ink-2">
                     {[s.street, `${s.zip ?? ''} ${s.city ?? ''}`.trim()].filter(Boolean).join(', ') || '—'}
                   </td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-ink-2">
                     {s.email && <div>{s.email}</div>}
-                    {s.phone && <div className="text-xs text-gray-400">{s.phone}</div>}
+                    {s.phone && <div className="text-xs text-ink-3">{s.phone}</div>}
                     {!s.email && !s.phone && '—'}
                   </td>
-                  <td className="px-4 py-3 text-gray-500 font-mono text-xs">
+                  <td className="px-4 py-3 text-ink-2 font-mono text-xs">
                     {s.uid_number ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right num">
                     {/* Aktionen mit Text statt reiner Icons (Design-Review Welle 3) */}
                     <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
                       <Link
                         href={`/lieferanten/${s.id}`}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-line-2 text-ink-2 hover:bg-row transition-colors"
                       >
                         <Pencil size={13} strokeWidth={2} />
                         Bearbeiten
@@ -131,7 +131,7 @@ export default function LieferantenClient({
                       <button
                         onClick={() => handleDeactivate(s.id)}
                         disabled={deletingId === s.id}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-gray-200 text-gray-500 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-line-2 text-ink-2 hover:text-expense hover:border-expense/30 hover:bg-expense/5 transition-colors disabled:opacity-50"
                       >
                         <X size={13} strokeWidth={2} />
                         Deaktivieren
