@@ -7,7 +7,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { LogOut } from 'lucide-react';
+import { LogOut, Search } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function Topbar({
@@ -48,6 +48,16 @@ export default function Topbar({
         </div>
 
         <div className="ml-auto flex items-center gap-2 md:gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event('sb:palette'))}
+            className="inline-flex items-center gap-2 h-8 px-2.5 rounded-md bg-white/10 hover:bg-white/15 text-white/80 hover:text-white text-[13px] transition-colors"
+            title="Suchen oder Befehl (Strg K)"
+          >
+            <Search size={15} strokeWidth={1.75} />
+            <span className="hidden lg:inline">Suchen oder Befehl …</span>
+            <kbd className="hidden md:inline font-mono text-[10.5px] text-white/60 border border-white/25 rounded-sm px-1.5 py-px">Strg K</kbd>
+          </button>
           <span className="hidden md:inline font-mono text-[11px] tracking-[0.08em] uppercase text-white/60">
             {roleLabel}
           </span>

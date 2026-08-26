@@ -44,6 +44,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <AppShell
         companyName={client?.company_name ?? 'Smart Buchhaltung'}
         role={me?.role ?? 'klient'}
+        clientId={clientId}
       >
         {children}
       </AppShell>
