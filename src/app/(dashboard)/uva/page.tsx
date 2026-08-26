@@ -12,7 +12,7 @@ export default async function UVAPage() {
   const clientId = await getMyClientId(supabase, user.id);
   const { data: client } = !clientId ? { data: null } : await supabase
     .from('clients')
-    .select('id, company_name, vat_liable, vat_period, fiscal_year_start')
+    .select('id, company_name, vat_liable, vat_period, fiscal_year_start, betriebsbeginn')
     .eq('id', clientId)
     .maybeSingle();
 
@@ -51,6 +51,7 @@ export default async function UVAPage() {
       jahre={(jahre ?? []).map((j: { jahr: number }) => j.jahr)}
       taxReturns={taxReturns ?? []}
       monthClosures={monthClosures ?? []}
+      betriebsbeginn={client.betriebsbeginn ?? null}
     />
   );
 }

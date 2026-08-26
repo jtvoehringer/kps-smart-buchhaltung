@@ -33,13 +33,26 @@ export default async function MonatsabschlussPage() {
   const role = me?.role ?? 'klient';
   const canReopen = ['admin', 'kanzlei', 'superadmin'].includes(role);
 
-  // Letzte 13 Monate (aktueller Monat + 12 davor)
+  // Betriebsbeginn (Migration 044): Monate davor existieren fachlich nicht
+  const { data: clientRow } = await admin
+    .from('clients')
+    .select('betriebsbeginn')
+    .eq('id', clientId)
+    .maybeSingle();
+  const beginn = clientRow?.betriebsbeginn ? new Date(clientRow.betriebsbeginn) : null;
+
+  // Letzte 13 Monate (aktueller Monat + 12 davor), ohne Monate, die
+  // vollständig vor dem Betriebsbeginn enden
   const now = new Date();
   const periods: { year: number; month: number }[] = [];
   for (let i = 0; i < 13; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monatsende = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    if (beginn && monatsende < beginn) continue;
     periods.push({ year: d.getFullYear(), month: d.getMonth() + 1 });
   }
+  // Leer nur, wenn der Betriebsbeginn in der Zukunft liegt – dann wenigstens den aktuellen Monat zeigen
+  if (periods.length === 0) periods.push({ year: now.getFullYear(), month: now.getMonth() + 1 });
   const earliest = periods[periods.length - 1];
   const rangeStart = `${earliest.year}-${String(earliest.month).padStart(2, '0')}-01`;
 

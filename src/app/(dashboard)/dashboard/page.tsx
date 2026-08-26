@@ -94,6 +94,7 @@ export default async function DashboardPage() {
       draftCount={draftCount ?? 0}
       vatLiable={client.vat_liable !== false}
       vatPeriod={(client.vat_period ?? 'quarterly') === 'monthly' ? 'monthly' : 'quarterly'}
+      betriebsbeginn={client.betriebsbeginn ?? null}
       taxReturns={taxReturns ?? []}
     />
   );

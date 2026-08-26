@@ -28,6 +28,8 @@ type Props = {
   taxReturns: TaxReturn[];
   /** Monatsabschlüsse – Voraussetzung für die Übermittlung (Migration 043) */
   monthClosures: { period_year: number; period_month: number; reopened_at: string | null }[];
+  /** Migration 044: Monate vor dem Betriebsbeginn verlangen keinen Abschluss */
+  betriebsbeginn: string | null;
 };
 
 /** Eine Zeile aus uva_summe() */
@@ -61,7 +63,7 @@ function formatDateTime(ts: string | null) {
   return ts ? new Date(ts).toLocaleString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
 }
 
-export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod, jahre, taxReturns, monthClosures }: Props) {
+export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod, jahre, taxReturns, monthClosures, betriebsbeginn }: Props) {
   const router = useRouter();
   const supabase = createClient();
   const isQuarterly = vatPeriod !== 'monthly';
@@ -168,15 +170,18 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
   // (Die Datenbankfunktion prüft dasselbe; hier nur die Vorwarnung.)
   const offeneMonate = useMemo(() => {
     const start = isQuarterly ? periodMonth - 2 : periodMonth;
+    const beginn = betriebsbeginn ? new Date(betriebsbeginn) : null;
     const fehlt: string[] = [];
     for (let m = start; m <= periodMonth; m++) {
+      // Monate, die vollständig vor dem Betriebsbeginn enden, zählen nicht
+      if (beginn && new Date(year, m, 0) < beginn) continue;
       const abgeschlossen = monthClosures.some(
         c => c.period_year === year && c.period_month === m && !c.reopened_at,
       );
       if (!abgeschlossen) fehlt.push(MONATE[m - 1]);
     }
     return fehlt;
-  }, [isQuarterly, periodMonth, year, monthClosures]);
+  }, [isQuarterly, periodMonth, year, monthClosures, betriebsbeginn]);
 
   function handlePrint() {
     const params = isQuarterly ? `year=${year}&quarter=${periodNum}` : `year=${year}&month=${periodNum}`;

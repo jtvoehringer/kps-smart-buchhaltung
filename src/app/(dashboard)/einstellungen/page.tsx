@@ -41,7 +41,7 @@ export default async function EinstellungenPage() {
   const { data: client, error: clientError } = await admin
     .from('clients')
     .select(`
-      id, company_name, uid_number, vat_period, booking_mode,
+      id, company_name, uid_number, vat_period, betriebsbeginn, booking_mode,
       ust_status, regelbesteuerung_optiert, regelbesteuerung_options_jahr, regelbesteuerung_bindung_bis
     `)
     .eq('id', membership.client_id)

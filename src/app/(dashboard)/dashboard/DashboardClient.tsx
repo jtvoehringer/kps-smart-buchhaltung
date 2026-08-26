@@ -61,6 +61,7 @@ export default function DashboardClient({
   vatLiable,
   vatPeriod,
   taxReturns,
+  betriebsbeginn,
 }: {
   companyName: string;
   monatssummen: Monatssumme[];
@@ -70,6 +71,7 @@ export default function DashboardClient({
   vatLiable: boolean;
   vatPeriod: 'monthly' | 'quarterly';
   taxReturns: EingereichtePeriode[];
+  betriebsbeginn: string | null;
 }) {
   const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
   const jahr  = today.getFullYear();
@@ -177,7 +179,7 @@ export default function DashboardClient({
     }
 
     if (vatLiable) {
-      for (const p of offeneUvaPerioden(today, vatPeriod, taxReturns)) {
+      for (const p of offeneUvaPerioden(today, vatPeriod, taxReturns, undefined, betriebsbeginn)) {
         const ueberfaellig = p.tageBisFaellig < 0;
         const knapp = p.tageBisFaellig >= 0 && p.tageBisFaellig <= 7;
         liste.push({
@@ -223,7 +225,7 @@ export default function DashboardClient({
 
     // Dringendes zuerst, Reihenfolge innerhalb der Gruppen bleibt stabil
     return [...liste.filter(a => a.dringend), ...liste.filter(a => !a.dringend)];
-  }, [overdueRows, vatLiable, vatPeriod, taxReturns, draftCount, baldFaellig, today]);
+  }, [overdueRows, vatLiable, vatPeriod, taxReturns, betriebsbeginn, draftCount, baldFaellig, today]);
 
   const AUFGABEN_ICONS = {
     ueberfaellig: <AlertTriangle size={18} strokeWidth={2} />,

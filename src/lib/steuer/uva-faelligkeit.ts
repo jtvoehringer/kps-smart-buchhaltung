@@ -50,7 +50,10 @@ export function offeneUvaPerioden(
   periodizitaet: 'monthly' | 'quarterly',
   eingereicht: EingereichtePeriode[],
   anzahlPerioden?: number,
+  /** Migration 044: Perioden, die vollständig vor dem Betriebsbeginn enden, zählen nicht */
+  betriebsbeginn?: string | null,
 ): OffeneUva[] {
+  const beginn = betriebsbeginn ? new Date(betriebsbeginn) : null;
   const monatlich = periodizitaet === 'monthly';
   const anzahl = anzahlPerioden ?? (monatlich ? 3 : 2);
   const schritt = monatlich ? 1 : 3;
@@ -72,7 +75,9 @@ export function offeneUvaPerioden(
     const istEingereicht = eingereicht.some(
       e => e.period_year === jahr && e.period_month === endMonat && e.status === 'submitted',
     );
-    if (!istEingereicht) {
+    // Periodenende (letzter Tag des Endmonats) vor dem Betriebsbeginn?
+    const vorBeginn = beginn !== null && new Date(jahr, endMonat, 0) < beginn;
+    if (!istEingereicht && !vorBeginn) {
       const due = faelligkeit(jahr, endMonat);
       offene.push({
         jahr,

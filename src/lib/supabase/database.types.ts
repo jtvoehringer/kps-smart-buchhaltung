@@ -48,6 +48,8 @@ export type Client = {
   vat_liable: boolean;
   vat_period: VatPeriod;
   fiscal_year_start: number;
+  /** Migration 044: Beginn der betrieblichen Tätigkeit (NULL = keine Einschränkung) */
+  betriebsbeginn: string | null;
   booking_mode: string;           // 'netto' | 'brutto' – Migration via Supabase Dashboard
   modules_enabled: string[];      // Migration 010: z.B. ['invoicing'] (seit Migration 015 informativ, App prüft nicht mehr darauf)
   ust_status: UstStatus;          // Migration 015
@@ -463,6 +465,7 @@ export type Database = {
           vat_liable?: boolean;
           vat_period?: VatPeriod;
           fiscal_year_start?: number;
+          betriebsbeginn?: string | null;
           booking_mode?: string;
           modules_enabled?: string[];
           ust_status?: UstStatus;

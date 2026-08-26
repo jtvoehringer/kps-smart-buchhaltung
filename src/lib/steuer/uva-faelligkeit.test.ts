@@ -68,3 +68,22 @@ describe('offeneUvaPerioden – quartalsweise', () => {
     expect(r.map(x => x.label)).toEqual(['Q1 2026', 'Q2 2026']);
   });
 });
+
+describe('offeneUvaPerioden – Betriebsbeginn (Migration 044)', () => {
+  it('Perioden vor dem Betriebsbeginn zählen nicht (Rumpfjahr Sep–Dez)', () => {
+    // 20.10.2026, Quartalsmelder, Betrieb startet 1.9.2026:
+    // Q3 endet 30.9. (nach Beginn) -> bleibt; Q2/Q1 fallen weg
+    const r = offeneUvaPerioden(new Date(2026, 9, 20), 'quarterly', KEINE, 3, '2026-09-01');
+    expect(r.map(x => x.label)).toEqual(['Q3 2026']);
+  });
+
+  it('monatlich: nur Monate ab dem Beginn', () => {
+    const r = offeneUvaPerioden(new Date(2026, 10, 5), 'monthly', KEINE, 3, '2026-09-01');
+    expect(r.map(x => x.label)).toEqual(['September 2026', 'Oktober 2026']);
+  });
+
+  it('ohne Betriebsbeginn unverändert', () => {
+    const r = offeneUvaPerioden(new Date(2026, 9, 20), 'quarterly', KEINE, 3, null);
+    expect(r).toHaveLength(3);
+  });
+});

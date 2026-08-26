@@ -12,6 +12,7 @@ type ClientData = {
   company_name: string;
   uid_number: string | null;
   vat_period: string;
+  betriebsbeginn: string | null;
   booking_mode: string;
   ust_status: UstStatus;
   regelbesteuerung_optiert: boolean;
@@ -65,6 +66,7 @@ export default function EinstellungenForm({
   // ── Buchhaltungs-Einstellungen ────────────────────────────
   const [bookingMode, setBookingMode] = useState(client.booking_mode ?? 'netto');
   const [vatPeriod,   setVatPeriod]   = useState(client.vat_period ?? 'quarterly');
+  const [betriebsbeginn, setBetriebsbeginn] = useState(client.betriebsbeginn ?? '');
   const [uidNumber,   setUidNumber]   = useState(client.uid_number ?? '');
 
   // ── USt-Status: Kleinunternehmer / Regelbesteuerung ───────
@@ -158,6 +160,7 @@ export default function EinstellungenForm({
       .update({
         booking_mode: bookingMode,
         vat_period:   vatPeriod as 'monthly' | 'quarterly',
+        betriebsbeginn: betriebsbeginn || null,
         uid_number:   uidNumber || null,
         ust_status:   ustStatus,
         regelbesteuerung_optiert:      ustStatus === 'regelbesteuerung' ? regelOptiert : false,
@@ -277,6 +280,23 @@ export default function EinstellungenForm({
           <PeriodButton active={vatPeriod === 'monthly'}   onClick={() => setVatPeriod('monthly')}   label="Monatlich" />
           <PeriodButton active={vatPeriod === 'quarterly'} onClick={() => setVatPeriod('quarterly')} label="Vierteljährlich" />
         </div>
+      </div>
+
+      {/* Betriebsbeginn (Migration 044) */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+        <h2 className="font-semibold text-gray-800 mb-1">Betriebsbeginn</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Offizieller Beginn der betrieblichen Tätigkeit – z.&nbsp;B. bei einem
+          Rumpfwirtschaftsjahr. Monate davor verlangen keinen Monatsabschluss
+          und tauchen nicht in den Aufgaben auf. Leer lassen, wenn keine
+          Einschränkung gewünscht ist.
+        </p>
+        <input
+          type="date"
+          value={betriebsbeginn}
+          onChange={e => setBetriebsbeginn(e.target.value)}
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+        />
       </div>
 
       {/* USt-Status: Kleinunternehmer / Regelbesteuerung */}
