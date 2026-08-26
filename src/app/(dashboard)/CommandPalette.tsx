@@ -182,14 +182,23 @@ export default function CommandPalette({ role, clientId }: { role: string; clien
     else if (e.href) router.push(e.href);
   }, [router]);
 
-  function onKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Escape') { e.preventDefault(); setOffen(false); }
-    else if (e.key === 'ArrowDown') { e.preventDefault(); setAuswahl(i => Math.min(flach.length - 1, i + 1)); }
-    else if (e.key === 'ArrowUp')   { e.preventDefault(); setAuswahl(i => Math.max(0, i - 1)); }
-    else if (e.key === 'Home')      { e.preventDefault(); setAuswahl(0); }
-    else if (e.key === 'End')       { e.preventDefault(); setAuswahl(Math.max(0, flach.length - 1)); }
-    else if (e.key === 'Enter')     { e.preventDefault(); const t = flach[auswahl]; if (t) ausfuehren(t); }
-  }
+  // Tasten gelten im ganzen Fenster, solange die Palette offen ist –
+  // auch wenn der Fokus durch einen Klick daneben verloren ging
+  // (Meldung 26.08.2026: Esc reagierte nicht, wenn das Eingabefeld
+  // nicht mehr den Fokus hatte).
+  useEffect(() => {
+    if (!offen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape')         { e.preventDefault(); setOffen(false); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); setAuswahl(i => Math.min(flach.length - 1, i + 1)); }
+      else if (e.key === 'ArrowUp')   { e.preventDefault(); setAuswahl(i => Math.max(0, i - 1)); }
+      else if (e.key === 'Home')      { e.preventDefault(); setAuswahl(0); }
+      else if (e.key === 'End')       { e.preventDefault(); setAuswahl(Math.max(0, flach.length - 1)); }
+      else if (e.key === 'Enter')     { e.preventDefault(); const t = flach[auswahl]; if (t) ausfuehren(t); }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [offen, flach, auswahl, ausfuehren]);
 
   // gewählten Eintrag im Blick halten
   useEffect(() => {
@@ -209,7 +218,6 @@ export default function CommandPalette({ role, clientId }: { role: string; clien
         aria-modal="true"
         aria-label="Befehlspalette"
         className="card max-w-[640px] mx-auto overflow-hidden"
-        onKeyDown={onKeyDown}
       >
         <div className="flex items-center gap-3 px-4 h-[52px] border-b border-line">
           <Search size={18} strokeWidth={1.75} className="text-ink-3 shrink-0" />
@@ -224,7 +232,14 @@ export default function CommandPalette({ role, clientId }: { role: string; clien
             spellCheck={false}
           />
           {sucheLaeuft && <span className="font-mono text-[11px] text-ink-3">■ sucht …</span>}
-          <kbd className="font-mono text-[10.5px] text-ink-3 border border-line-2 rounded-sm px-1.5 py-0.5">ESC</kbd>
+          <button
+            type="button"
+            onClick={() => setOffen(false)}
+            aria-label="Schließen"
+            className="font-mono text-[10.5px] text-ink-3 border border-line-2 rounded-sm px-1.5 py-0.5 hover:bg-well hover:text-navy transition-colors"
+          >
+            ESC
+          </button>
         </div>
 
         <div ref={listeRef} className="max-h-[60vh] overflow-y-auto py-2">
