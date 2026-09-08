@@ -78,7 +78,10 @@ const SYSTEM: NavGroup = {
 };
 
 export function buildNav(role: string): NavGroup[] {
-  if (role === 'superadmin') return [...GRUPPEN, KANZLEI, SYSTEM];
+  // Entscheidung 08.09.2026: Die E&A Suite wird nur noch von Jörgen selbst
+  // genutzt (kein Verkauf an eine Kanzlei) – der Kanzlei-Bereich bleibt im
+  // Code, verschwindet aber aus Navigation und Befehlspalette.
+  if (role === 'superadmin') return [...GRUPPEN, SYSTEM];
   if (role === 'klient')     return GRUPPEN;
   // Kanzlei/Admin bleiben bewusst auf ihren Bereich beschränkt
   // (Entscheidung 2 vom 12.08.2026).

@@ -1,0 +1,9 @@
+# Zeilenenden: im Repo LF, in der Arbeitskopie systemtypisch.
+# Beendet das Diff-Rauschen zwischen Windows (CRLF) und Git.
+* text=auto
+*.png binary
+*.svg text
+*.woff2 binary
+*.pdf binary
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
