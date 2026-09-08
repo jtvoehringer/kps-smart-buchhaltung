@@ -2,10 +2,8 @@
 
 import { useState } from 'react';
 
-type Client = { id: string; company_name: string };
-
 type Props = {
-  clients: Client[];
+  companyName: string;
 };
 
 const currentYear = new Date().getFullYear();
@@ -13,8 +11,7 @@ const currentYear = new Date().getFullYear();
 const eur = (n: number) =>
   n.toLocaleString('de-AT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export default function BmdExportClient({ clients }: Props) {
-  const [clientId, setClientId]   = useState(clients[0]?.id ?? '');
+export default function BmdExportClient({ companyName }: Props) {
   const [dateFrom, setDateFrom]   = useState(`${currentYear}-01-01`);
   const [dateTo, setDateTo]       = useState(`${currentYear}-12-31`);
   const [loading, setLoading]     = useState(false);
@@ -22,17 +19,15 @@ export default function BmdExportClient({ clients }: Props) {
   const [summen, setSummen]       = useState<Summen | null>(null);
   const [error, setError]         = useState('');
 
-  const selectedClient = clients.find(c => c.id === clientId);
 
   async function fetchPreview() {
-    if (!clientId) return;
     setLoading(true);
     setError('');
     setPreviewRows(null);
     setSummen(null);
     try {
       const res = await fetch(
-        `/api/kanzlei/bmd-export?clientId=${clientId}&dateFrom=${dateFrom}&dateTo=${dateTo}&preview=1`
+        `/api/bmd-export?dateFrom=${dateFrom}&dateTo=${dateTo}&preview=1`
       );
       if (!res.ok) throw new Error(await res.text());
       const json = await res.json();
@@ -46,18 +41,17 @@ export default function BmdExportClient({ clients }: Props) {
   }
 
   async function downloadCsv() {
-    if (!clientId) return;
     setLoading(true);
     setError('');
     try {
       const res = await fetch(
-        `/api/kanzlei/bmd-export?clientId=${clientId}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+        `/api/bmd-export?dateFrom=${dateFrom}&dateTo=${dateTo}`
       );
       if (!res.ok) throw new Error(await res.text());
       const blob = await res.blob();
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
-      const fname = `BMD_EA_${selectedClient?.company_name.replace(/\s+/g, '_')}_${dateFrom}_${dateTo}.csv`;
+      const fname = `BMD_EA_${companyName.replace(/\s+/g, '_')}_${dateFrom}_${dateTo}.csv`;
       a.href     = url;
       a.download = fname;
       a.click();
@@ -77,24 +71,7 @@ export default function BmdExportClient({ clients }: Props) {
           Export-Parameter
         </h2>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {/* Mandant – bei genau einem (Klienten-Sicht) keine Auswahl */}
-          <div className={clients.length === 1 ? 'hidden' : 'sm:col-span-3'}>
-            <label htmlFor="bmdExportClient-0" className="block text-xs font-medium text-ink-2 mb-1">Mandant</label>
-            <select id="bmdExportClient-0"
-              value={clientId}
-              onChange={e => { setClientId(e.target.value); setPreviewRows(null); setSummen(null); }}
-              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30 bg-white"
-            >
-              {clients.length === 0 && (
-                <option value="">Keine Mandanten gefunden</option>
-              )}
-              {clients.map(c => (
-                <option key={c.id} value={c.id}>{c.company_name}</option>
-              ))}
-            </select>
-          </div>
-
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Datum von */}
           <div>
             <label htmlFor="bmdExportClient-1" className="block text-xs font-medium text-ink-2 mb-1">Datum von</label>
@@ -102,7 +79,7 @@ export default function BmdExportClient({ clients }: Props) {
               type="date"
               value={dateFrom}
               onChange={e => { setDateFrom(e.target.value); setPreviewRows(null); setSummen(null); }}
-              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30"
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
             />
           </div>
 
@@ -113,7 +90,7 @@ export default function BmdExportClient({ clients }: Props) {
               type="date"
               value={dateTo}
               onChange={e => { setDateTo(e.target.value); setPreviewRows(null); setSummen(null); }}
-              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30/30"
+              className="w-full border border-line-2 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
             />
           </div>
 
@@ -159,14 +136,14 @@ export default function BmdExportClient({ clients }: Props) {
         <div className="mt-5 flex gap-3">
           <button
             onClick={fetchPreview}
-            disabled={!clientId || loading}
+            disabled={loading}
             className="flex-1 sm:flex-none px-5 py-2 rounded-lg border border-navy text-navy text-sm font-medium hover:bg-navy/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Lädt…' : 'Vorschau'}
           </button>
           <button
             onClick={downloadCsv}
-            disabled={!clientId || loading}
+            disabled={loading}
             className="flex-1 sm:flex-none px-5 py-2 rounded-lg bg-navy hover:bg-navy-2 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Exportiert…' : 'CSV herunterladen'}

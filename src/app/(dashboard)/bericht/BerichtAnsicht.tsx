@@ -37,7 +37,7 @@ export type BerichtDaten = {
   vorjahrGesamt: Jahressumme;
   einnahmenKat: KategorieSumme[];
   ausgabenKat: KategorieSumme[];
-  anlagen: { gesamt: number; anzahl: number; jeJahr: [number, number][] };
+  anlagen: { buchwert: number; anschaffungskosten: number; kumulierteAfa: number; anzahl: number; afaJahr: number; zugaengeJahr: number; zugaengeBuchungenJahr: number; imVerzeichnis: number };
   staende: KontoStand[];
   forderungen: PostenSumme;
   verbindlichkeiten: PostenSumme;
@@ -57,7 +57,8 @@ export default function BerichtAnsicht(d: BerichtDaten) {
   } = d;
   const liquide = rund(staende.reduce((s, k) => s + k.saldo, 0));
   const umlauf = rund(liquide + forderungen.summe);
-  const aktiva = rund(umlauf + anlagen.gesamt);
+  const aktiva = rund(umlauf + anlagen.buchwert);
+  const ueberschussNachAfa = rund(summe.ueberschuss + anlagen.zugaengeBuchungenJahr - anlagen.afaJahr);
   const schulden = rund(verbindlichkeiten.summe + Math.max(0, ust.betrag));
   const reinvermoegen = rund(aktiva - schulden);
   const nettoPosition = rund(liquide + forderungen.summe - verbindlichkeiten.summe);
@@ -113,8 +114,9 @@ export default function BerichtAnsicht(d: BerichtDaten) {
             <Badge tone="gray">vereinfacht</Badge>
           </CardHeader>
           <Kv valueRight rows={[
-            { k: <b className="text-ink">Anlagevermögen</b>, v: eur(anlagen.gesamt), mono: true },
-            { k: <span className="pl-3">Anschaffungswerte (Kontenklasse 0), ohne AfA</span>, v: <span className="text-ink-3 text-[12.5px]">{anlagen.anzahl} {anlagen.anzahl === 1 ? 'Zugang' : 'Zugänge'}</span> },
+            { k: <b className="text-ink">Anlagevermögen</b>, v: eur(anlagen.buchwert), mono: true },
+            { k: <span className="pl-3">Buchwert lt. Anlagenverzeichnis · {anlagen.anzahl} {anlagen.anzahl === 1 ? 'Anlage' : 'Anlagen'}</span>,
+              v: <span className="text-ink-3 text-[12px]">AK {eur(anlagen.anschaffungskosten)} − AfA {eur(anlagen.kumulierteAfa)}</span> },
             { k: <b className="text-ink">Umlaufvermögen</b>, v: eur(umlauf), mono: true },
             { k: <span className="pl-3">Forderungen aus Lieferungen und Leistungen</span>, v: eur(forderungen.summe), mono: true },
             ...staende.map(k => ({ k: <span className="pl-3">{k.name}</span>, v: signiert(k.saldo), mono: true })),
@@ -125,8 +127,9 @@ export default function BerichtAnsicht(d: BerichtDaten) {
             { k: <b className="text-navy">Reinvermögen (vereinfacht)</b>, v: <b className={reinvermoegen < 0 ? 'text-crit' : 'text-navy'}>{signiert(reinvermoegen)}</b>, mono: true },
           ]} />
           <Note className="mt-4">
-            Sicht auf Basis der Einnahmen-Ausgaben-Rechnung: Kontostände, offene Rechnungen und Anschaffungswerte der Anlagen –
-            keine Bilanz nach UGB. Abschreibungen, Rückstellungen und Privatentnahmen sind nicht enthalten.
+            Sicht auf Basis der Einnahmen-Ausgaben-Rechnung: Kontostände, offene Rechnungen und Buchwerte aus dem{' '}
+            <Link href="/anlagen" className="underline underline-offset-2">Anlagenverzeichnis</Link> – keine Bilanz nach UGB.
+            Rückstellungen und Privatentnahmen sind nicht enthalten.
           </Note>
         </Card>
 
@@ -155,6 +158,9 @@ export default function BerichtAnsicht(d: BerichtDaten) {
             { k: 'Ausgabenquote', v: summe.einnahmen > 0 ? `${Math.round(summe.ausgaben / summe.einnahmen * 100)} % der Einnahmen` : '—', mono: true },
             { k: 'Ø Einnahmen je Monat', v: monateMitDaten.length ? eur(rund(summe.einnahmen / Math.max(1, laufend ? bisMonat : 12))) : '—', mono: true },
             { k: `USt-Saldo ${jahr} (USt − Vorsteuer)`, v: !vatLiable ? 'Kleinunternehmer – keine USt' : signiert(rund(summe.ust - summe.vst)), mono: true },
+            { k: <>Anlagenkäufe {jahr} (Kontenklasse 0, aktivierungspflichtig)</>, v: anlagen.zugaengeBuchungenJahr > 0 ? `+ ${eur(anlagen.zugaengeBuchungenJahr)}` : '—', mono: true },
+            { k: <>Abschreibung (AfA) {jahr}</>, v: anlagen.afaJahr > 0 ? `− ${eur(anlagen.afaJahr)}` : anlagen.imVerzeichnis === 0 ? <Link href="/anlagen" className="text-navy hover:underline">Anlagenverzeichnis anlegen</Link> : '—', mono: true },
+            { k: <b className="text-navy">Überschuss nach AfA (steuerlich, vereinfacht)</b>, v: <b className={ueberschussNachAfa < 0 ? 'text-crit' : 'text-navy'}>{signiert(ueberschussNachAfa)}</b>, mono: true },
             ...(vorjahrGesamt.einnahmen > 0 ? [{ k: `Gesamtjahr ${jahr - 1} (Einnahmen / Ausgaben / Überschuss)`, v: `${eur(vorjahrGesamt.einnahmen)} / ${eur(vorjahrGesamt.ausgaben)} / ${signiert(vorjahrGesamt.ueberschuss)}`, mono: true }] : []),
           ]} />
           <p className="mt-3 text-[12.5px]"><Link href="/monatsuebersicht" className="text-navy hover:underline underline-offset-2">Verlauf je Monat →</Link></p>

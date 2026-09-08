@@ -29,9 +29,9 @@ export default async function MonatsabschlussPage() {
   if (!membership?.client_id) redirect('/dashboard');
   const clientId = membership.client_id;
 
-  const { data: me } = await supabase.from('users').select('role').eq('id', user.id).maybeSingle();
-  const role = me?.role ?? 'klient';
-  const canReopen = ['admin', 'kanzlei', 'superadmin'].includes(role);
+  // Welle 7: Einzelanwender – Wiedereröffnen eines Monats ist erlaubt
+  // (früher der Kanzlei vorbehalten).
+  const canReopen = true;
 
   // Betriebsbeginn (Migration 044): Monate davor existieren fachlich nicht
   const { data: clientRow } = await admin

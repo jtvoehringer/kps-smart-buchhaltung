@@ -20,7 +20,8 @@ export default async function KategorienPage() {
 
   if (!me) redirect('/dashboard');
 
-  const canManage = ['admin', 'kanzlei', 'superadmin'].includes(me.role);
+  // Welle 7: Einzelanwender – Kategorien darf jeder Angemeldete pflegen
+  const canManage = true;
 
   // Kategorien laden: System-Kategorien (tenant_id IS NULL) + eigene Kanzlei-Kategorien
   const { data: categories } = await supabase

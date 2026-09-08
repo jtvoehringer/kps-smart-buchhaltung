@@ -389,6 +389,27 @@ export type AccountTransfer = {
   created_at: string;
 };
 
+/** Anlagenverzeichnis (Migration 045) – AfA-Rechnung in src/lib/anlagen.ts */
+export type Asset = {
+  id: string;
+  client_id: string;
+  name: string;
+  asset_group: string | null;
+  konto_nr: string | null;
+  acquired_on: string;
+  cost_net: number;
+  useful_life_years: number;
+  method: 'linear' | 'degressiv' | 'gwg';
+  degressive_rate: number | null;
+  residual_value: number;
+  disposed_on: string | null;
+  disposal_proceeds: number | null;
+  transaction_id: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type BankLearningRule = {
   id: string;
   client_id: string;
@@ -823,6 +844,27 @@ export type Database = {
           is_reconciled_to?: boolean;
         };
         Update: Partial<AccountTransfer>;
+        Relationships: [];
+      };
+      assets: {
+        Row: Asset;
+        Insert: {
+          client_id: string;
+          name: string;
+          asset_group?: string | null;
+          konto_nr?: string | null;
+          acquired_on: string;
+          cost_net: number;
+          useful_life_years?: number;
+          method?: 'linear' | 'degressiv' | 'gwg';
+          degressive_rate?: number | null;
+          residual_value?: number;
+          disposed_on?: string | null;
+          disposal_proceeds?: number | null;
+          transaction_id?: string | null;
+          notes?: string | null;
+        };
+        Update: Partial<Asset>;
         Relationships: [];
       };
       bank_learning_rules: {

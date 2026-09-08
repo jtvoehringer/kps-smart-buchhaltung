@@ -1,13 +1,13 @@
-// BMD-Export – /bmd-export
-// Design-Review-Entscheidung vom 12.08.2026: der Export gehört zum
-// Monatsabschluss und wird vom Klienten angestoßen. Kanzlei-Rollen
-// sehen weiterhin die Mandantenauswahl.
+// Steuerberater-Export – /bmd-export
+// E/A-Buchungen im BMD-NTCS-Format für den Steuerberater. Welle 7: nur
+// noch der eigene Betrieb, keine Rollen, keine Mandantenauswahl.
 export const dynamic = 'force-dynamic';
 
-import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
+import { Upload } from 'lucide-react';
+import { createClient } from '@/lib/supabase/server';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
+import PageHeader from '@/components/PageHeader';
 import BmdExportClient from './BmdExportClient';
 
 export default async function BmdExportPage() {
@@ -15,50 +15,23 @@ export default async function BmdExportPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: me } = await supabase
-    .from('users')
-    .select('role, tenant_id')
-    .eq('id', user.id)
+  const clientId = await getMyClientId(supabase, user.id);
+  if (!clientId) redirect('/dashboard');
+  const { data: client } = await supabase
+    .from('clients')
+    .select('id, company_name')
+    .eq('id', clientId)
     .maybeSingle();
-
-  if (!me) redirect('/dashboard');
-
-  let clients: { id: string; company_name: string }[] = [];
-
-  if (['admin', 'kanzlei', 'superadmin'].includes(me.role)) {
-    const admin = createAdminClient();
-    let clientsQ = admin
-      .from('clients')
-      .select('id, company_name')
-      .eq('is_active', true)
-      .order('company_name');
-    if (me.role !== 'superadmin') {
-      clientsQ = clientsQ.eq('tenant_id', me.tenant_id);
-    }
-    const { data } = await clientsQ;
-    clients = data ?? [];
-  } else {
-    // Klient: nur der eigene Betrieb, keine Auswahl.
-    const clientId = await getMyClientId(supabase, user.id);
-    if (!clientId) redirect('/dashboard');
-    const { data } = await supabase
-      .from('clients')
-      .select('id, company_name')
-      .eq('id', clientId)
-      .maybeSingle();
-    if (!data) redirect('/dashboard');
-    clients = [data];
-  }
+  if (!client) redirect('/dashboard');
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em]">BMD-Export</h1>
-        <p className="text-ink-2 text-sm">
-          EA-Buchungen im BMD NTCS-Format für die Kanzlei exportieren
-        </p>
-      </div>
-      <BmdExportClient clients={clients} />
+    <div className="px-6 py-7 max-w-3xl mx-auto">
+      <PageHeader
+        title="Steuerberater-Export"
+        subtitle="Buchungen eines Zeitraums als BMD-NTCS-Datei (CSV, Windows-1252) – zum Weitergeben an den Steuerberater"
+        icon={Upload}
+      />
+      <BmdExportClient companyName={client.company_name} />
     </div>
   );
 }

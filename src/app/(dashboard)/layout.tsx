@@ -16,12 +16,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq('id', clientId)
     .maybeSingle();
 
-  const { data: me } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user.id)
-    .maybeSingle();
-
   // Welle 2: die einzige austauschbare Größe neben dem Logo ist die
   // Akzentfarbe der Kanzlei (branding.brand_color). Sie überschreibt
   // --signal-rgb, an der alle accent-Tokens hängen. Navy bleibt konstant.
@@ -43,7 +37,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
     >
       <AppShell
         companyName={client?.company_name ?? 'E&A Suite'}
-        role={me?.role ?? 'klient'}
         clientId={clientId}
       >
         {children}

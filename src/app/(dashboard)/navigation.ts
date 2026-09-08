@@ -2,7 +2,7 @@
 // Tab-Navigation (Welle 4b, horizontal wie im HR-Suite-PoC) genutzt.
 import {
   ClipboardList, Wallet, Landmark, FileText, User, Truck,
-  LayoutDashboard, Settings, Building2, Users, Upload, BarChart3,
+  LayoutDashboard, Settings, Upload, BarChart3, Boxes,
   CreditCard, CalendarCheck, CalendarRange, Tags, Repeat, ScanLine, Percent,
   type LucideIcon,
 } from 'lucide-react';
@@ -44,10 +44,11 @@ const GRUPPEN: NavGroup[] = [
   },
   {
     key: 'bank',
-    label: 'Bank & Konten',
+    label: 'Konten & Anlagen',
     items: [
-      { href: '/import', label: 'Bank-Import', icon: Landmark, keywords: 'csv camt kontoauszug' },
-      { href: '/konten', label: 'Konten',      icon: CreditCard, keywords: 'bank kassa abstimmung' },
+      { href: '/import',  label: 'Bank-Import',        icon: Landmark,   keywords: 'csv camt kontoauszug bank' },
+      { href: '/konten',  label: 'Konten',             icon: CreditCard, keywords: 'bank kassa abstimmung' },
+      { href: '/anlagen', label: 'Anlagenverzeichnis', icon: Boxes,      keywords: 'anlagen afa abschreibung anlagevermögen buchwert gwg' },
     ],
   },
   {
@@ -57,19 +58,10 @@ const GRUPPEN: NavGroup[] = [
       { href: '/uva',             label: 'UVA-Meldung',     icon: Percent, keywords: 'umsatzsteuer voranmeldung finanzonline' },
       { href: '/monatsabschluss', label: 'Monatsabschluss', icon: CalendarCheck, keywords: 'sperren abschließen' },
       // Entscheidung 12.08.2026: der Klient stößt den Export zur Kanzlei an.
-      { href: '/bmd-export',      label: 'BMD-Export',      icon: Upload, keywords: 'kanzlei steuerberater export' },
+      { href: '/bmd-export',      label: 'Steuerberater-Export', icon: Upload, keywords: 'bmd ntcs export steuerberater kanzlei' },
     ],
   },
 ];
-
-const KANZLEI: NavGroup = {
-  key: 'kanzlei',
-  label: 'Kanzlei',
-  items: [
-    { href: '/kanzlei',          label: 'Kanzlei-Übersicht', icon: Building2 },
-    { href: '/kanzlei/benutzer', label: 'Benutzer',           icon: Users },
-  ],
-};
 
 const SYSTEM: NavGroup = {
   key: 'system',
@@ -77,27 +69,16 @@ const SYSTEM: NavGroup = {
   items: [{ href: '/einstellungen', label: 'Einstellungen', icon: Settings, keywords: 'konfiguration profil' }],
 };
 
-export function buildNav(role: string): NavGroup[] {
-  // Entscheidung 08.09.2026: Die E&A Suite wird nur noch von Jörgen selbst
-  // genutzt (kein Verkauf an eine Kanzlei) – der Kanzlei-Bereich bleibt im
-  // Code, verschwindet aber aus Navigation und Befehlspalette.
-  if (role === 'superadmin') return [...GRUPPEN, SYSTEM];
-  if (role === 'klient')     return GRUPPEN;
-  // Kanzlei/Admin bleiben bewusst auf ihren Bereich beschränkt
-  // (Entscheidung 2 vom 12.08.2026).
-  return [KANZLEI];
+// Entscheidung 08.09.2026: Die E&A Suite wird nur noch von einer Person
+// genutzt (kein Kanzlei-Vertrieb). Rollen spielen in der Oberfläche keine
+// Rolle mehr – wer angemeldet ist, sieht alles. Der Kanzlei-Bereich
+// (Mandantenverwaltung, Benutzer) wurde entfernt.
+export function buildNav(): NavGroup[] {
+  return [...GRUPPEN, SYSTEM];
 }
 
 export function isActivePath(pathname: string, href: string) {
   if (href === '/dashboard') return pathname === '/dashboard';
   if (href === '/buchungen') return pathname === '/buchungen' || /^\/buchungen\/(neu|[^/]+\/bearbeiten)/.test(pathname);
-  if (href === '/kanzlei')   return pathname === '/kanzlei' || pathname.startsWith('/kanzlei/mandant');
   return pathname.startsWith(href);
-}
-
-export function roleLabelFor(role: string) {
-  return role === 'superadmin' ? 'Superadmin'
-       : role === 'admin'      ? 'Administrator'
-       : role === 'kanzlei'    ? 'Kanzlei'
-       : 'Klient';
 }

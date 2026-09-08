@@ -1,9 +1,11 @@
-// GET /api/kanzlei/bmd-export?clientId=...&dateFrom=...&dateTo=...&preview=1
-// Nur für Rolle kanzlei / admin / superadmin
+// GET /api/bmd-export?dateFrom=...&dateTo=...&preview=1
+// Export der E/A-Buchungen im BMD-NTCS-Format für den Steuerberater –
+// immer für den eigenen Betrieb (Welle 7: keine Rollen/Mandantenwahl mehr).
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient }      from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getMyClientId } from '@/lib/supabase/get-my-client';
 import {
   baueBmdZeilen, baueBmdCsv, bmdSummen, nachCp1252, type BmdTransaction,
 } from '@/lib/bmd/export';
@@ -33,24 +35,17 @@ export async function GET(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht angemeldet' }, { status: 401 });
 
-  const { data: me } = await supabase
-    .from('users')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  if (!me) {
-    return NextResponse.json({ error: 'Kein Zugriff' }, { status: 403 });
+  const clientId = await getMyClientId(supabase, user.id);
+  if (!clientId) {
+    return NextResponse.json({ error: 'Kein Betrieb zugeordnet' }, { status: 403 });
   }
-  const istKanzleiRolle = ['admin', 'kanzlei', 'superadmin'].includes(me.role);
 
   const { searchParams } = req.nextUrl;
-  const clientId  = searchParams.get('clientId');
   const dateFrom  = searchParams.get('dateFrom');
   const dateTo    = searchParams.get('dateTo');
   const isPreview = searchParams.get('preview') === '1';
 
-  if (!clientId || !dateFrom || !dateTo) {
+  if (!dateFrom || !dateTo) {
     return NextResponse.json({ error: 'Parameter fehlen' }, { status: 400 });
   }
 
@@ -62,35 +57,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Das Anfangsdatum liegt nach dem Enddatum.' }, { status: 400 });
   }
 
-  // Prüfen ob Mandant zum Tenant gehört (ausser Superadmin)
   const admin = createAdminClient();
-
   const { data: client } = await admin
     .from('clients')
-    .select('tenant_id, company_name')
+    .select('company_name')
     .eq('id', clientId)
     .maybeSingle();
-
   if (!client) {
-    return NextResponse.json({ error: 'Mandant nicht gefunden' }, { status: 404 });
-  }
-
-  if (istKanzleiRolle) {
-    if (me.role !== 'superadmin' && client.tenant_id !== me.tenant_id) {
-      return NextResponse.json({ error: 'Kein Zugriff auf diesen Mandanten' }, { status: 403 });
-    }
-  } else {
-    // Klient: nur der eigene Betrieb (Entscheidung vom 12.08.2026 –
-    // der Export zur Kanzlei wird vom Klienten angestoßen).
-    const { data: mitglied } = await admin
-      .from('client_memberships')
-      .select('client_id')
-      .eq('user_id', user.id)
-      .eq('client_id', clientId)
-      .maybeSingle();
-    if (!mitglied) {
-      return NextResponse.json({ error: 'Kein Zugriff auf diesen Mandanten' }, { status: 403 });
-    }
+    return NextResponse.json({ error: 'Betrieb nicht gefunden' }, { status: 404 });
   }
 
   // Buchungen laden

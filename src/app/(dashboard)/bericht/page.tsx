@@ -19,6 +19,7 @@ import {
   anlagenZugaenge, jahresSumme, kontoStaende, nachKategorie, offenePosten, ustOffen,
   type BuchungRoh,
 } from '@/lib/bericht';
+import { anlagenspiegel, buchwertAm, type Anlage } from '@/lib/anlagen';
 import BerichtAnsicht from './BerichtAnsicht';
 
 
@@ -57,6 +58,7 @@ export default async function BerichtPage({ searchParams }: { searchParams: Prom
     { data: offeneER },
     { data: taxReturns },
     { data: closures },
+    { data: assets },
   ] = await Promise.all([
     supabase.rpc('monatssummen', { p_client_id: clientId }),
     // Buchungen des Jahres mit Kategorie (für die Aufteilung nach Kategorien)
@@ -83,6 +85,7 @@ export default async function BerichtPage({ searchParams }: { searchParams: Prom
       .eq('client_id', clientId).order('period_year', { ascending: false }).order('period_month', { ascending: false }),
     supabase.from('month_closures').select('period_year, period_month, reopened_at')
       .eq('client_id', clientId).eq('period_year', jahr),
+    supabase.from('assets').select('*').eq('client_id', clientId),
   ]);
 
   // ── Ableitungen ──────────────────────────────────────────────────
@@ -100,7 +103,21 @@ export default async function BerichtPage({ searchParams }: { searchParams: Prom
   const vorjahrGesamt = jahresSumme(ms, jahr - 1);
   const einnahmenKat = nachKategorie(zuRoh(buchungenJahr as never), jahr, 'income');
   const ausgabenKat  = nachKategorie(zuRoh(buchungenJahr as never), jahr, 'expense');
-  const anlagen = anlagenZugaenge(zuRoh(anlagenBuchungen as never));
+  // Anlagevermögen aus dem Anlagenverzeichnis (Welle 7); die Kontenklasse-0-
+  // Buchungen zeigen, was im Jahr aktivierungspflichtig gekauft wurde.
+  const anlagenListe = (assets ?? []) as Anlage[];
+  const spiegel = anlagenspiegel(anlagenListe, jahr);
+  const zugaengeBuchungen = anlagenZugaenge(zuRoh(anlagenBuchungen as never));
+  const anlagen = {
+    buchwert: anlagenListe.reduce((s, a) => s + buchwertAm(a, heuteIso), 0),
+    anschaffungskosten: spiegel.anschaffungskosten,
+    kumulierteAfa: spiegel.kumulierteAfa,
+    anzahl: spiegel.anzahlAktiv,
+    afaJahr: spiegel.afaJahr,
+    zugaengeJahr: spiegel.zugaenge,
+    zugaengeBuchungenJahr: zugaengeBuchungen.jeJahr.find(([j]) => j === jahr)?.[1] ?? 0,
+    imVerzeichnis: anlagenListe.length,
+  };
   const staende = kontoStaende(
     (konten ?? []) as never,
     (kontoBewegungen ?? []) as never,

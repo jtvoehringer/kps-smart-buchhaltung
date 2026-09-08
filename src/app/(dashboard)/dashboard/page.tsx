@@ -16,20 +16,8 @@ export default async function DashboardPage() {
     .eq('id', clientId)
     .maybeSingle();
 
-  // Noch kein Profil → Rolle prüfen
+  // Noch kein Betrieb zugeordnet → Willkommensseite
   if (!client) {
-    const { data: me } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    // Kanzlei / Admin → direkt zur Kanzlei-Übersicht
-    if (me?.role === 'kanzlei' || me?.role === 'admin' || me?.role === 'superadmin') {
-      redirect('/kanzlei');
-    }
-
-    // Klient ohne Profil → Willkommensseite
     return (
       <div className="h-full flex items-center justify-center p-8">
         <div className="card p-10 w-full max-w-lg text-center">
@@ -41,7 +29,7 @@ export default async function DashboardPage() {
             Der Login funktioniert.{' '}
             <span className="text-income font-medium">&#x2713;</span>
             <br />
-            Ihr Buchführungs-Profil wird von der Kanzlei eingerichtet.
+            Es ist noch kein Betrieb (Mandant) mit diesem Login verknüpft.
           </p>
           <p className="text-xs text-ink-3 bg-row rounded-lg px-4 py-2 inline-block">
             Eingeloggt als: {user.email}

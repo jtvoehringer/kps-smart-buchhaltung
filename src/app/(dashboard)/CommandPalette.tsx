@@ -11,7 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeftRight, ClipboardList, FileText, LogOut, Plus, Receipt, Repeat,
-  ScanLine, Search, Truck, User, Wallet, CreditCard,
+  ScanLine, Search, Truck, User, Wallet, CreditCard, Boxes,
   type LucideIcon,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -52,7 +52,7 @@ const datum = (iso: string) =>
 
 const STATUS: Record<string, string> = { draft: 'Entwurf', open: 'Offen', paid: 'Bezahlt', cancelled: 'Storniert' };
 
-export default function CommandPalette({ role, clientId }: { role: string; clientId: string | null }) {
+export default function CommandPalette({ clientId }: { clientId: string | null }) {
   const router = useRouter();
   const [offen, setOffen] = useState(false);
   const [q, setQ] = useState('');
@@ -63,14 +63,13 @@ export default function CommandPalette({ role, clientId }: { role: string; clien
 
   // ── Statische Einträge: Seiten + Aktionen je Rolle ────────────────
   const statisch = useMemo<Eintrag[]>(() => {
-    const seiten: Eintrag[] = buildNav(role).flatMap(g =>
+    const seiten: Eintrag[] = buildNav().flatMap(g =>
       g.items.map(i => ({
         id: `s:${i.href}`, gruppe: 'Seiten' as const, label: i.label, detail: g.label, icon: i.icon, href: i.href,
         keywords: `${g.label} ${i.keywords ?? ''}`,
       })),
     );
-    const darfBuchen = role === 'klient' || role === 'superadmin';
-    const aktionen: Eintrag[] = darfBuchen ? [
+    const aktionen: Eintrag[] = [
       { id: 'a:buchung',   gruppe: 'Aktionen', label: 'Buchung erfassen',          icon: Plus,           href: '/buchungen/neu',        keywords: 'neu einnahme ausgabe beleg' },
       { id: 'a:rechnung',  gruppe: 'Aktionen', label: 'Rechnung schreiben',        icon: FileText,       href: '/rechnungen/neu',       keywords: 'neu fakturieren ausgangsrechnung' },
       { id: 'a:beleg',     gruppe: 'Aktionen', label: 'Beleg hochladen (OCR)',     icon: ScanLine,       href: '/belege',               keywords: 'scan foto' },
@@ -80,13 +79,14 @@ export default function CommandPalette({ role, clientId }: { role: string; clien
       { id: 'a:konto',     gruppe: 'Aktionen', label: 'Konto anlegen',             icon: CreditCard,     href: '/konten/neu',           keywords: 'neu bank' },
       { id: 'a:umbuchung', gruppe: 'Aktionen', label: 'Umbuchung zwischen Konten', icon: ArrowLeftRight, href: '/konten/umbuchung',     keywords: 'transfer' },
       { id: 'a:offen',     gruppe: 'Aktionen', label: 'Offene Posten prüfen',      icon: Wallet,         href: '/offene-posten',        keywords: 'überfällig zahlung' },
-    ] : [];
+      { id: 'a:anlage',    gruppe: 'Aktionen', label: 'Anlage erfassen',           icon: Boxes,          href: '/anlagen/neu',          keywords: 'neu anlagevermögen afa abschreibung' },
+    ];
     aktionen.push({
       id: 'a:logout', gruppe: 'Aktionen', label: 'Abmelden', icon: LogOut, keywords: 'logout ausloggen',
       run: async () => { await createClient().auth.signOut(); window.location.href = '/login'; },
     });
     return [...aktionen, ...seiten];
-  }, [role]);
+  }, []);
 
   // ── Öffnen/Schließen: Strg+K, ⌘K, Kopfleisten-Knopf ─────────────
   useEffect(() => {
@@ -121,7 +121,7 @@ export default function CommandPalette({ role, clientId }: { role: string; clien
       : stat;
   }, [frage, statisch]);
 
-  const datenSuche = frage.length >= 2 && !!clientId && (role === 'klient' || role === 'superadmin');
+  const datenSuche = frage.length >= 2 && !!clientId;
   // Ergebnisse tragen die Frage, zu der sie gehören – veraltete werden nicht angezeigt
   const [daten, setDaten] = useState<{ frage: string; items: Eintrag[] }>({ frage: '', items: [] });
   const sucheLaeuft = datenSuche && daten.frage !== frage;

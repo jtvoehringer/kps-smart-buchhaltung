@@ -7,24 +7,21 @@
 import Topbar from './Topbar';
 import TabNav from './TabNav';
 import CommandPalette from './CommandPalette';
-import { roleLabelFor } from './navigation';
 
 export default function AppShell({
   companyName,
-  role,
   clientId,
   children,
 }: {
   companyName: string;
-  role: string;
   clientId: string | null;
   children: React.ReactNode;
 }) {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-bg print:h-auto print:overflow-visible">
-      <Topbar companyName={companyName} roleLabel={roleLabelFor(role)} />
-      <CommandPalette role={role} clientId={clientId} />
-      <TabNav role={role} />
+      <Topbar companyName={companyName} />
+      <CommandPalette clientId={clientId} />
+      <TabNav />
       <main className="flex-1 min-w-0 overflow-y-auto print:overflow-visible">
         {children}
         <footer className="px-6 pb-6 pt-2 max-w-6xl mx-auto flex flex-wrap justify-between gap-2 font-mono text-[11px] text-ink-3 print:px-0">

@@ -2,7 +2,7 @@
 
 // Navy-Kopfleiste (Design-Review Welle 4, nach dem HR-Suite-PoC):
 // links das ICP-Lockup und der Produktname, dann der Mandant, rechts
-// Rolle, Release und Abmelden. Die dunkle Fläche lebt nur hier – die
+// Release und Abmelden. Die dunkle Fläche lebt nur hier – die
 // Navigation darunter (TabNav) ist hell.
 
 import Image from 'next/image';
@@ -10,13 +10,7 @@ import Link from 'next/link';
 import { LogOut, Search } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
-export default function Topbar({
-  companyName,
-  roleLabel,
-}: {
-  companyName: string;
-  roleLabel: string;
-}) {
+export default function Topbar({ companyName }: { companyName: string }) {
   const release = process.env.NEXT_PUBLIC_APP_VERSION ?? '0.9';
   const build   = process.env.NEXT_PUBLIC_BUILD_SHA;
 
@@ -61,9 +55,6 @@ export default function Topbar({
             <span className="hidden lg:inline">Suchen oder Befehl …</span>
             <kbd className="hidden md:inline font-mono text-[10.5px] text-white/60 border border-white/25 rounded-sm px-1.5 py-px">Strg K</kbd>
           </button>
-          <span className="hidden md:inline font-mono text-[11px] tracking-[0.08em] uppercase text-white/60">
-            {roleLabel}
-          </span>
           <span
             className="font-mono text-[11px] font-semibold tracking-[0.08em] bg-signal text-[#0b2540] rounded-sm px-2.5 py-[3px] whitespace-nowrap"
             title={build ? `Build ${build}` : undefined}
