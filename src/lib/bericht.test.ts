@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { kontoStaende, offenePosten, nachKategorie, jahresSumme, anlagenZugaenge, ustOffen } from './bericht';
+import { kontoStaende, offenePosten, nachKategorie, jahresSumme, anlagenZugaenge, ustOffen, afaGebuchtImJahr, ohneAfaBuchungen } from './bericht';
 
 describe('kontoStaende', () => {
   const konto = { id: 'k1', name: 'Bank', type: 'kontokorrent', iban: null, opening_balance: 1000, opening_date: '2026-01-31', is_active: true };
@@ -72,5 +72,24 @@ describe('Erfolgsrechnung', () => {
       .toEqual({ betrag: 72, monate: [2, 3] });
     // Q1 quartalsweise eingereicht → nichts offen
     expect(ustOffen(ms, [{ period_year: 2026, period_month: 3, status: 'submitted' }], 2026, 'quarterly').monate).toEqual([]);
+  });
+});
+
+describe('gebuchte AfA (Welle 8)', () => {
+  it('afaGebuchtImJahr summiert nur das Jahr bis zum Monat', () => {
+    const b = [
+      { amount_net: 1000, booking_date: '2026-12-31' },
+      { amount_net: 300, booking_date: '2026-12-31' },
+      { amount_net: 500, booking_date: '2025-12-31' },
+    ];
+    expect(afaGebuchtImJahr(b, 2026)).toBe(1300);
+    expect(afaGebuchtImJahr(b, 2026, 11)).toBe(0);
+    expect(afaGebuchtImJahr(b, 2025)).toBe(500);
+  });
+
+  it('ohneAfaBuchungen zieht die AfA aus den Ausgaben und korrigiert den Überschuss', () => {
+    const s = { einnahmen: 10000, ausgaben: 4300, ueberschuss: 5700, ust: 0, vst: 0 };
+    expect(ohneAfaBuchungen(s, 1300)).toEqual({ einnahmen: 10000, ausgaben: 3000, ueberschuss: 7000, ust: 0, vst: 0 });
+    expect(ohneAfaBuchungen(s, 0)).toBe(s);
   });
 });

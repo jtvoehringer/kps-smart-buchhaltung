@@ -25,6 +25,8 @@ type Transaction = {
   is_eauto: boolean;
   beleg_jahr: number | null;
   beleg_nr: number | null;
+  /** AfA-Buchung (Welle 8): Anlage, deren Jahres-AfA das ist */
+  asset_id?: string | null;
   categories: { name: string; konto_nr?: string | null } | null;
 };
 
@@ -197,6 +199,7 @@ export default function BuchungslisteClient({
                         {istAnlagenkauf(t) && (anlageJeBuchung[t.id]
                           ? <Link href={`/anlagen/${anlageJeBuchung[t.id]}`} className="font-semibold text-good">Anlage · </Link>
                           : <Link href={`/anlagen/neu?buchung=${t.id}`} className="font-semibold text-warn">Anlage anlegen · </Link>)}
+                        {t.asset_id && <Link href={`/anlagen/${t.asset_id}`} className="font-semibold text-info">AfA · </Link>}
                         {t.description ?? '—'}
                       </p>
                       <p className="num text-[11px] text-ink-3 mt-0.5">
@@ -272,6 +275,9 @@ export default function BuchungslisteClient({
                         {istAnlagenkauf(t) && (anlageJeBuchung[t.id]
                           ? <Link href={`/anlagen/${anlageJeBuchung[t.id]}`} title="Im Anlagenverzeichnis öffnen"><Badge tone="good">Anlage</Badge></Link>
                           : <Link href={`/anlagen/neu?buchung=${t.id}`} title="Anschaffung ins Anlagenverzeichnis aufnehmen"><Badge tone="warn">Anlage anlegen</Badge></Link>)}
+                        {t.asset_id && (
+                          <Link href={`/anlagen/${t.asset_id}`} title="Abschreibung – gebucht aus dem Anlagenverzeichnis, ohne Zahlungskonto"><Badge tone="info">AfA</Badge></Link>
+                        )}
                         <span className="truncate">{t.description ?? '—'}</span>
                       </div>
                     </Td>

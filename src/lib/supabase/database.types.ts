@@ -153,6 +153,7 @@ export type Transaction = {
   ust_kennzeichen: string;              // Migration 029
   beleg_jahr: number | null;            // Migration 030
   beleg_nr: number | null;              // Migration 030
+  asset_id: string | null;              // Migration 046: AfA-Buchung → Anlage
   created_at: string;
   updated_at: string;
   // Joins (optional)
@@ -583,6 +584,7 @@ export type Database = {
           ust_kennzeichen?: string;
           beleg_jahr?: number | null;
           beleg_nr?: number | null;
+          asset_id?: string | null;
         };
         Update: Partial<Transaction>;
         Relationships: [

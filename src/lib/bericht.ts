@@ -167,6 +167,28 @@ export function jahresSumme(
 }
 
 /**
+ * Gebuchte AfA (Welle 8): Buchungen mit asset_id sind nicht zahlungswirksam.
+ * Die Erfolgsrechnung zeigt die Ausgaben ohne sie und rechnet die AfA
+ * getrennt (aus dem Anlagenverzeichnis) – sonst zählte sie doppelt.
+ */
+export function afaGebuchtImJahr(
+  afaBuchungen: { amount_net: number; booking_date: string }[],
+  jahr: number,
+  bisMonat = 12,
+): number {
+  return rund(afaBuchungen
+    .filter(b => Number(b.booking_date.slice(0, 4)) === jahr && Number(b.booking_date.slice(5, 7)) <= bisMonat)
+    .reduce((s, b) => s + Number(b.amount_net), 0));
+}
+
+/** Jahressumme ohne die gebuchte AfA (zahlungswirksame Sicht). */
+export function ohneAfaBuchungen(summe: Jahressumme, afaGebucht: number): Jahressumme {
+  if (!afaGebucht) return summe;
+  const ausgaben = rund(summe.ausgaben - afaGebucht);
+  return { ...summe, ausgaben, ueberschuss: rund(summe.einnahmen - ausgaben) };
+}
+
+/**
  * Anlagenzugänge: Ausgaben in Kategorien der Kontenklasse 0 (EKR:
  * Anlagevermögen, Kontonummer beginnt mit 0). Anschaffungswerte netto,
  * ohne Abschreibung – solange es kein Anlagenverzeichnis gibt.

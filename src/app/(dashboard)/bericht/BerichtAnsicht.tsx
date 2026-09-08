@@ -17,6 +17,13 @@ const datum = (iso: string | null) =>
   iso ? new Date(iso + 'T00:00:00').toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
 const eur = (n: number) => formatCurrency(n);
 const signiert = (n: number) => (n < 0 ? '−' : '') + formatCurrency(Math.abs(n));
+/** Zusatz zur AfA-Zeile: ist die AfA des Jahres schon als Buchung erfasst? (Welle 8) */
+const afaHinweis = (soll: number, gebucht: number, jahr: number) => {
+  if (soll <= 0 && gebucht <= 0) return null;
+  if (Math.abs(soll - gebucht) < 0.005) return `· gebucht per 31.12.${jahr}`;
+  if (gebucht <= 0) return '· noch nicht gebucht';
+  return `· gebucht ${formatCurrency(gebucht)} – weicht ab`;
+};
 
 export type BerichtDaten = {
   companyName: string;
@@ -37,7 +44,7 @@ export type BerichtDaten = {
   vorjahrGesamt: Jahressumme;
   einnahmenKat: KategorieSumme[];
   ausgabenKat: KategorieSumme[];
-  anlagen: { buchwert: number; anschaffungskosten: number; kumulierteAfa: number; anzahl: number; afaJahr: number; zugaengeJahr: number; zugaengeBuchungenJahr: number; imVerzeichnis: number };
+  anlagen: { buchwert: number; anschaffungskosten: number; kumulierteAfa: number; anzahl: number; afaJahr: number; afaGebuchtJahr: number; zugaengeJahr: number; zugaengeBuchungenJahr: number; imVerzeichnis: number };
   staende: KontoStand[];
   forderungen: PostenSumme;
   verbindlichkeiten: PostenSumme;
@@ -144,7 +151,7 @@ export default function BerichtAnsicht(d: BerichtDaten) {
               {vorjahr.einnahmen > 0 && <p className="text-[11px] text-ink-3 mt-1">Vorjahr <span className="num">{eur(vorjahr.einnahmen)}</span><br />{delta(summe.einnahmen, vorjahr.einnahmen)}</p>}
             </div>
             <div>
-              <p className="text-[12.5px] text-ink-2">Ausgaben</p>
+              <p className="text-[12.5px] text-ink-2">Ausgaben{anlagen.afaGebuchtJahr > 0 && <span className="text-ink-3 text-[11px]"> · ohne gebuchte AfA</span>}</p>
               <p className="num text-[22px] font-semibold text-ink-2 leading-tight mt-1">{eur(summe.ausgaben)}</p>
               {vorjahr.ausgaben > 0 && <p className="text-[11px] text-ink-3 mt-1">Vorjahr <span className="num">{eur(vorjahr.ausgaben)}</span><br />{delta(summe.ausgaben, vorjahr.ausgaben)}</p>}
             </div>
@@ -159,7 +166,7 @@ export default function BerichtAnsicht(d: BerichtDaten) {
             { k: 'Ø Einnahmen je Monat', v: monateMitDaten.length ? eur(rund(summe.einnahmen / Math.max(1, laufend ? bisMonat : 12))) : '—', mono: true },
             { k: `USt-Saldo ${jahr} (USt − Vorsteuer)`, v: !vatLiable ? 'Kleinunternehmer – keine USt' : signiert(rund(summe.ust - summe.vst)), mono: true },
             { k: <>Anlagenkäufe {jahr} (Kontenklasse 0, aktivierungspflichtig)</>, v: anlagen.zugaengeBuchungenJahr > 0 ? `+ ${eur(anlagen.zugaengeBuchungenJahr)}` : '—', mono: true },
-            { k: <>Abschreibung (AfA) {jahr}</>, v: anlagen.afaJahr > 0 ? `− ${eur(anlagen.afaJahr)}` : anlagen.imVerzeichnis === 0 ? <Link href="/anlagen" className="text-navy hover:underline">Anlagenverzeichnis anlegen</Link> : '—', mono: true },
+            { k: <>Abschreibung (AfA) {jahr} <span className="text-ink-3 text-[11.5px]">{afaHinweis(anlagen.afaJahr, anlagen.afaGebuchtJahr, jahr)}</span></>, v: anlagen.afaJahr > 0 ? `− ${eur(anlagen.afaJahr)}` : anlagen.imVerzeichnis === 0 ? <Link href="/anlagen" className="text-navy hover:underline">Anlagenverzeichnis anlegen</Link> : '—', mono: true },
             { k: <b className="text-navy">Überschuss nach AfA (steuerlich, vereinfacht)</b>, v: <b className={ueberschussNachAfa < 0 ? 'text-crit' : 'text-navy'}>{signiert(ueberschussNachAfa)}</b>, mono: true },
             ...(vorjahrGesamt.einnahmen > 0 ? [{ k: `Gesamtjahr ${jahr - 1} (Einnahmen / Ausgaben / Überschuss)`, v: `${eur(vorjahrGesamt.einnahmen)} / ${eur(vorjahrGesamt.ausgaben)} / ${signiert(vorjahrGesamt.ueberschuss)}`, mono: true }] : []),
           ]} />

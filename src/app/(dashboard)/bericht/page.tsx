@@ -16,7 +16,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
 import { kuGrenzenFuer } from '@/lib/steuer/saetze';
 import {
-  anlagenZugaenge, jahresSumme, kontoStaende, nachKategorie, offenePosten, ustOffen,
+  afaGebuchtImJahr, anlagenZugaenge, jahresSumme, kontoStaende, nachKategorie, offenePosten, ohneAfaBuchungen, ustOffen,
   type BuchungRoh,
 } from '@/lib/bericht';
 import { anlagenspiegel, buchwertAm, type Anlage } from '@/lib/anlagen';
@@ -59,11 +59,12 @@ export default async function BerichtPage({ searchParams }: { searchParams: Prom
     { data: taxReturns },
     { data: closures },
     { data: assets },
+    { data: afaBuchungen },
   ] = await Promise.all([
     supabase.rpc('monatssummen', { p_client_id: clientId }),
     // Buchungen des Jahres mit Kategorie (für die Aufteilung nach Kategorien)
     supabase.from('transactions')
-      .select('type, amount_net, amount_gross, booking_date, is_private, categories(name, konto_nr)')
+      .select('type, amount_net, amount_gross, booking_date, is_private, asset_id, categories(name, konto_nr)')
       .eq('client_id', clientId)
       .gte('booking_date', `${jahr}-01-01`).lte('booking_date', `${jahr}-12-31`),
     // Anlagenzugänge über alle Jahre: Kategorien der Kontenklasse 0
@@ -86,6 +87,9 @@ export default async function BerichtPage({ searchParams }: { searchParams: Prom
     supabase.from('month_closures').select('period_year, period_month, reopened_at')
       .eq('client_id', clientId).eq('period_year', jahr),
     supabase.from('assets').select('*').eq('client_id', clientId),
+    // Gebuchte AfA aller Jahre (Welle 8) – nicht zahlungswirksam, wird getrennt gerechnet
+    supabase.from('transactions').select('amount_net, booking_date')
+      .eq('client_id', clientId).not('asset_id', 'is', null),
   ]);
 
   // ── Ableitungen ──────────────────────────────────────────────────
@@ -98,11 +102,15 @@ export default async function BerichtPage({ searchParams }: { searchParams: Prom
     }));
 
   const ms = (monatssummen ?? []) as { jahr: number; monat: number; einnahmen: number; ausgaben: number; ust: number; vst: number }[];
-  const summe    = jahresSumme(ms, jahr);
-  const vorjahr  = jahresSumme(ms, jahr - 1, bisMonat);      // Vorjahr im gleichen Zeitraum
-  const vorjahrGesamt = jahresSumme(ms, jahr - 1);
-  const einnahmenKat = nachKategorie(zuRoh(buchungenJahr as never), jahr, 'income');
-  const ausgabenKat  = nachKategorie(zuRoh(buchungenJahr as never), jahr, 'expense');
+  const afaB = (afaBuchungen ?? []) as { amount_net: number; booking_date: string }[];
+  const afaGebuchtJahr = afaGebuchtImJahr(afaB, jahr);
+  const summe    = ohneAfaBuchungen(jahresSumme(ms, jahr), afaGebuchtJahr);
+  const vorjahr  = ohneAfaBuchungen(jahresSumme(ms, jahr - 1, bisMonat), afaGebuchtImJahr(afaB, jahr - 1, bisMonat));  // Vorjahr im gleichen Zeitraum
+  const vorjahrGesamt = ohneAfaBuchungen(jahresSumme(ms, jahr - 1), afaGebuchtImJahr(afaB, jahr - 1));
+  // Kategorien ohne die AfA-Buchungen (die AfA steht als eigene Zeile in der Erfolgsrechnung)
+  const buchungenOhneAfa = ((buchungenJahr ?? []) as { asset_id: string | null }[]).filter(b => !b.asset_id);
+  const einnahmenKat = nachKategorie(zuRoh(buchungenOhneAfa as never), jahr, 'income');
+  const ausgabenKat  = nachKategorie(zuRoh(buchungenOhneAfa as never), jahr, 'expense');
   // Anlagevermögen aus dem Anlagenverzeichnis (Welle 7); die Kontenklasse-0-
   // Buchungen zeigen, was im Jahr aktivierungspflichtig gekauft wurde.
   const anlagenListe = (assets ?? []) as Anlage[];
@@ -114,6 +122,7 @@ export default async function BerichtPage({ searchParams }: { searchParams: Prom
     kumulierteAfa: spiegel.kumulierteAfa,
     anzahl: spiegel.anzahlAktiv,
     afaJahr: spiegel.afaJahr,
+    afaGebuchtJahr,
     zugaengeJahr: spiegel.zugaenge,
     zugaengeBuchungenJahr: zugaengeBuchungen.jeJahr.find(([j]) => j === jahr)?.[1] ?? 0,
     imVerzeichnis: anlagenListe.length,

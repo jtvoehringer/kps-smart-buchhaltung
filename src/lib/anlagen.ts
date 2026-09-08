@@ -191,3 +191,111 @@ export function anlagenspiegel(anlagen: Anlage[], jahr: number): Anlagenspiegel 
   }
   return s;
 }
+
+// ============================================================
+// Welle 8: AfA-Buchung am Jahresende und Anlagenspiegel je Zeile
+// ============================================================
+
+export type AfaBuchungRoh = {
+  id: string;
+  asset_id: string | null;
+  amount_net: number;
+  booking_date: string;
+  is_locked: boolean;
+};
+
+export type AfaBuchungsZeile = {
+  anlage: Anlage;
+  /** AfA laut Verzeichnis */
+  soll: number;
+  /** bereits gebuchter Betrag (0 = keine Buchung) */
+  ist: number;
+  buchungId: string | null;
+  gesperrt: boolean;
+  status: 'gebucht' | 'offen' | 'abweichend' | 'ueberfluessig';
+};
+
+export type AfaBuchungsStatus = {
+  jahr: number;
+  zeilen: AfaBuchungsZeile[];
+  soll: number;
+  ist: number;
+  offen: number;          // Anzahl zu buchender Zeilen (offen + abweichend + überflüssig)
+  gesperrt: number;       // Buchungen in gesperrten Monaten
+  komplett: boolean;      // alles gebucht und stimmig
+};
+
+/**
+ * Vergleicht die AfA laut Verzeichnis mit den gebuchten AfA-Buchungen
+ * eines Jahres (transactions mit asset_id). Anlagen ohne AfA im Jahr
+ * erscheinen nur, wenn trotzdem eine Buchung existiert (überflüssig).
+ */
+export function afaBuchungsStatus(anlagen: Anlage[], jahr: number, buchungen: AfaBuchungRoh[]): AfaBuchungsStatus {
+  const gebucht = new Map<string, AfaBuchungRoh>();
+  for (const b of buchungen) {
+    if (b.asset_id && jahrVon(b.booking_date) === jahr) gebucht.set(b.asset_id, b);
+  }
+  const zeilen: AfaBuchungsZeile[] = [];
+  for (const a of anlagen) {
+    const soll = afaImJahr(a, jahr);
+    const b = gebucht.get(a.id);
+    const ist = b ? rund(Number(b.amount_net)) : 0;
+    if (soll <= 0 && !b) continue;
+    const status: AfaBuchungsZeile['status'] =
+      !b ? 'offen' : soll <= 0 ? 'ueberfluessig' : Math.abs(ist - soll) < 0.005 ? 'gebucht' : 'abweichend';
+    zeilen.push({ anlage: a, soll, ist, buchungId: b?.id ?? null, gesperrt: !!b?.is_locked, status });
+  }
+  zeilen.sort((x, y) => x.anlage.acquired_on.localeCompare(y.anlage.acquired_on) || x.anlage.name.localeCompare(y.anlage.name));
+  const soll = rund(zeilen.reduce((s, z) => s + z.soll, 0));
+  const ist = rund(zeilen.reduce((s, z) => s + z.ist, 0));
+  const offen = zeilen.filter(z => z.status !== 'gebucht').length;
+  const gesperrt = zeilen.filter(z => z.gesperrt).length;
+  return { jahr, zeilen, soll, ist, offen, gesperrt, komplett: zeilen.length > 0 && offen === 0 };
+}
+
+export type SpiegelZeile = {
+  anlage: Anlage;
+  buchwertAnfang: number;   // 1.1. (0 bei Zugang im Jahr)
+  zugang: number;           // AK bei Zugang im Jahr
+  abgang: number;           // AK bei Abgang im Jahr
+  afa: number;
+  halb: boolean;
+  kumulierteAfa: number;    // bis 31.12. bzw. bis zum Abgang
+  buchwertEnde: number;     // 31.12. (0 nach Abgang)
+  restbuchwertAbgang: number;
+  erloes: number;
+  abgegangen: boolean;
+};
+
+/** Anlagenspiegel je Anlage – Grundlage der Druckseite. Nur Anlagen, die im Jahr vorhanden waren. */
+export function anlagenspiegelZeilen(anlagen: Anlage[], jahr: number): { zeilen: SpiegelZeile[]; summe: Anlagenspiegel } {
+  const zeilen: SpiegelZeile[] = [];
+  for (const a of anlagen) {
+    const zugangJahr = jahrVon(a.acquired_on);
+    const abgangJahr = a.disposed_on ? jahrVon(a.disposed_on) : null;
+    if (zugangJahr > jahr) continue;
+    if (abgangJahr !== null && abgangJahr < jahr) continue;
+    const kosten = rund(Number(a.cost_net));
+    const plan = afaPlan(a);
+    const zeile = plan.find(z => z.jahr === jahr);
+    const abgegangen = abgangJahr === jahr;
+    const buchwertAnfang = zugangJahr === jahr ? 0 : buchwertEndeJahr(a, jahr - 1);
+    const buchwertEnde = abgegangen ? 0 : buchwertEndeJahr(a, jahr);
+    const restbuchwertAbgang = abgegangen ? (plan[plan.length - 1]?.buchwertEnde ?? kosten) : 0;
+    zeilen.push({
+      anlage: a,
+      buchwertAnfang,
+      zugang: zugangJahr === jahr ? kosten : 0,
+      abgang: abgegangen ? kosten : 0,
+      afa: zeile?.afa ?? 0,
+      halb: zeile?.halb ?? false,
+      kumulierteAfa: rund(kosten - (abgegangen ? restbuchwertAbgang : buchwertEnde)),
+      buchwertEnde,
+      restbuchwertAbgang,
+      erloes: abgegangen ? rund(Number(a.disposal_proceeds ?? 0)) : 0,
+      abgegangen,
+    });
+  }
+  zeilen.sort((x, y) => (x.anlage.asset_group ?? '').localeCompare(y.anlage.asset_group ?? '') || x.anlage.acquired_on.localeCompare(y.anlage.acquired_on) || x.anlage.name.localeCompare(y.anlage.name));
+  return { zeilen, summe: anlagenspiegel(anlagen, jahr) };
+}

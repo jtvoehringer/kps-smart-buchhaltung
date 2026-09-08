@@ -6,15 +6,16 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Landmark, Plus } from 'lucide-react';
+import { Landmark, Plus, Printer } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
 import { formatCurrency } from '@/lib/utils';
-import { afaImJahr, afaSatzProzent, anlagenspiegel, buchwertEndeJahr, type Anlage } from '@/lib/anlagen';
+import { afaBuchungsStatus, afaImJahr, afaSatzProzent, anlagenspiegel, buchwertEndeJahr, type Anlage, type AfaBuchungRoh } from '@/lib/anlagen';
 import PageHeader from '@/components/PageHeader';
 import EmptyState from '@/components/EmptyState';
 import { Badge, Button, Card, CardHeader, Note, Td, Th, Tile, Tr } from '@/components/ui';
 import JahrWaehler from './JahrWaehler';
+import AfaBuchen from './AfaBuchen';
 import { ladeBuchungsKandidaten } from './kandidaten';
 
 const METHODE: Record<string, string> = { linear: 'linear', degressiv: 'degressiv', gwg: 'GWG' };
@@ -42,6 +43,16 @@ export default async function AnlagenPage({ searchParams }: { searchParams: Prom
   const jahr = jahre.includes(Number(jahrParam)) ? Number(jahrParam) : aktJahr;
   const spiegel = anlagenspiegel(anlagen, jahr);
 
+  // AfA-Buchung am Jahresende (Welle 8): gebuchte AfA des Jahres, Kategorie, Dezember-Sperre
+  const [{ data: afaBuchungen }, { data: afaKategorie }, { data: dezember }] = await Promise.all([
+    supabase.from('transactions').select('id, asset_id, amount_net, booking_date, is_locked')
+      .eq('client_id', clientId).not('asset_id', 'is', null)
+      .gte('booking_date', `${jahr}-01-01`).lte('booking_date', `${jahr}-12-31`),
+    supabase.from('categories').select('id').eq('konto_nr', '7010').eq('type', 'expense').is('tenant_id', null).limit(1).maybeSingle(),
+    supabase.from('month_closures').select('id').eq('client_id', clientId).eq('period_year', jahr).eq('period_month', 12).is('reopened_at', null).limit(1).maybeSingle(),
+  ]);
+  const afaStatus = afaBuchungsStatus(anlagen, jahr, (afaBuchungen ?? []) as AfaBuchungRoh[]);
+
   const zeilen = anlagen
     .filter(a => Number(a.acquired_on.slice(0, 4)) <= jahr)
     .map(a => ({
@@ -59,6 +70,9 @@ export default async function AnlagenPage({ searchParams }: { searchParams: Prom
         icon={Landmark}
       >
         <JahrWaehler jahre={jahre} jahr={jahr} />
+        {anlagen.length > 0 && (
+          <Button href={`/anlagen/spiegel?jahr=${jahr}`} variant="secondary"><Printer size={15} strokeWidth={1.75} />Anlagenspiegel</Button>
+        )}
         <Button href="/anlagen/neu"><Plus size={16} strokeWidth={2.5} />Anlage erfassen</Button>
       </PageHeader>
 
@@ -131,6 +145,14 @@ export default async function AnlagenPage({ searchParams }: { searchParams: Prom
               </table>
             </div>
           </Card>
+
+          <AfaBuchen
+            status={afaStatus}
+            clientId={clientId}
+            kategorieId={afaKategorie?.id ?? null}
+            dezemberGesperrt={!!dezember}
+            laufend={jahr >= aktJahr}
+          />
 
           <Note className="mt-4">
             Halbjahresregel: bei Inbetriebnahme im zweiten Halbjahr im ersten Jahr nur die halbe Jahres-AfA. Geringwertige

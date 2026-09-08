@@ -144,7 +144,15 @@ export default function AnlageForm({
   }
 
   async function handleDelete() {
-    if (!form.id || !confirm('Anlage wirklich löschen? Der AfA-Plan geht damit verloren.')) return;
+    if (!form.id) return;
+    // Welle 8: gebuchte AfA hängt an der Anlage – zuerst zurücknehmen
+    const { data: afa } = await supabase.from('transactions').select('booking_date').eq('asset_id', form.id);
+    if (afa && afa.length > 0) {
+      const jahre = [...new Set(afa.map(t => t.booking_date.slice(0, 4)))].sort().join(', ');
+      setError(`Für diese Anlage ist die AfA ${jahre} gebucht. Bitte zuerst im Anlagenverzeichnis die AfA-Buchungen zurücknehmen, dann kann die Anlage gelöscht werden.`);
+      return;
+    }
+    if (!confirm('Anlage wirklich löschen? Der AfA-Plan geht damit verloren.')) return;
     setLoading(true);
     const { error: err } = await supabase.from('assets').delete().eq('id', form.id);
     if (err) { setError(err.message); setLoading(false); return; }
