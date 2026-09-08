@@ -255,15 +255,15 @@ export function Tr({ className, ...rest }: ComponentProps<'tr'>) {
 /* ---------- Key-Value ----------------------------------------------- */
 
 /** Zweispaltiges Schlüssel-Wert-Raster wie im PoC (Vergütungsmodell) */
-export function Kv({ rows, className }: { rows: { k: ReactNode; v: ReactNode; mono?: boolean }[]; className?: string }) {
+export function Kv({ rows, className, valueRight = false }: { rows: { k: ReactNode; v: ReactNode; mono?: boolean }[]; className?: string; /** Werte rechtsbündig (Aufstellungen, Beträge) */ valueRight?: boolean }) {
   return (
-    <div className={cn('grid grid-cols-[minmax(140px,38%)_1fr] text-[13.5px]', className)}>
+    <div className={cn('grid text-[13.5px]', valueRight ? 'grid-cols-[1fr_auto]' : 'grid-cols-[minmax(140px,38%)_1fr]', className)}>
       {rows.map((r, i) => {
         const letzte = i === rows.length - 1;
         return (
           <div key={i} className="contents">
             <div className={cn('py-[7px] pr-2 text-ink-2', !letzte && 'border-b border-line')}>{r.k}</div>
-            <div className={cn('py-[7px] font-medium text-ink', r.mono && 'num text-[12.5px] font-semibold', !letzte && 'border-b border-line')}>{r.v}</div>
+            <div className={cn('py-[7px] font-medium text-ink', r.mono && 'num text-[12.5px] font-semibold', valueRight && 'text-right pl-4', !letzte && 'border-b border-line')}>{r.v}</div>
           </div>
         );
       })}
@@ -278,8 +278,11 @@ export function BarChart({
   max,
   format = v => String(v),
   className,
+  labelWidth = '88px',
 }: {
-  rows: { label: ReactNode; value: number; /** zweiter Balken (z. B. Ausgaben) */ value2?: number; warn?: boolean; href?: string }[];
+  /** Breite der Beschriftungsspalte, z. B. '160px' für Kategorienamen */
+  labelWidth?: string;
+  rows: { label: ReactNode; value: number; /** zweiter Balken (z. B. Ausgaben) */ value2?: number; warn?: boolean; href?: string; /** Balkenfarbe als Klasse, Standard bg-chart-1 */ color?: string }[];
   /** Skalenende; Standard: größter Wert × 1,1 */
   max?: number;
   format?: (v: number) => string;
@@ -293,7 +296,7 @@ export function BarChart({
           <>
             <span className="text-[12.5px] text-ink-2 truncate">{r.label}</span>
             <div className="space-y-0.5">
-              <div className={cn('h-3.5 rounded-r-sm min-w-[2px]', r.warn ? 'bg-warn-bar' : 'bg-chart-1')} style={{ width: `${Math.min(100, r.value / m * 100)}%` }} />
+              <div className={cn('h-3.5 rounded-r-sm min-w-[2px]', r.warn ? 'bg-warn-bar' : (r.color ?? 'bg-chart-1'))} style={{ width: `${Math.min(100, r.value / m * 100)}%` }} />
               {r.value2 !== undefined && (
                 <div className="h-3.5 rounded-r-sm min-w-[2px] bg-chart-2" style={{ width: `${Math.min(100, r.value2 / m * 100)}%` }} />
               )}
@@ -304,10 +307,11 @@ export function BarChart({
             </span>
           </>
         );
-        const klasse = 'grid grid-cols-[88px_1fr_96px] items-center gap-2.5 py-[5px]';
+        const klasse = 'grid items-center gap-2.5 py-[5px]';
+        const spalten = { gridTemplateColumns: `${labelWidth} 1fr 96px` };
         return r.href
-          ? <Link key={i} href={r.href} className={cn(klasse, 'rounded-sm hover:bg-row -mx-1 px-1')}>{inhalt}</Link>
-          : <div key={i} className={klasse}>{inhalt}</div>;
+          ? <Link key={i} href={r.href} style={spalten} className={cn(klasse, 'rounded-sm hover:bg-row -mx-1 px-1')}>{inhalt}</Link>
+          : <div key={i} style={spalten} className={klasse}>{inhalt}</div>;
       })}
     </div>
   );

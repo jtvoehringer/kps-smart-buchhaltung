@@ -18,7 +18,7 @@ export default function TabNav({ role }: { role: string }) {
     ?? gruppen[0];
 
   return (
-    <nav className="bg-card border-b border-line shrink-0" aria-label="Hauptnavigation">
+    <nav className="bg-card border-b border-line shrink-0 print:hidden" aria-label="Hauptnavigation">
       {/* Bereiche */}
       <div className="max-w-6xl mx-auto px-[10px] flex gap-0.5 overflow-x-auto [scrollbar-width:none]">
         {gruppen.map(g => {

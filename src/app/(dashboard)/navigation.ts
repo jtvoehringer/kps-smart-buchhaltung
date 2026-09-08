@@ -2,7 +2,7 @@
 // Tab-Navigation (Welle 4b, horizontal wie im HR-Suite-PoC) genutzt.
 import {
   ClipboardList, Wallet, Landmark, FileText, User, Truck,
-  LayoutDashboard, Settings, Building2, Users, Upload,
+  LayoutDashboard, Settings, Building2, Users, Upload, BarChart3,
   CreditCard, CalendarCheck, CalendarRange, Tags, Repeat, ScanLine, Percent,
   type LucideIcon,
 } from 'lucide-react';
@@ -19,6 +19,7 @@ const GRUPPEN: NavGroup[] = [
     items: [
       { href: '/dashboard',        label: 'Dashboard',       icon: LayoutDashboard, keywords: 'start übersicht aufgaben' },
       { href: '/monatsuebersicht', label: 'Monatsübersicht', icon: CalendarRange, keywords: 'auswertung jahr verlauf' },
+      { href: '/bericht',          label: 'Bericht',         icon: BarChart3, keywords: 'unternehmensbericht reporting vermögen anlagevermögen umlaufvermögen forderungen verbindlichkeiten kontostand liquidität erfolgsrechnung' },
     ],
   },
   {

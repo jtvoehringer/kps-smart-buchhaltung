@@ -27,7 +27,7 @@ export default function Topbar({
   }
 
   return (
-    <header className="bg-navy text-white shrink-0 z-40">
+    <header className="bg-navy text-white shrink-0 z-40 print:hidden">
       <div className="h-14 max-w-6xl mx-auto px-4 md:px-6 flex items-center gap-3 md:gap-5">
         <Link href="/dashboard" className="flex items-center gap-3 md:gap-5 min-w-0 shrink-0 group">
           {/* Querformat-Lockup wie im HR-Suite-PoC und LSB Cockpit (Wunsch 26.08.2026) */}

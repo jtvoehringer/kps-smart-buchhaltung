@@ -21,13 +21,13 @@ export default function AppShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-bg">
+    <div className="h-screen flex flex-col overflow-hidden bg-bg print:h-auto print:overflow-visible">
       <Topbar companyName={companyName} roleLabel={roleLabelFor(role)} />
       <CommandPalette role={role} clientId={clientId} />
       <TabNav role={role} />
-      <main className="flex-1 min-w-0 overflow-y-auto">
+      <main className="flex-1 min-w-0 overflow-y-auto print:overflow-visible">
         {children}
-        <footer className="px-6 pb-6 pt-2 max-w-6xl mx-auto flex flex-wrap justify-between gap-2 font-mono text-[11px] text-ink-3">
+        <footer className="px-6 pb-6 pt-2 max-w-6xl mx-auto flex flex-wrap justify-between gap-2 font-mono text-[11px] text-ink-3 print:px-0">
           <span>© ICP Solutions · E&amp;A Suite</span>
           <span>
             {/* Release aus package.json, Build = Git-Commit des Vercel-Builds (next.config.js) */}
