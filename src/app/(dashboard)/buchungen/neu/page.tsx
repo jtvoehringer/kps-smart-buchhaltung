@@ -23,7 +23,7 @@ export default async function BuchungNeuPage() {
   // Kategorien laden
   const { data: categories } = await supabase
     .from('categories')
-    .select('id, name, type, vat_rate')
+    .select('id, name, type, vat_rate, konto_nr')
     .order('type')
     .order('sort_order');
 

@@ -12,8 +12,18 @@ import { formatCurrency } from '@/lib/utils';
 import { afaPlan, type AfaMethode, type Anlage } from '@/lib/anlagen';
 import { Button, Note, Td, Th, Tr } from '@/components/ui';
 
+export type BuchungsKandidat = {
+  id: string;
+  booking_date: string;
+  description: string | null;
+  amount_net: number;
+  kategorie: string;
+  beleg_nr: number | null;
+};
+
 export type AnlageInput = {
   id?: string;
+  transaction_id: string;
   name: string;
   asset_group: string;
   konto_nr: string;
@@ -29,6 +39,7 @@ export type AnlageInput = {
 };
 
 const LEER: AnlageInput = {
+  transaction_id: '',
   name: '', asset_group: '', konto_nr: '', acquired_on: new Date().toLocaleDateString('en-CA'),
   cost_net: '', useful_life_years: '3', method: 'linear', degressive_rate: '30', residual_value: '0',
   disposed_on: '', disposal_proceeds: '', notes: '',
@@ -45,7 +56,16 @@ const GRUPPEN: { name: string; konto: string; nd: number }[] = [
   { name: 'Gebäude / Investitionen in Gebäude', konto: '0300', nd: 40 },
 ];
 
-export default function AnlageForm({ clientId, initial }: { clientId: string; initial?: AnlageInput }) {
+export default function AnlageForm({
+  clientId,
+  initial,
+  buchungen = [],
+}: {
+  clientId: string;
+  initial?: AnlageInput;
+  /** Anschaffungsbuchungen (Kontenklasse 0), die noch keiner – oder dieser – Anlage zugeordnet sind */
+  buchungen?: BuchungsKandidat[];
+}) {
   const router = useRouter();
   const supabase = createClient();
   const [form, setForm] = useState<AnlageInput>(initial ?? LEER);
@@ -54,6 +74,19 @@ export default function AnlageForm({ clientId, initial }: { clientId: string; in
 
   function set<K extends keyof AnlageInput>(k: K, v: AnlageInput[K]) {
     setForm(f => ({ ...f, [k]: v }));
+  }
+  // Buchung auswählen: Datum, Kosten und (falls leer) Bezeichnung übernehmen
+  function buchungWaehlen(id: string) {
+    const b = buchungen.find(x => x.id === id);
+    setForm(f => ({
+      ...f,
+      transaction_id: id,
+      ...(b ? {
+        acquired_on: b.booking_date,
+        cost_net: Number(b.amount_net).toLocaleString('de-AT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        name: f.name.trim() ? f.name : (b.description ?? ''),
+      } : {}),
+    }));
   }
   function gruppeWaehlen(name: string) {
     const g = GRUPPEN.find(x => x.name === name);
@@ -100,6 +133,7 @@ export default function AnlageForm({ clientId, initial }: { clientId: string; in
       disposed_on: form.disposed_on || null,
       disposal_proceeds: form.disposed_on ? (parseBetrag(form.disposal_proceeds) ?? 0) : null,
       notes: form.notes.trim() || null,
+      transaction_id: form.transaction_id || null,
     };
     const { error: err } = form.id
       ? await supabase.from('assets').update(payload).eq('id', form.id)
@@ -126,6 +160,21 @@ export default function AnlageForm({ clientId, initial }: { clientId: string; in
       <div className="space-y-5">
         <div className="card p-6 space-y-4">
           <h2 className="font-semibold text-ink">Anlage</h2>
+          <div>
+            <label htmlFor="an-buchung" className={lbl}>Zugehörige Buchung (Anschaffung)</label>
+            <select id="an-buchung" className={inp} value={form.transaction_id} onChange={e => buchungWaehlen(e.target.value)}>
+              <option value="">– keine Verknüpfung –</option>
+              {buchungen.map(b => (
+                <option key={b.id} value={b.id}>
+                  {new Date(b.booking_date + 'T00:00:00').toLocaleDateString('de-AT')} · {b.description || b.kategorie}
+                  {b.beleg_nr != null ? ` · B-${b.beleg_nr}` : ''} · {formatCurrency(Number(b.amount_net))} netto
+                </option>
+              ))}
+            </select>
+            <p className="text-[11px] text-ink-3 mt-1">
+              Angeboten werden Ausgaben in Kategorien der Kontenklasse 0, die noch keiner Anlage zugeordnet sind. Datum und Kosten werden übernommen.
+            </p>
+          </div>
           <div>
             <label htmlFor="an-name" className={lbl}>Bezeichnung <span className="text-crit">*</span></label>
             <input id="an-name" className={inp} value={form.name} onChange={e => set('name', e.target.value)} placeholder="z. B. ThinkPad X1, Schreibtisch, Firmenwagen" required />

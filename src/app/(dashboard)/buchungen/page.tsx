@@ -35,12 +35,20 @@ export default async function BuchungslistePage({
       id, type, amount_net, vat_rate, vat_amount, amount_gross,
       booking_date, description, is_locked, is_private, is_eauto,
       beleg_jahr, beleg_nr,
-      categories ( name )
+      categories ( name, konto_nr )
     `)
     .eq('client_id', client.id)
     .gte('booking_date', `${year}-01-01`)
     .lte('booking_date', `${year}-12-31`)
     .order('booking_date', { ascending: false });
+
+  // Verknüpfte Anlagen (Welle 7b): Buchung → Anlage
+  const { data: anlagenLinks } = await supabase
+    .from('assets')
+    .select('id, transaction_id')
+    .eq('client_id', client.id)
+    .not('transaction_id', 'is', null);
+  const anlageJeBuchung = Object.fromEntries((anlagenLinks ?? []).map(a => [a.transaction_id as string, a.id]));
 
   // Verfügbare Jahre (leichte Abfrage – nur Datum)
   const { data: allDates } = await supabase
@@ -86,6 +94,7 @@ export default async function BuchungslistePage({
       </div>
       <BuchungslisteClient
         transactions={transactions ?? []}
+        anlageJeBuchung={anlageJeBuchung}
         year={year}
         availableYears={availableYears.length > 0 ? availableYears : [year]}
       />

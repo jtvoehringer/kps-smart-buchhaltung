@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import { Badge, Button, Card, Td, Th, Tr } from '@/components/ui';
@@ -24,7 +25,7 @@ type Transaction = {
   is_eauto: boolean;
   beleg_jahr: number | null;
   beleg_nr: number | null;
-  categories: { name: string } | null;
+  categories: { name: string; konto_nr?: string | null } | null;
 };
 
 /** Belegnummer wie im BMD-Export – die Klammer zum Papierbeleg. */
@@ -37,13 +38,17 @@ const MONTHS = ['Alle','Jän','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','
 
 export default function BuchungslisteClient({
   transactions,
+  anlageJeBuchung = {},
   year,
   availableYears,
 }: {
   transactions: Transaction[];
+  /** Buchungs-ID → Anlagen-ID (verknüpfte Anschaffungen, Welle 7b) */
+  anlageJeBuchung?: Record<string, string>;
   year: number;
   availableYears: number[];
 }) {
+  const istAnlagenkauf = (t: Transaction) => t.type === 'expense' && (t.categories?.konto_nr ?? '').startsWith('0');
   const router = useRouter();
   const supabase = createClient();
 
@@ -189,6 +194,9 @@ export default function BuchungslisteClient({
                       <p className="text-[12.5px] text-ink-2 truncate">
                         {t.is_private && <span className="font-semibold">Privat · </span>}
                         {t.is_eauto && <span className="font-semibold text-info">E-Auto · </span>}
+                        {istAnlagenkauf(t) && (anlageJeBuchung[t.id]
+                          ? <Link href={`/anlagen/${anlageJeBuchung[t.id]}`} className="font-semibold text-good">Anlage · </Link>
+                          : <Link href={`/anlagen/neu?buchung=${t.id}`} className="font-semibold text-warn">Anlage anlegen · </Link>)}
                         {t.description ?? '—'}
                       </p>
                       <p className="num text-[11px] text-ink-3 mt-0.5">
@@ -261,6 +269,9 @@ export default function BuchungslisteClient({
                         {t.is_eauto && (
                           <Badge tone="info" title="E-Auto – Vorsteuer auf die Angemessenheitsgrenze gedeckelt">E-Auto</Badge>
                         )}
+                        {istAnlagenkauf(t) && (anlageJeBuchung[t.id]
+                          ? <Link href={`/anlagen/${anlageJeBuchung[t.id]}`} title="Im Anlagenverzeichnis öffnen"><Badge tone="good">Anlage</Badge></Link>
+                          : <Link href={`/anlagen/neu?buchung=${t.id}`} title="Anschaffung ins Anlagenverzeichnis aufnehmen"><Badge tone="warn">Anlage anlegen</Badge></Link>)}
                         <span className="truncate">{t.description ?? '—'}</span>
                       </div>
                     </Td>

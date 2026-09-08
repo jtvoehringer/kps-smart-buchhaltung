@@ -14,7 +14,7 @@ import {
   Check, X, Paperclip, FileText, Image as ImageIcon,
 } from 'lucide-react';
 
-type Category = { id: string; name: string; type: string; vat_rate: number };
+type Category = { id: string; name: string; type: string; vat_rate: number; konto_nr?: string | null };
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 const MAX_SIZE_MB = 10;
@@ -239,7 +239,15 @@ export default function BuchungForm({
       }
     }
 
-    router.push('/buchungen');
+    // Anschaffung in einer Kategorie der Kontenklasse 0 (Anlagevermögen)?
+    // Dann direkt weiter ins Anlagenverzeichnis – die Anlage wird mit
+    // dieser Buchung verknüpft und aus ihr vorbefüllt (Welle 7b).
+    const kat = categories.find(c => c.id === categoryId);
+    if (type === 'expense' && (kat?.konto_nr ?? '').startsWith('0')) {
+      router.push(`/anlagen/neu?buchung=${newTx.id}`);
+    } else {
+      router.push('/buchungen');
+    }
     router.refresh();
   }
 

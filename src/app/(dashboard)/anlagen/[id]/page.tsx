@@ -5,6 +5,7 @@ import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
 import AnlageForm, { type AnlageInput } from '../AnlageForm';
+import { ladeBuchungsKandidaten } from '../kandidaten';
 
 export default async function AnlagePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,8 +19,10 @@ export default async function AnlagePage({ params }: { params: Promise<{ id: str
   if (!a) notFound();
 
   const betrag = (n: number | null) => n == null ? '' : Number(n).toLocaleString('de-AT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const kandidaten = await ladeBuchungsKandidaten(supabase, clientId, a.transaction_id);
   const initial: AnlageInput = {
     id: a.id,
+    transaction_id: a.transaction_id ?? '',
     name: a.name,
     asset_group: a.asset_group ?? '',
     konto_nr: a.konto_nr ?? '',
@@ -41,7 +44,7 @@ export default async function AnlagePage({ params }: { params: Promise<{ id: str
         <span className="text-ink-3">/</span>
         <h1 className="text-2xl font-semibold text-navy tracking-[-0.01em] truncate">{a.name}</h1>
       </div>
-      <AnlageForm clientId={clientId} initial={initial} />
+      <AnlageForm clientId={clientId} initial={initial} buchungen={kandidaten} />
     </div>
   );
 }

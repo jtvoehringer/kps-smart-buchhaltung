@@ -15,6 +15,7 @@ import PageHeader from '@/components/PageHeader';
 import EmptyState from '@/components/EmptyState';
 import { Badge, Button, Card, CardHeader, Note, Td, Th, Tile, Tr } from '@/components/ui';
 import JahrWaehler from './JahrWaehler';
+import { ladeBuchungsKandidaten } from './kandidaten';
 
 const METHODE: Record<string, string> = { linear: 'linear', degressiv: 'degressiv', gwg: 'GWG' };
 const datum = (iso: string | null) =>
@@ -33,6 +34,7 @@ export default async function AnlagenPage({ searchParams }: { searchParams: Prom
     .eq('client_id', clientId)
     .order('acquired_on', { ascending: false });
   const anlagen = (data ?? []) as Anlage[];
+  const offeneKaeufe = await ladeBuchungsKandidaten(supabase, clientId);
 
   const aktJahr = new Date().getFullYear();
   const { jahr: jahrParam } = await searchParams;
@@ -59,6 +61,25 @@ export default async function AnlagenPage({ searchParams }: { searchParams: Prom
         <JahrWaehler jahre={jahre} jahr={jahr} />
         <Button href="/anlagen/neu"><Plus size={16} strokeWidth={2.5} />Anlage erfassen</Button>
       </PageHeader>
+
+      {offeneKaeufe.length > 0 && (
+        <Card className="mb-4 border-amber-200 bg-warn-bg/40">
+          <CardHeader title={`${offeneKaeufe.length} ${offeneKaeufe.length === 1 ? 'Anlagenkauf' : 'Anlagenkäufe'} ohne Eintrag im Verzeichnis`}>
+            <Badge tone="warn">zu erfassen</Badge>
+          </CardHeader>
+          <ul className="divide-y divide-line">
+            {offeneKaeufe.slice(0, 6).map(b => (
+              <li key={b.id} className="flex items-center gap-3 py-2">
+                <span className="num text-[12.5px] text-ink-2 shrink-0">{datum(b.booking_date)}</span>
+                <span className="flex-1 min-w-0 truncate text-sm text-ink">{b.description || b.kategorie}</span>
+                <span className="num text-[13px] font-semibold text-ink shrink-0">{formatCurrency(b.amount_net)}</span>
+                <Button href={`/anlagen/neu?buchung=${b.id}`} variant="ghost" size="sm">Anlage anlegen</Button>
+              </li>
+            ))}
+          </ul>
+          {offeneKaeufe.length > 6 && <p className="text-[12px] text-ink-3 mt-2">+ {offeneKaeufe.length - 6} weitere</p>}
+        </Card>
+      )}
 
       {anlagen.length === 0 ? (
         <EmptyState
