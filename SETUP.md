@@ -62,9 +62,11 @@ Dann die Migrationen einspielen:
 
 1. Im Supabase Dashboard: Linke Seite → **"SQL Editor"**
 2. Klicke **"New query"**
-3. Öffne die erste Datei aus `supabase/migrations/` in VS Code
+3. Öffne die erste Datei aus `supabase/migrations_legacy/` in VS Code
 4. Kopiere den gesamten Inhalt → in den SQL Editor einfügen → **"Run"** klicken
 5. Wiederhole das für **jede weitere Datei in numerischer Reihenfolge**
+6. Danach nur die Dateien aus `supabase/migrations/`, deren Zeitstempel am Dateianfang nach
+   `20260923190405` liegt – ältere sind bereits in `supabase/migrations_legacy/` enthalten.
 
 > **Alle Dateien, nicht nur die ersten zwei.** Hier standen lange nur
 > `001` und `002`. Wer sich daran hielt, bekam eine Datenbank, in der
@@ -75,7 +77,7 @@ Dann die Migrationen einspielen:
 > Welche Datei was macht, was vorher und was hinterher zu tun ist
 > (Storage-Buckets, erster Benutzer, Umgebungsvariablen) und wie man
 > prüft, ob alles durchgelaufen ist, steht in
-> **`supabase/migrations/README.md`**.
+> **`supabase/migrations_legacy/README.md`**.
 
 ### API-Keys kopieren
 

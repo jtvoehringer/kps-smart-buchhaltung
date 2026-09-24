@@ -445,7 +445,7 @@ export type MonthClosure = {
 // - Die "Insert"-Typen sind bewusst NICHT per Omit<Row,...> aus den Row-Typen
 //   abgeleitet: Row-Felder mit Datenbank-DEFAULT oder NULL-Erlaubnis sind hier
 //   explizit optional ("?"), damit .insert({...}) nur die tatsächlich
-//   pflichtigen Spalten (siehe supabase/migrations/*.sql) verlangt.
+//   pflichtigen Spalten (siehe supabase/migrations_legacy/*.sql) verlangt.
 // ============================================================
 export type Database = {
   public: {
