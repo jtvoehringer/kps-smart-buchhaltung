@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
 // Die Zeitzone wird bewusst festgenagelt. Die Anwendung rechnet mit
@@ -14,6 +15,8 @@ export default defineConfig({
     environment: 'node',
   },
   resolve: {
-    alias: { '@': new URL('./src', import.meta.url).pathname },
+    // fileURLToPath statt .pathname: sonst wird ein Leerzeichen im Pfad
+    // („Smart book keeping“) zu %20 und der Alias läuft ins Leere
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
 });

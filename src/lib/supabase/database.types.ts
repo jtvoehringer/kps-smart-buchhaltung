@@ -411,6 +411,178 @@ export type Asset = {
   updated_at: string;
 };
 
+// ── Akquise-Pipeline (Welle 9, Migration akquise_pipeline) ─────────
+// Stages und Rechenlogik: src/lib/akquise.ts
+export type AcqCompanyKind = 'vermittler' | 'endkunde' | 'plattform' | 'wunschkunde' | 'multiplikator';
+export type AcqStage = 'recherche' | 'beworben' | 'rueckmeldung' | 'gespraech' | 'endkunde' | 'angebot' | 'gewonnen' | 'verloren' | 'pausiert';
+export type AcqOpportunityKind = 'projekt' | 'festanstellung' | 'initiativ' | 'produkt';
+export type AcqSource = 'vermittler' | 'freelancermap' | 'linkedin' | 'empfehlung' | 'ausschreibung' | 'initiativ' | 'sonstige';
+export type AcqActivityKind = 'bewerbung' | 'followup' | 'antwort' | 'gespraech' | 'interview' | 'angebot' | 'absage' | 'zusage' | 'notiz' | 'linkedin';
+/** Verweis auf eine lokale Datei in „Claude outputs“ (kein Upload) */
+export type AcqDocument = { path: string; type: string; label?: string };
+
+export type AcqCompany = {
+  id: string;
+  client_id: string;
+  name: string;
+  kind: AcqCompanyKind;
+  website: string | null;
+  linkedin_url: string | null;
+  city: string | null;
+  country: string;
+  industry: string | null;
+  icp_fit: number | null;
+  rating: number | null;
+  tags: string[];
+  notes: string | null;
+  customer_id: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AcqPerson = {
+  id: string;
+  client_id: string;
+  company_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  role: string | null;
+  email: string | null;
+  phone: string | null;
+  linkedin_url: string | null;
+  notes: string | null;
+  is_primary: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AcqOpportunity = {
+  id: string;
+  client_id: string;
+  title: string;
+  company_id: string | null;
+  end_company_id: string | null;
+  end_customer_confidential: boolean;
+  contact_id: string | null;
+  kind: AcqOpportunityKind;
+  source: AcqSource;
+  reference: string | null;
+  stage: AcqStage;
+  probability: number | null;
+  rate_per_day: number | null;
+  salary_year: number | null;
+  hours_per_week: number | null;
+  start_on: string | null;
+  duration_months: number | null;
+  location: string | null;
+  remote_share: number | null;
+  applied_on: string | null;
+  next_action: string | null;
+  /** Pflicht, solange die Opportunity offen oder pausiert ist (CHECK) */
+  next_action_on: string | null;
+  /** Pflicht bei Stage „verloren“ (CHECK) */
+  lost_reason: string | null;
+  closed_on: string | null;
+  customer_id: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AcqActivity = {
+  id: string;
+  client_id: string;
+  opportunity_id: string;
+  kind: AcqActivityKind;
+  occurred_at: string;
+  direction: 'aus' | 'ein' | null;
+  summary: string | null;
+  body: string | null;
+  temperature: 'heiss' | 'warm' | 'kalt' | null;
+  objections: string[] | null;
+  budget_note: string | null;
+  next_step: string | null;
+  quality: number | null;
+  documents: AcqDocument[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type AcqCompanyInsert = {
+  client_id: string;
+  name: string;
+  kind?: AcqCompanyKind;
+  website?: string | null;
+  linkedin_url?: string | null;
+  city?: string | null;
+  country?: string;
+  industry?: string | null;
+  icp_fit?: number | null;
+  rating?: number | null;
+  tags?: string[];
+  notes?: string | null;
+  customer_id?: string | null;
+  is_active?: boolean;
+};
+
+export type AcqPersonInsert = {
+  client_id: string;
+  company_id: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  role?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  linkedin_url?: string | null;
+  notes?: string | null;
+  is_primary?: boolean;
+};
+
+export type AcqOpportunityInsert = {
+  client_id: string;
+  title: string;
+  company_id?: string | null;
+  end_company_id?: string | null;
+  end_customer_confidential?: boolean;
+  contact_id?: string | null;
+  kind?: AcqOpportunityKind;
+  source?: AcqSource;
+  reference?: string | null;
+  stage?: AcqStage;
+  probability?: number | null;
+  rate_per_day?: number | null;
+  salary_year?: number | null;
+  hours_per_week?: number | null;
+  start_on?: string | null;
+  duration_months?: number | null;
+  location?: string | null;
+  remote_share?: number | null;
+  applied_on?: string | null;
+  next_action?: string | null;
+  next_action_on?: string | null;
+  lost_reason?: string | null;
+  closed_on?: string | null;
+  customer_id?: string | null;
+  notes?: string | null;
+};
+
+export type AcqActivityInsert = {
+  client_id: string;
+  opportunity_id: string;
+  kind: AcqActivityKind;
+  occurred_at?: string;
+  direction?: 'aus' | 'ein' | null;
+  summary?: string | null;
+  body?: string | null;
+  temperature?: 'heiss' | 'warm' | 'kalt' | null;
+  objections?: string[] | null;
+  budget_note?: string | null;
+  next_step?: string | null;
+  quality?: number | null;
+  documents?: AcqDocument[];
+};
+
 export type BankLearningRule = {
   id: string;
   client_id: string;
@@ -867,6 +1039,30 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<Asset>;
+        Relationships: [];
+      };
+      acq_companies: {
+        Row: AcqCompany;
+        Insert: AcqCompanyInsert;
+        Update: Partial<AcqCompany>;
+        Relationships: [];
+      };
+      acq_people: {
+        Row: AcqPerson;
+        Insert: AcqPersonInsert;
+        Update: Partial<AcqPerson>;
+        Relationships: [];
+      };
+      acq_opportunities: {
+        Row: AcqOpportunity;
+        Insert: AcqOpportunityInsert;
+        Update: Partial<AcqOpportunity>;
+        Relationships: [];
+      };
+      acq_activities: {
+        Row: AcqActivity;
+        Insert: AcqActivityInsert;
+        Update: Partial<AcqActivity>;
         Relationships: [];
       };
       bank_learning_rules: {

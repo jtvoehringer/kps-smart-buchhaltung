@@ -7,7 +7,7 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, CheckCircle2, FileText, Landmark, Plus, Receipt } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, FileText, Landmark, Plus, Receipt, Target } from 'lucide-react';
 import { Badge, Button, Card, CardHeader, Tile } from '@/components/ui';
 import { formatCurrency } from '@/lib/utils';
 import { offeneUvaPerioden, type EingereichtePeriode } from '@/lib/steuer/uva-faelligkeit';
@@ -43,9 +43,18 @@ type OpenIncoming = {
   amount_gross: number;
 };
 
+/** Akquise (Welle 9a): offene Opportunity mit nächster Aktion bis heute */
+type AkquiseFaellig = {
+  id: string;
+  title: string;
+  next_action: string | null;
+  next_action_on: string;
+  firma: string | null;
+};
+
 type Aufgabe = {
   key: string;
-  icon: 'ueberfaellig' | 'uva' | 'entwurf' | 'faellig';
+  icon: 'ueberfaellig' | 'uva' | 'entwurf' | 'faellig' | 'akquise';
   text: string;
   detail?: string;
   href: string;
@@ -63,6 +72,7 @@ export default function DashboardClient({
   vatPeriod,
   taxReturns,
   betriebsbeginn,
+  akquiseFaellig,
 }: {
   companyName: string;
   monatssummen: Monatssumme[];
@@ -73,6 +83,7 @@ export default function DashboardClient({
   vatPeriod: 'monthly' | 'quarterly';
   taxReturns: EingereichtePeriode[];
   betriebsbeginn: string | null;
+  akquiseFaellig: AkquiseFaellig[];
 }) {
   const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
   const jahr  = today.getFullYear();
@@ -224,15 +235,32 @@ export default function DashboardClient({
       });
     }
 
+    if (akquiseFaellig.length > 0) {
+      const heuteIso = today.toLocaleDateString('en-CA');
+      const ueberfaellig = akquiseFaellig.filter(o => o.next_action_on < heuteIso).length;
+      liste.push({
+        key: 'akquise',
+        icon: 'akquise',
+        text: akquiseFaellig.length === 1
+          ? '1 Akquise-Aktion ist fällig'
+          : `${akquiseFaellig.length} Akquise-Aktionen sind fällig`,
+        detail: ueberfaellig > 0 ? `davon ${ueberfaellig} überfällig` : 'heute',
+        href: '/akquise',
+        cta: 'Pipeline',
+        dringend: ueberfaellig > 0,
+      });
+    }
+
     // Dringendes zuerst, Reihenfolge innerhalb der Gruppen bleibt stabil
     return [...liste.filter(a => a.dringend), ...liste.filter(a => !a.dringend)];
-  }, [overdueRows, vatLiable, vatPeriod, taxReturns, betriebsbeginn, draftCount, baldFaellig, today]);
+  }, [overdueRows, vatLiable, vatPeriod, taxReturns, betriebsbeginn, draftCount, baldFaellig, akquiseFaellig, today]);
 
   const AUFGABEN_ICONS = {
     ueberfaellig: <AlertTriangle size={18} strokeWidth={2} />,
     uva:          <Landmark size={18} strokeWidth={2} />,
     entwurf:      <FileText size={18} strokeWidth={2} />,
     faellig:      <Receipt size={18} strokeWidth={2} />,
+    akquise:      <Target size={18} strokeWidth={2} />,
   } as const;
 
   const zeigeUeberfaellige = overdueRows.slice(0, 6);
@@ -377,6 +405,38 @@ export default function DashboardClient({
           )}
         </Card>
       </div>
+
+      {/* Akquise – fällige nächste Aktionen (Welle 9a) */}
+      {akquiseFaellig.length > 0 && (
+        <Card padded={false} className="mt-4">
+          <CardHeader title="Akquise – fällig" border>
+            <Link href="/akquise" className="text-[12.5px] text-navy font-medium hover:underline underline-offset-2">
+              Zur Pipeline →
+            </Link>
+          </CardHeader>
+          <ul>
+            {akquiseFaellig.slice(0, 5).map(o => {
+              const tage = Math.round((today.getTime() - new Date(o.next_action_on + 'T00:00:00').getTime()) / 86400000);
+              return (
+                <li key={o.id} className="flex items-center gap-3 px-5 py-3 border-b border-line last:border-b-0">
+                  <span className="flex-1 min-w-0">
+                    <Link href={`/akquise/${o.id}`} className="block text-sm text-ink truncate hover:underline">{o.title}</Link>
+                    <span className="block text-[12.5px] text-ink-3 truncate">{[o.firma, o.next_action].filter(Boolean).join(' · ')}</span>
+                  </span>
+                  <span className={`text-[12.5px] shrink-0 ${tage > 0 ? 'text-crit' : 'text-warn'}`}>
+                    {tage > 0 ? `${tage} ${tage === 1 ? 'Tag' : 'Tage'} überfällig` : 'heute'}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          {akquiseFaellig.length > 5 && (
+            <div className="px-5 py-3 border-t border-line text-center">
+              <Link href="/akquise" className="text-[12.5px] text-navy hover:underline">+ {akquiseFaellig.length - 5} weitere in der Pipeline</Link>
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Auswertung */}
       <div className="text-right mt-4">

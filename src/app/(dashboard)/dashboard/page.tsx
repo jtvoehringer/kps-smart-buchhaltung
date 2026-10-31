@@ -49,6 +49,8 @@ export default async function DashboardPage() {
     { data: openIncoming },
     { count: draftCount },
     { data: taxReturns },
+    { data: akquise },
+    { data: akquiseFirmen },
   ] = await Promise.all([
     supabase.rpc('monatssummen', { p_client_id: client.id }),
     supabase
@@ -71,7 +73,17 @@ export default async function DashboardPage() {
       .select('period_year, period_month, status')
       .eq('client_id', client.id)
       .gte('period_year', jahr - 1),
+    // Welle 9a: fällige nächste Aktionen der Akquise (überfällig + heute)
+    supabase
+      .from('acq_opportunities')
+      .select('id, title, next_action, next_action_on, company_id')
+      .eq('client_id', client.id)
+      .not('stage', 'in', '(gewonnen,verloren)')
+      .lte('next_action_on', new Date().toLocaleDateString('en-CA'))
+      .order('next_action_on', { ascending: true }),
+    supabase.from('acq_companies').select('id, name').eq('client_id', client.id),
   ]);
+  const firmenName = new Map((akquiseFirmen ?? []).map(f => [f.id, f.name]));
 
   return (
     <DashboardClient
@@ -84,6 +96,10 @@ export default async function DashboardPage() {
       vatPeriod={(client.vat_period ?? 'quarterly') === 'monthly' ? 'monthly' : 'quarterly'}
       betriebsbeginn={client.betriebsbeginn ?? null}
       taxReturns={taxReturns ?? []}
+      akquiseFaellig={(akquise ?? []).map(o => ({
+        id: o.id, title: o.title, next_action: o.next_action, next_action_on: o.next_action_on ?? '',
+        firma: o.company_id ? firmenName.get(o.company_id) ?? null : null,
+      }))}
     />
   );
 }

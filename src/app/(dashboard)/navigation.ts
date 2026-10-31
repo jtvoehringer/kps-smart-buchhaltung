@@ -4,13 +4,14 @@ import {
   ClipboardList, Wallet, Landmark, FileText, User, Truck,
   LayoutDashboard, Settings, Upload, BarChart3, Boxes,
   CreditCard, CalendarCheck, CalendarRange, Tags, Repeat, ScanLine, Percent,
+  SquareKanban, Building2, History, Gauge,
   type LucideIcon,
 } from 'lucide-react';
 
 export type NavItem  = { href: string; label: string; icon: LucideIcon; /** Synonyme für die Befehlspalette */ keywords?: string };
 export type NavGroup = { key: string; label: string; items: NavItem[] };
 
-// Fünf Gruppen; jeder Eintrag ist ein vollwertiger Menüpunkt mit Icon –
+// Sechs Gruppen (Akquise seit Welle 9); jeder Eintrag ist ein vollwertiger Menüpunkt mit Icon –
 // auch die Monatsübersicht (Wunsch vom 12.08.2026).
 const GRUPPEN: NavGroup[] = [
   {
@@ -40,6 +41,17 @@ const GRUPPEN: NavGroup[] = [
       { href: '/kunden',        label: 'Kunden',        icon: User, keywords: 'debitoren' },
       { href: '/lieferanten',   label: 'Lieferanten',   icon: Truck, keywords: 'kreditoren' },
       { href: '/offene-posten', label: 'Offene Posten', icon: Wallet, keywords: 'überfällig eingangsrechnung zahlung mahnung' },
+    ],
+  },
+  {
+    // Welle 9: Akquise-Pipeline – gewonnene Opportunities werden Kunden
+    key: 'akquise',
+    label: 'Akquise',
+    items: [
+      { href: '/akquise',              label: 'Pipeline',            icon: SquareKanban, keywords: 'pipeline bewerbung vermittler lead opportunity akquise kanban follow-up' },
+      { href: '/akquise/firmen',       label: 'Firmen & Vermittler', icon: Building2,    keywords: 'akquise vermittler endkunde ansprechperson kontakt' },
+      { href: '/akquise/aktivitaeten', label: 'Aktivitäten',         icon: History,      keywords: 'akquise journal gespräch follow-up touchpoint' },
+      { href: '/akquise/kennzahlen',   label: 'Kennzahlen',          icon: Gauge,        keywords: 'akquise antwortquote funnel conversion kpi' },
     ],
   },
   {
@@ -80,5 +92,7 @@ export function buildNav(): NavGroup[] {
 export function isActivePath(pathname: string, href: string) {
   if (href === '/dashboard') return pathname === '/dashboard';
   if (href === '/buchungen') return pathname === '/buchungen' || /^\/buchungen\/(neu|[^/]+\/bearbeiten)/.test(pathname);
+  // Pipeline umfasst Neuanlage und Detail, nicht die übrigen Akquise-Seiten
+  if (href === '/akquise') return pathname === '/akquise' || /^\/akquise\/(neu|[0-9a-f-]{36})(\/|$)/.test(pathname);
   return pathname.startsWith(href);
 }

@@ -11,7 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeftRight, ClipboardList, FileText, LogOut, Plus, Receipt, Repeat,
-  ScanLine, Search, Truck, User, Wallet, CreditCard, Boxes,
+  ScanLine, Search, Truck, User, Wallet, CreditCard, Boxes, Target, MessageSquarePlus,
   type LucideIcon,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -80,6 +80,8 @@ export default function CommandPalette({ clientId }: { clientId: string | null }
       { id: 'a:umbuchung', gruppe: 'Aktionen', label: 'Umbuchung zwischen Konten', icon: ArrowLeftRight, href: '/konten/umbuchung',     keywords: 'transfer' },
       { id: 'a:offen',     gruppe: 'Aktionen', label: 'Offene Posten prüfen',      icon: Wallet,         href: '/offene-posten',        keywords: 'überfällig zahlung' },
       { id: 'a:anlage',    gruppe: 'Aktionen', label: 'Anlage erfassen',           icon: Boxes,          href: '/anlagen/neu',          keywords: 'neu anlagevermögen afa abschreibung' },
+      { id: 'a:opp',       gruppe: 'Aktionen', label: 'Opportunity anlegen',       icon: Target,         href: '/akquise/neu',          keywords: 'neu akquise bewerbung pipeline vermittler projekt lead' },
+      { id: 'a:gespraech', gruppe: 'Aktionen', label: 'Gespräch notieren',         icon: MessageSquarePlus, href: '/akquise?aktion=gespraech', keywords: 'akquise telefonat interview notiz vermittler' },
     ];
     aktionen.push({
       id: 'a:logout', gruppe: 'Aktionen', label: 'Abmelden', icon: LogOut, keywords: 'logout ausloggen',
