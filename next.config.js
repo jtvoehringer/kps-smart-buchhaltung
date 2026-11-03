@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- CommonJS-Datei, require ist hier richtig
 const pkg = require('./package.json');
 
 const nextConfig = {

@@ -311,7 +311,7 @@ export default function RechnungForm({
               className={inputCls} />
             <p className="text-xs text-ink-3 mt-1">
               Wird beim Kundenwechsel aus dem Kundenstamm übernommen und erscheint auf der
-              Rechnung als „z.H."-Zeile. Änderungen hier gelten nur für diese Rechnung.
+              Rechnung als „z.H.“-Zeile. Änderungen hier gelten nur für diese Rechnung.
             </p>
           </div>
           <div>

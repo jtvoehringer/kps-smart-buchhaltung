@@ -136,6 +136,7 @@ export default function RechnungDetailClient({
           throw new Error(`${file.name}: Maximal 10 MB je Datei.`);
         }
         const sauber = file.name.replace(/[^\w.\-()äöüÄÖÜß ]+/g, '_');
+        // eslint-disable-next-line react-hooks/purity -- läuft im Upload-Handler, nicht beim Rendern
         const pfad = `${invoice.client_id}/rechnungsanhaenge/${invoice.id}/${Date.now()}_${sauber}`;
         const { error: upErr } = await supabase.storage
           .from('belege')

@@ -182,8 +182,9 @@ export default function PipelineClient({
       <div className={kanbanKlasse}>
         <div className="flex gap-3 overflow-x-auto pb-3">
           {STAGES.filter(s => s.offen).map(s => {
+            // Neueste Bewerbung oben (Wunsch 03.11.2026); ohne Datum ans Ende
             const karten = offen.filter(o => o.stage === s.key)
-              .sort((a, b) => (a.next_action_on ?? '9').localeCompare(b.next_action_on ?? '9'));
+              .sort((a, b) => (b.applied_on ?? '').localeCompare(a.applied_on ?? ''));
             return (
               <section
                 key={s.key}

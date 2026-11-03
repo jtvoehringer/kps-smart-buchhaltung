@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { VAT_RATES, calculateUVA, type UVATransaction } from '@/lib/utils';
@@ -41,6 +41,8 @@ type SummenZeile = {
   steuer: number;
   anzahl: number;
 };
+
+const KEINE_SUMMEN: SummenZeile[] = [];
 
 const MONATE = ['Jän', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 
@@ -90,29 +92,33 @@ export default function UVAClient({ clientId, companyName, vatLiable, vatPeriod,
 
   // Summen kommen aus der Datenbank, nicht mehr aus einer im Browser
   // gefilterten Gesamtliste. Damit gibt es keine stille Obergrenze.
-  const [summen, setSummen] = useState<SummenZeile[]>([]);
-  const [ladeSummen, setLadeSummen] = useState(true);
-  const [ladeFehler, setLadeFehler] = useState('');
+  // „Lädt“ ergibt sich daraus, ob das letzte Ergebnis zum gewählten
+  // Zeitraum gehört – kein eigener Ladezustand, der im Effekt gesetzt
+  // werden müsste.
+  const zeitraum = `${dateFrom}|${dateTo}`;
+  const [geladen, setGeladen] = useState<{ zeitraum: string; summen: SummenZeile[]; fehler: string } | null>(null);
+  const summen = geladen?.summen ?? KEINE_SUMMEN;
+  const ladeSummen = geladen?.zeitraum !== zeitraum;
+  const ladeFehler = geladen?.fehler ?? '';
 
-  const summenLaden = useCallback(async () => {
-    setLadeSummen(true);
-    setLadeFehler('');
-    const { data, error: err } = await supabase.rpc('uva_summe', {
+  useEffect(() => {
+    // Antwort eines inzwischen verlassenen Zeitraums verwerfen
+    let veraltet = false;
+    void supabase.rpc('uva_summe', {
       p_client_id: clientId,
       p_von: dateFrom,
       p_bis: dateTo,
+    }).then(({ data, error: err }) => {
+      if (veraltet) return;
+      if (err) {
+        console.error('uva_summe fehlgeschlagen:', err);
+        setGeladen({ zeitraum: `${dateFrom}|${dateTo}`, summen: [], fehler: `Die Summen konnten nicht geladen werden: ${err.message}` });
+      } else {
+        setGeladen({ zeitraum: `${dateFrom}|${dateTo}`, summen: (data ?? []) as SummenZeile[], fehler: '' });
+      }
     });
-    if (err) {
-      console.error('uva_summe fehlgeschlagen:', err);
-      setLadeFehler(`Die Summen konnten nicht geladen werden: ${err.message}`);
-      setSummen([]);
-    } else {
-      setSummen((data ?? []) as SummenZeile[]);
-    }
-    setLadeSummen(false);
+    return () => { veraltet = true; };
   }, [supabase, clientId, dateFrom, dateTo]);
-
-  useEffect(() => { void summenLaden(); }, [summenLaden]);
 
   // Die Summenzeilen in dieselbe Form bringen, die calculateUVA erwartet.
   // So bleibt die Kennzahlenzuordnung an einer Stelle und ist getestet.

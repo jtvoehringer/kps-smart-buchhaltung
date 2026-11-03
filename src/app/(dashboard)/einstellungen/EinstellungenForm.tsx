@@ -708,7 +708,7 @@ export default function EinstellungenForm({
         {!uidNumber && (
           <p className="text-xs text-amber-600 mt-2">
             Ihre UID fehlt noch. Sie ist auf Rechnungen ab 10.000 € brutto Pflichtangabe
-            (§ 11 Abs. 1 Z 2 UStG) und wird oben unter „Stammdaten" hinterlegt.
+            (§ 11 Abs. 1 Z 2 UStG) und wird oben unter „Stammdaten“ hinterlegt.
           </p>
         )}
       </div>

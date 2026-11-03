@@ -31,7 +31,7 @@ export default function DruckButtons({ invoiceId }: { invoiceId: string }) {
         Schließen
       </button>
       <span style={{ fontSize: '11px', color: '#9ca3af', marginLeft: '8px' }}>
-        Im Druckdialog „Als PDF speichern" wählen
+        Im Druckdialog „Als PDF speichern“ wählen
       </span>
     </div>
   );

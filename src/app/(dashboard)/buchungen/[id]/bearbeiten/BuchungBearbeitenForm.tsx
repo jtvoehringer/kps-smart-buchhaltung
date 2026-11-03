@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Receipt, Calculator, ArrowUpCircle, ArrowDownCircle, BatteryCharging, Check, X } from 'lucide-react';
@@ -81,33 +81,53 @@ export default function BuchungBearbeitenForm({
 
   const filteredCategories = categories.filter(c => c.type === type);
   const aktuellesKennzeichen = kennzeichenInfo(ustKennzeichen, type);
-  // Beim Wechsel zwischen Einnahme und Ausgabe passen die Kennzeichen
-  // nicht mehr – dann auf den Normalfall zurückfallen.
-  useEffect(() => {
-    if (!kennzeichenInfo(ustKennzeichen, type)) setUstKennzeichen('normal');
-  }, [type, ustKennzeichen]);
+  const istReiseKategorie = (id: string) => categories.find(c => c.id === id)?.name === REISEKOSTEN_KATEGORIE_NAME;
   const isBewirtung = categories.find(c => c.id === categoryId)?.name === BEWIRTUNG_KATEGORIE_NAME;
-  const isReisekosten = categories.find(c => c.id === categoryId)?.name === REISEKOSTEN_KATEGORIE_NAME;
+  const isReisekosten = istReiseKategorie(categoryId);
   const saetze = reiseSaetzeFuer(bookingDate);
   const kmBetrag      = reiseTyp === 'kilometergeld' ? berechneKilometergeld(parseFloat(reiseKm), bookingDate) : 0;
   const diaetenBetrag = reiseTyp === 'diaeten'       ? berechneDiaeten(parseFloat(reiseStunden), bookingDate)  : 0;
 
-  useEffect(() => {
-    const cat = categories.find(c => c.id === categoryId);
-    if (cat) setVatRate(cat.vat_rate);
-  }, [categoryId, categories]);
-
-  useEffect(() => {
-    if (!isReisekosten || !reiseTyp) return;
-    setVatRate(vorgeschlagenerSteuersatz(reiseTyp));
-    if (reiseTyp === 'kilometergeld') {
-      setAmount(kmBetrag > 0 ? kmBetrag.toFixed(2) : '');
-    } else if (reiseTyp === 'diaeten') {
-      setAmount(diaetenBetrag > 0 ? diaetenBetrag.toFixed(2) : '');
+  // Die Vorbelegungen laufen in den Handlern der Felder, die sie
+  // auslösen – nicht in useEffect. Damit bleiben beim Öffnen die
+  // gespeicherten Werte stehen (der Effekt hat beim ersten Rendern den
+  // Steuersatz still auf den der Kategorie zurückgesetzt).
+  function reiseVorbelegen(n: { reisekosten: boolean; typ: typeof reiseTyp; km: string; stunden: string; datum: string }) {
+    if (!n.reisekosten || !n.typ) return;
+    setVatRate(vorgeschlagenerSteuersatz(n.typ));
+    if (n.typ === 'kilometergeld') {
+      const b = berechneKilometergeld(parseFloat(n.km), n.datum);
+      setAmount(b > 0 ? b.toFixed(2) : '');
+    } else if (n.typ === 'diaeten') {
+      const b = berechneDiaeten(parseFloat(n.stunden), n.datum);
+      setAmount(b > 0 ? b.toFixed(2) : '');
     }
-  }, [isReisekosten, reiseTyp, kmBetrag, diaetenBetrag]);
+  }
+  const reiseJetzt = { reisekosten: isReisekosten, typ: reiseTyp, km: reiseKm, stunden: reiseStunden, datum: bookingDate };
 
-  useEffect(() => { if (type === 'income') setIsEAuto(false); }, [type]);
+  function kategorieWaehlen(id: string) {
+    setCategoryId(id);
+    const cat = categories.find(c => c.id === id);
+    if (cat) setVatRate(cat.vat_rate);
+    reiseVorbelegen({ ...reiseJetzt, reisekosten: istReiseKategorie(id) });
+  }
+
+  function typWechseln(t: 'income' | 'expense') {
+    setType(t);
+    // Kennzeichen der anderen Buchungsart passen nicht mehr – dann auf
+    // den Normalfall zurückfallen.
+    if (!kennzeichenInfo(ustKennzeichen, t)) setUstKennzeichen('normal');
+    if (t === 'income') setIsEAuto(false);
+  }
+
+  function datumSetzen(v: string) {
+    setBookingDate(v);
+    // Nur Kilometergeld und Diäten hängen am Datum (Sätze je Jahr)
+    if (reiseTyp === 'kilometergeld' || reiseTyp === 'diaeten') reiseVorbelegen({ ...reiseJetzt, datum: v });
+  }
+  function reiseTypSetzen(v: typeof reiseTyp) { setReiseTyp(v); reiseVorbelegen({ ...reiseJetzt, typ: v }); }
+  function reiseKmSetzen(v: string) { setReiseKm(v); reiseVorbelegen({ ...reiseJetzt, km: v }); }
+  function reiseStundenSetzen(v: string) { setReiseStunden(v); reiseVorbelegen({ ...reiseJetzt, stunden: v }); }
 
   const inputNum = parseFloat(amount) || 0;
   const netNum   = isBrutto ? inputNum / (1 + vatRate / 100) : inputNum;
@@ -198,7 +218,7 @@ export default function BuchungBearbeitenForm({
             <button
               key={t}
               type="button"
-              onClick={() => setType(t)}
+              onClick={() => typWechseln(t)}
               aria-pressed={type === t}
               className={`flex items-center justify-center gap-1.5 flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${
                 type === t
@@ -216,14 +236,14 @@ export default function BuchungBearbeitenForm({
       {/* Datum */}
       <div>
         <label htmlFor="buchungBearbeitenForm-0" className="block text-sm font-medium text-ink mb-1">Buchungsdatum</label>
-        <input id="buchungBearbeitenForm-0" type="date" required value={bookingDate} onChange={e => setBookingDate(e.target.value)}
+        <input id="buchungBearbeitenForm-0" type="date" required value={bookingDate} onChange={e => datumSetzen(e.target.value)}
           className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30" />
       </div>
 
       {/* Kategorie */}
       <div>
         <label htmlFor="buchungBearbeitenForm-1" className="block text-sm font-medium text-ink mb-1">Kategorie</label>
-        <select id="buchungBearbeitenForm-1" required value={categoryId} onChange={e => setCategoryId(e.target.value)}
+        <select id="buchungBearbeitenForm-1" required value={categoryId} onChange={e => kategorieWaehlen(e.target.value)}
           className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30">
           {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
@@ -382,7 +402,7 @@ export default function BuchungBearbeitenForm({
           </p>
           <div>
             <label htmlFor="buchungBearbeitenForm-6" className="block text-xs font-medium text-amber-900 mb-1">Art der Reisekosten *</label>
-            <select id="buchungBearbeitenForm-6" required value={reiseTyp} onChange={e => setReiseTyp(e.target.value as typeof reiseTyp)}
+            <select id="buchungBearbeitenForm-6" required value={reiseTyp} onChange={e => reiseTypSetzen(e.target.value as typeof reiseTyp)}
               className="w-full border border-amber-300 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400 bg-white">
               <option value="">Bitte wählen…</option>
               <option value="kilometergeld">Kilometergeld</option>
@@ -423,7 +443,7 @@ export default function BuchungBearbeitenForm({
             <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
               <label htmlFor="buchungBearbeitenForm-11" className="block text-xs font-medium text-amber-900 mb-1">Gefahrene Kilometer *</label>
               <input id="buchungBearbeitenForm-11" type="number" required min="0.1" step="0.1" placeholder="z.B. 120" value={reiseKm}
-                onChange={e => setReiseKm(e.target.value)}
+                onChange={e => reiseKmSetzen(e.target.value)}
                 className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400" />
               <p className="text-xs text-ink-2">
                 Amtliches Kilometergeld PKW: {eur(saetze.kmSatz)}/km · Betrag: <strong>{eur(kmBetrag)}</strong> · keine Vorsteuer (Pauschale)
@@ -435,7 +455,7 @@ export default function BuchungBearbeitenForm({
             <div className="bg-white rounded-lg border border-amber-300 p-3 space-y-2">
               <label htmlFor="buchungBearbeitenForm-12" className="block text-xs font-medium text-amber-900 mb-1">Reisedauer in Stunden *</label>
               <input id="buchungBearbeitenForm-12" type="number" required min="0.5" step="0.5" placeholder="z.B. 9,5" value={reiseStunden}
-                onChange={e => setReiseStunden(e.target.value)}
+                onChange={e => reiseStundenSetzen(e.target.value)}
                 className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-400" />
               <p className="text-xs text-ink-2">
                 Bis {saetze.taggeldMindestStunden} Std. kein Taggeld · darüber {eur(saetze.taggeld / 12)} je angefangener Stunde ·

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { alsDatum } from '@/lib/fehler';
@@ -35,11 +35,14 @@ export default function DauerauftragForm({
     return alsDatum(d);
   })();
 
+  // Vorbelegung mit der ersten Ausgaben-Kategorie samt ihrem Steuersatz
+  const ersteAusgabe = categories.find(c => c.type === 'expense');
+
   const [type, setType]             = useState<'income' | 'expense'>('expense');
   const [name, setName]             = useState('');
-  const [categoryId, setCategoryId] = useState('');
+  const [categoryId, setCategoryId] = useState(ersteAusgabe?.id ?? '');
   const [amount, setAmount]         = useState('');
-  const [vatRate, setVatRate]       = useState(20);
+  const [vatRate, setVatRate]       = useState(ersteAusgabe?.vat_rate ?? 20);
   const [interval, setInterval]     = useState('monthly');
   const [nextRunDate, setNextRunDate] = useState(firstOfNextMonth);
   const [loading, setLoading]       = useState(false);
@@ -47,18 +50,20 @@ export default function DauerauftragForm({
 
   const filteredCategories = categories.filter(c => c.type === type);
 
-  useEffect(() => {
-    const first = categories.find(c => c.type === type);
-    if (first) {
-      setCategoryId(first.id);
-      setVatRate(first.vat_rate);
-    }
-  }, [type, categories]);
-
-  useEffect(() => {
-    const cat = categories.find(c => c.id === categoryId);
+  // Kategorie bestimmt den Steuersatz; beim Wechsel der Buchungsart
+  // springt die Auswahl auf die erste passende Kategorie.
+  function kategorieWaehlen(id: string) {
+    setCategoryId(id);
+    const cat = categories.find(c => c.id === id);
     if (cat) setVatRate(cat.vat_rate);
-  }, [categoryId, categories]);
+  }
+
+  function typWechseln(t: 'income' | 'expense') {
+    if (t === type) return;
+    setType(t);
+    const first = categories.find(c => c.type === t);
+    if (first) kategorieWaehlen(first.id);
+  }
 
   const inputNum = parseFloat(amount) || 0;
   const netNum   = isBrutto ? inputNum / (1 + vatRate / 100) : inputNum;
@@ -134,7 +139,7 @@ export default function DauerauftragForm({
         <div role="group" aria-labelledby="gruppe-buchungsart" className="flex gap-3">
           <button
             type="button"
-            onClick={() => setType('income')}
+            onClick={() => typWechseln('income')}
             className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${
               type === 'income'
                 ? 'bg-income text-white border-income'
@@ -145,7 +150,7 @@ export default function DauerauftragForm({
           </button>
           <button
             type="button"
-            onClick={() => setType('expense')}
+            onClick={() => typWechseln('expense')}
             className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border-2 transition-colors ${
               type === 'expense'
                 ? 'bg-expense text-white border-expense'
@@ -163,7 +168,7 @@ export default function DauerauftragForm({
         <select id="dauerauftragForm-1"
           required
           value={categoryId}
-          onChange={e => setCategoryId(e.target.value)}
+          onChange={e => kategorieWaehlen(e.target.value)}
           className="w-full border border-line-2 rounded-lg px-4 py-2.5 text-sm focus:outline-hidden focus:border-signal focus:ring-2 focus:ring-signal/30"
         >
           {filteredCategories.map(c => (

@@ -460,7 +460,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
                   )}
                   {r.status === 'processing' && !r.ocr_error && (
                     <p className="text-xs text-ink-3">
-                      Läuft. Bleibt es länger stehen, rechts auf „Erneut versuchen" tippen.
+                      Läuft. Bleibt es länger stehen, rechts auf „Erneut versuchen“ tippen.
                     </p>
                   )}
                 </div>
@@ -845,7 +845,7 @@ export default function BelegeClient({ clientId, initialReceipts, categories }: 
         <p className="font-semibold mb-1">Wie es funktioniert</p>
         <p className="text-xs leading-relaxed opacity-80">
           Foto oder Scan hochladen (JPG, PNG, PDF) → KI erkennt automatisch Datum, Betrag, MwSt-Satz und Lieferant →
-          Daten prüfen und ggf. korrigieren → „Als Buchung übernehmen" erstellt die Buchung und verknüpft den Beleg.
+          Daten prüfen und ggf. korrigieren → „Als Buchung übernehmen“ erstellt die Buchung und verknüpft den Beleg.
           Belege werden verschlüsselt in der Cloud gespeichert.
         </p>
       </div>

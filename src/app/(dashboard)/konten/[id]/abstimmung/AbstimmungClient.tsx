@@ -62,10 +62,11 @@ export default function AbstimmungClient({
     );
     // Der Saldenlauf startet auf dem Kontoauszugsstand, nicht bei null.
     let balance = Number(openingBalance) || 0;
-    const withRunning = asc.map(r => {
+    const withRunning: (typeof asc[number] & { balance: number })[] = [];
+    for (const r of asc) {
       balance += r.type === 'income' ? Number(r.amount_gross) : -Number(r.amount_gross);
-      return { ...r, balance };
-    });
+      withRunning.push({ ...r, balance });
+    }
     return withRunning.reverse();
   }, [rows, openingBalance]);
 

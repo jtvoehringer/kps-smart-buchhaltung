@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 /**
  * Zustand, der vom Server kommt und dort auch aktualisiert werden kann.
@@ -21,10 +21,16 @@ import { useEffect, useState } from 'react';
  */
 export function useServerState<T>(vomServer: T) {
   const [wert, setWert] = useState<T>(vomServer);
+  const [zuletzt, setZuletzt] = useState<T>(vomServer);
 
-  useEffect(() => {
+  // Abgleich direkt beim Rendern statt in useEffect: so zeigt schon der
+  // erste Durchlauf die neuen Daten, ohne zusätzlichen Render mit dem
+  // alten Stand (Muster aus der React-Doku „Storing information from
+  // previous renders“).
+  if (vomServer !== zuletzt) {
+    setZuletzt(vomServer);
     setWert(vomServer);
-  }, [vomServer]);
+  }
 
   return [wert, setWert] as const;
 }

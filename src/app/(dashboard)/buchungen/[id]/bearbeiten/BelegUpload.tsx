@@ -49,6 +49,7 @@ export default function BelegUpload({ transactionId, clientId, initialAttachment
 
     setUploading(true);
     const ext       = file.name.split('.').pop() ?? 'bin';
+    // eslint-disable-next-line react-hooks/purity -- läuft im Upload-Handler, nicht beim Rendern
     const fileName  = `${Date.now()}.${ext}`;
     const storagePath = `${clientId}/${transactionId}/${fileName}`;
 
