@@ -50,11 +50,8 @@ export default function StammdatenForm({
   });
   const [laeuft, setLaeuft] = useState(false);
   const [fehler, setFehler] = useState('');
-  const [gespeichert, setGespeichert] = useState(false);
-
   function set<K extends keyof typeof f>(k: K, v: (typeof f)[K]) {
     setF(x => ({ ...x, [k]: v }));
-    setGespeichert(false);
   }
 
   const fest = f.kind === 'festanstellung';
@@ -87,9 +84,9 @@ export default function StammdatenForm({
       next_action_on: f.next_action_on || null,
       notes: f.notes.trim() || null,
     }).eq('id', opp.id);
-    setLaeuft(false);
-    if (error) { setFehler(error.message); return; }
-    setGespeichert(true);
+    if (error) { setFehler(error.message); setLaeuft(false); return; }
+    // Wunsch 03.11.2026: nach dem Speichern zurück in die Pipeline
+    router.push('/akquise');
     router.refresh();
   }
 
@@ -236,9 +233,7 @@ export default function StammdatenForm({
       {fehler && <p className="text-crit text-sm bg-crit-bg px-3 py-2 rounded-lg">{fehler}</p>}
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" disabled={laeuft}>{laeuft ? 'Speichern …' : 'Änderungen speichern'}</Button>
-        {gespeichert && <span className="text-[12.5px] text-good">Gespeichert.</span>}
-        <Button variant="danger" className="ml-auto" onClick={loeschen} disabled={laeuft}>Löschen</Button>
+        <Button type="submit" disabled={laeuft}>{laeuft ? 'Speichern …' : 'Änderungen speichern'}</Button>        <Button variant="danger" className="ml-auto" onClick={loeschen} disabled={laeuft}>Löschen</Button>
       </div>
     </form>
   );
