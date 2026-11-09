@@ -50,6 +50,7 @@ export default function PipelineClient({
   const [firma, setFirma] = useState('');
   const [zeitraum, setZeitraum] = useState('');
   const [abgeschlossene, setAbgeschlossene] = useState(false);
+  const [stageFilter, setStageFilter] = useState<AcqStage | ''>('');
 
   const firmenMap = useMemo(() => new Map(firmen.map(f => [f.id, f])), [firmen]);
   const letzte = useMemo(() => letzteAktivitaet(akt), [akt]);
@@ -127,7 +128,11 @@ export default function PipelineClient({
 
   const kanbanKlasse = ansicht === 'kanban' ? 'block' : ansicht === 'liste' ? 'hidden' : 'hidden md:block';
   const listeKlasse  = ansicht === 'liste'  ? 'block' : ansicht === 'kanban' ? 'hidden' : 'block md:hidden';
-  const listenOpps = abgeschlossene ? gefiltert : gefiltert.filter(o => o.stage !== 'gewonnen' && o.stage !== 'verloren');
+  // Eine gewählte Stage zeigt die Liste immer – auch Gewonnen/Absage
+  // ohne das Häkchen „auch gewonnene/abgesagte“
+  const listenOpps = stageFilter
+    ? gefiltert.filter(o => o.stage === stageFilter)
+    : abgeschlossene ? gefiltert : gefiltert.filter(o => o.stage !== 'gewonnen' && o.stage !== 'verloren');
 
   return (
     <>
@@ -180,7 +185,10 @@ export default function PipelineClient({
 
       {/* Kanban: Spalten = offene Stages */}
       <div className={kanbanKlasse}>
-        <div className="flex gap-3 overflow-x-auto pb-3">
+        {/* Scrollleiste oben statt unter langen Spalten (Wunsch 09.11.2026):
+            Container und Inhalt werden je einmal gespiegelt */}
+        <div className="overflow-x-auto pb-3 -scale-y-100">
+        <div className="flex gap-3 -scale-y-100">
           {STAGES.filter(s => s.offen).map(s => {
             // Neueste Bewerbung oben (Wunsch 03.11.2026); ohne Datum ans Ende
             const karten = offen.filter(o => o.stage === s.key)
@@ -206,6 +214,7 @@ export default function PipelineClient({
             );
           })}
         </div>
+        </div>
         <p className="text-[12px] text-ink-3 mt-1">
           Karten zwischen den Spalten ziehen, um den Stand zu setzen. Gewonnen, Absage und Pausieren im Detail der Opportunity.
           {(geschlossen.gewonnen + geschlossen.verloren + geschlossen.pausiert) > 0 && (
@@ -218,10 +227,18 @@ export default function PipelineClient({
       <div className={listeKlasse}>
         <Card padded={false}>
           <CardHeader title="Opportunities" border>
-            <label className="flex items-center gap-2 text-[12.5px] text-ink-2">
-              <input type="checkbox" checked={abgeschlossene} onChange={e => setAbgeschlossene(e.target.checked)} />
-              auch gewonnene/abgesagte
-            </label>
+            <div className="flex flex-wrap items-center gap-3">
+              <select aria-label="Stage" className={inpSm} value={stageFilter} onChange={e => setStageFilter(e.target.value as AcqStage | '')}>
+                <option value="">Alle Stages</option>
+                {STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
+              </select>
+              {!stageFilter && (
+                <label className="flex items-center gap-2 text-[12.5px] text-ink-2">
+                  <input type="checkbox" checked={abgeschlossene} onChange={e => setAbgeschlossene(e.target.checked)} />
+                  auch gewonnene/abgesagte
+                </label>
+              )}
+            </div>
           </CardHeader>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-sm">
