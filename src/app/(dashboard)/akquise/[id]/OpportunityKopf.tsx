@@ -1,16 +1,17 @@
 'use client';
 
 // Kopf der Opportunity (Welle 9a): klickbarer Stage-Stepper und die
-// Abschlüsse Gewonnen → Kunde anlegen, Verloren (mit Grund), Pausieren
-// (mit Wiedervorlage). Jede Änderung hinterlässt eine Aktivität.
+// Abschlüsse Gewonnen → Kunde anlegen, Absage (vom Kunden oder eigene,
+// mit Grund – letzter Schritt im Stepper), Pausieren (mit Wiedervorlage).
+// Jede Änderung hinterlässt eine Aktivität.
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CirclePause, CircleX, Trophy } from 'lucide-react';
+import { CirclePause, Trophy } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { STAGES, addWerktage, defaultProbability, isoDatum, stageLabel } from '@/lib/akquise';
-import type { AcqCompany, AcqOpportunity, AcqPerson, AcqStage } from '@/lib/supabase/database.types';
+import { ABSAGE_VON_LABEL, STAGES, addWerktage, defaultProbability, isoDatum, stageLabel } from '@/lib/akquise';
+import type { AcqCompany, AcqLostBy, AcqOpportunity, AcqPerson, AcqStage } from '@/lib/supabase/database.types';
 import { Button, Card, Note } from '@/components/ui';
 import { datum, inp, lbl } from '../shared';
 
@@ -32,16 +33,17 @@ export default function OpportunityKopf({
   const [laeuft, setLaeuft] = useState(false);
   const [fehler, setFehler] = useState('');
   const [grund, setGrund] = useState('');
+  const [absageVon, setAbsageVon] = useState<AcqLostBy>('kunde');
   const [wiedervorlage, setWiedervorlage] = useState(addWerktage(heute, 20));
   const [kundeAus, setKundeAus] = useState<'firma' | 'endkunde'>(firma ? 'firma' : 'endkunde');
 
   const rang = STAGES.findIndex(s => s.key === opp.stage);
   const abgeschlossen = opp.stage === 'gewonnen' || opp.stage === 'verloren';
 
-  async function notiz(summary: string, kind: 'notiz' | 'zusage' | 'absage' = 'notiz') {
+  async function notiz(summary: string, kind: 'notiz' | 'zusage' | 'absage' = 'notiz', direction: 'ein' | 'aus' = 'ein') {
     await supabase.from('acq_activities').insert({
       client_id: clientId, opportunity_id: opp.id, kind, summary,
-      direction: kind === 'notiz' ? null : 'ein',
+      direction: kind === 'notiz' ? null : direction,
     });
   }
 
@@ -91,10 +93,10 @@ export default function OpportunityKopf({
     if (!grund.trim()) { setFehler('Bitte einen Grund angeben – er fließt später in die Auswertung.'); return; }
     setLaeuft(true); setFehler('');
     const { error } = await supabase.from('acq_opportunities').update({
-      stage: 'verloren', probability: 0, closed_on: heute, lost_reason: grund.trim(),
+      stage: 'verloren', probability: 0, closed_on: heute, lost_reason: grund.trim(), lost_by: absageVon,
     }).eq('id', opp.id);
     if (error) { setFehler(error.message); setLaeuft(false); return; }
-    await notiz(grund.trim(), 'absage');
+    await notiz(`${ABSAGE_VON_LABEL[absageVon]}: ${grund.trim()}`, 'absage', absageVon === 'eigene' ? 'aus' : 'ein');
     router.refresh();
   }
 
@@ -134,11 +136,27 @@ export default function OpportunityKopf({
             </li>
           );
         })}
+        {/* Absage: letzter Schritt, öffnet die Erfassung (wer, warum) */}
+        <li>
+          <button
+            type="button"
+            disabled={laeuft || opp.stage === 'verloren'}
+            onClick={() => setDialog(dialog === 'verloren' ? null : 'verloren')}
+            aria-current={opp.stage === 'verloren' ? 'step' : undefined}
+            className={`px-3 py-1.5 rounded-md text-[12.5px] font-medium border transition-colors ${
+              opp.stage === 'verloren' ? 'bg-crit border-crit text-white'
+                : dialog === 'verloren' ? 'bg-crit-bg border-crit text-crit'
+                : 'bg-card border-line-2 text-crit hover:bg-crit-bg'
+            }`}
+          >
+            {stageLabel('verloren')}
+          </button>
+        </li>
       </ol>
 
       {abgeschlossen && (
         <Note tone={opp.stage === 'gewonnen' ? 'good' : 'crit'}>
-          {opp.stage === 'gewonnen' ? 'Gewonnen' : 'Verloren'} am {datum(opp.closed_on)}
+          {opp.stage === 'gewonnen' ? 'Gewonnen' : opp.lost_by ? ABSAGE_VON_LABEL[opp.lost_by] : 'Absage'} am {datum(opp.closed_on)}
           {opp.stage === 'verloren' && opp.lost_reason && <> – {opp.lost_reason}</>}
           {opp.customer_id && <> · <Link href={`/kunden/${opp.customer_id}`} className="underline">zum Kunden</Link></>}
           . Ein Klick auf eine Stage oben nimmt die Opportunity wieder auf.
@@ -151,9 +169,6 @@ export default function OpportunityKopf({
       <div className="flex flex-wrap gap-2">
         {opp.stage !== 'gewonnen' && (
           <Button size="sm" variant="secondary" onClick={() => setDialog(dialog === 'gewonnen' ? null : 'gewonnen')}><Trophy size={14} />Gewonnen → Kunde anlegen</Button>
-        )}
-        {opp.stage !== 'verloren' && (
-          <Button size="sm" variant="danger" onClick={() => setDialog(dialog === 'verloren' ? null : 'verloren')}><CircleX size={14} />Verloren</Button>
         )}
         {opp.stage !== 'pausiert' && !abgeschlossen && (
           <Button size="sm" variant="ghost" onClick={() => setDialog(dialog === 'pausiert' ? null : 'pausiert')}><CirclePause size={14} />Pausieren</Button>
@@ -182,11 +197,25 @@ export default function OpportunityKopf({
       )}
       {dialog === 'verloren' && (
         <div className="border border-line rounded-lg p-4 bg-row space-y-3">
+          <fieldset>
+            <legend className={lbl}>Wer hat abgesagt?</legend>
+            <div className="flex flex-wrap gap-4 text-[13px] text-ink">
+              {(['kunde', 'eigene'] as const).map(v => (
+                <label key={v} className="flex items-center gap-1.5 cursor-pointer">
+                  <input type="radio" name="absage-von" value={v} checked={absageVon === v} onChange={() => setAbsageVon(v)} />
+                  {ABSAGE_VON_LABEL[v]}
+                </label>
+              ))}
+            </div>
+          </fieldset>
           <div>
             <label htmlFor="verlust" className={lbl}>Grund <span className="text-crit">*</span></label>
-            <input id="verlust" className={inp} value={grund} onChange={e => setGrund(e.target.value)} placeholder="z. B. Tagessatz zu hoch, Projekt intern besetzt, keine Rückmeldung" autoFocus />
+            <input id="verlust" className={inp} value={grund} onChange={e => setGrund(e.target.value)}
+              placeholder={absageVon === 'eigene'
+                ? 'z. B. Tagessatz zu niedrig, Projekt passt nicht, anderes Projekt zugesagt'
+                : 'z. B. Tagessatz zu hoch, Projekt intern besetzt, keine Rückmeldung'} autoFocus />
           </div>
-          <Button size="sm" variant="danger" disabled={laeuft} onClick={verlieren}>Als verloren markieren</Button>
+          <Button size="sm" variant="danger" disabled={laeuft} onClick={verlieren}>Absage speichern</Button>
         </div>
       )}
       {dialog === 'pausiert' && (

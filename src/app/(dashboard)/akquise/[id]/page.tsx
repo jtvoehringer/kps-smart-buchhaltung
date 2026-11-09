@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 // Opportunity-Detail – /akquise/[id] (Welle 9a): Stage-Stepper, Stammdaten,
-// Timeline der Aktivitäten mit Schnellerfassung, Gewonnen/Verloren/Pausieren.
+// Timeline der Aktivitäten mit Schnellerfassung, Gewonnen/Absage/Pausieren.
 
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';

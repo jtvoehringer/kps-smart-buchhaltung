@@ -416,6 +416,8 @@ export type Asset = {
 export type AcqCompanyKind = 'vermittler' | 'endkunde' | 'plattform' | 'wunschkunde' | 'multiplikator';
 export type AcqStage = 'recherche' | 'beworben' | 'rueckmeldung' | 'gespraech' | 'endkunde' | 'angebot' | 'gewonnen' | 'verloren' | 'pausiert';
 export type AcqOpportunityKind = 'projekt' | 'festanstellung' | 'initiativ' | 'produkt';
+/** Wer abgesagt hat (Migration akquise_absage_von) */
+export type AcqLostBy = 'kunde' | 'eigene';
 export type AcqSource = 'vermittler' | 'freelancermap' | 'linkedin' | 'empfehlung' | 'ausschreibung' | 'initiativ' | 'sonstige';
 export type AcqActivityKind = 'bewerbung' | 'followup' | 'antwort' | 'gespraech' | 'interview' | 'angebot' | 'absage' | 'zusage' | 'notiz' | 'linkedin';
 /** Verweis auf eine lokale Datei in „Claude outputs“ (kein Upload) */
@@ -483,6 +485,8 @@ export type AcqOpportunity = {
   next_action_on: string | null;
   /** Pflicht bei Stage „verloren“ (CHECK) */
   lost_reason: string | null;
+  /** Bei Absage: vom Kunden oder selbst; ältere Einträge leer */
+  lost_by: AcqLostBy | null;
   closed_on: string | null;
   customer_id: string | null;
   notes: string | null;
@@ -562,6 +566,7 @@ export type AcqOpportunityInsert = {
   next_action?: string | null;
   next_action_on?: string | null;
   lost_reason?: string | null;
+  lost_by?: AcqLostBy | null;
   closed_on?: string | null;
   customer_id?: string | null;
   notes?: string | null;

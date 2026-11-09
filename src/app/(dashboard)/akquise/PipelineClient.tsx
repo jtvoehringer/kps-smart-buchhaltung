@@ -134,7 +134,7 @@ export default function PipelineClient({
       {gespraechWaehlen && <GespraechWaehlen opps={opps.filter(o => o.stage !== 'gewonnen' && o.stage !== 'verloren')} firmen={firmenMap} />}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Tile label="Offene Opportunities" value={offen.length} detail={`${geschlossen.pausiert} pausiert · ${geschlossen.gewonnen} gewonnen · ${geschlossen.verloren} verloren`} />
+        <Tile label="Offene Opportunities" value={offen.length} detail={`${geschlossen.pausiert} pausiert · ${geschlossen.gewonnen} gewonnen · ${geschlossen.verloren} Absagen`} />
         <Tile label="Nächste Aktion überfällig" value={ueberfaellig} tone={ueberfaellig > 0 ? 'crit' : 'good'} detail={ueberfaellig > 0 ? 'Follow-ups nachholen' : 'alles im Plan'} />
         <Tile
           label="Antwortquote 30 Tage"
@@ -207,7 +207,7 @@ export default function PipelineClient({
           })}
         </div>
         <p className="text-[12px] text-ink-3 mt-1">
-          Karten zwischen den Spalten ziehen, um den Stand zu setzen. Gewonnen, verloren und pausiert im Detail der Opportunity.
+          Karten zwischen den Spalten ziehen, um den Stand zu setzen. Gewonnen, Absage und Pausieren im Detail der Opportunity.
           {(geschlossen.gewonnen + geschlossen.verloren + geschlossen.pausiert) > 0 && (
             <> Abgeschlossene und pausierte zeigt die <button type="button" className="text-navy hover:underline" onClick={() => { setAnsicht('liste'); setAbgeschlossene(true); }}>Liste</button>.</>
           )}
@@ -220,7 +220,7 @@ export default function PipelineClient({
           <CardHeader title="Opportunities" border>
             <label className="flex items-center gap-2 text-[12.5px] text-ink-2">
               <input type="checkbox" checked={abgeschlossene} onChange={e => setAbgeschlossene(e.target.checked)} />
-              auch gewonnene/verlorene
+              auch gewonnene/abgesagte
             </label>
           </CardHeader>
           <div className="overflow-x-auto">

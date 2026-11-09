@@ -8,7 +8,7 @@
 // acq_stage_nach_aktivitaet() (Migration akquise_pipeline).
 // ============================================================
 import type {
-  AcqActivityKind, AcqOpportunityKind, AcqSource, AcqStage, AcqCompanyKind, AcqDocument,
+  AcqActivityKind, AcqOpportunityKind, AcqSource, AcqStage, AcqCompanyKind, AcqDocument, AcqLostBy,
 } from '@/lib/supabase/database.types';
 
 export type StageInfo = {
@@ -32,7 +32,9 @@ export const STAGES: StageInfo[] = [
   { key: 'endkunde',     label: 'Vorstellung Endkunde',   labelFest: 'Zweitgespräch', wahrscheinlichkeit: 65, aktion: 'Interview vorbereiten',   offen: true, tone: 'navy' },
   { key: 'angebot',      label: 'Angebot / Verhandlung',  wahrscheinlichkeit: 80,   aktion: 'Vertrag, Startdatum klären',                 offen: true,  tone: 'navy' },
   { key: 'gewonnen',     label: 'Gewonnen',               wahrscheinlichkeit: 100,  aktion: 'Als Kunde anlegen',                          offen: false, tone: 'good' },
-  { key: 'verloren',     label: 'Verloren / Absage',      wahrscheinlichkeit: 0,    aktion: 'Grund erfassen, Lerneffekt notieren',        offen: false, tone: 'crit' },
+  // Schlüssel bleibt „verloren“ (DB, Skill); angezeigt wird „Absage“ –
+  // vom Kunden oder selbst, siehe ABSAGE_VON_LABEL
+  { key: 'verloren',     label: 'Absage',                 wahrscheinlichkeit: 0,    aktion: 'Grund erfassen, Lerneffekt notieren',        offen: false, tone: 'crit' },
   { key: 'pausiert',     label: 'Pausiert',               wahrscheinlichkeit: null, aktion: 'Wiedervorlage',                              offen: false, tone: 'gray' },
 ];
 
@@ -47,6 +49,9 @@ export const QUELLE_LABEL: Record<AcqSource, string> = {
 };
 export const FIRMENART_LABEL: Record<AcqCompanyKind, string> = {
   vermittler: 'Vermittler', endkunde: 'Endkunde', plattform: 'Plattform', wunschkunde: 'Wunschkunde', multiplikator: 'Multiplikator',
+};
+export const ABSAGE_VON_LABEL: Record<AcqLostBy, string> = {
+  kunde: 'Absage vom Kunden', eigene: 'Eigene Absage',
 };
 export const AKTIVITAET_LABEL: Record<AcqActivityKind, string> = {
   bewerbung: 'Bewerbung', followup: 'Follow-up', antwort: 'Antwort', gespraech: 'Gespräch', interview: 'Interview',
