@@ -26,5 +26,10 @@ export async function ladeLaeufe(): Promise<Laden> {
     const fehlt = error.code === '42P01' || error.code === 'PGRST205';
     return { ok: false, grund: fehlt ? 'tabelle-fehlt' : 'fehler', meldung: error.message };
   }
-  return { ok: true, laeufe: (data ?? []) as HealthcheckLauf[] };
+  // NUMERIC kann je nach PostgREST-Version als Text kommen
+  const laeufe = ((data ?? []) as HealthcheckLauf[]).map(l => ({
+    ...l,
+    db_mb: l.db_mb === null || l.db_mb === undefined ? null : Number(l.db_mb),
+  }));
+  return { ok: true, laeufe };
 }

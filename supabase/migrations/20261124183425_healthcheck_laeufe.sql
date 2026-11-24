@@ -3,10 +3,6 @@
 -- POST /api/healthcheck (Token in HEALTHCHECK_TOKEN) mit der Service Role.
 -- Lesen dürfen nur Superadmins (ICP); Kunden-Mandanten sehen die Tabelle nicht.
 -- Felder und Bedeutung: src/lib/healthcheck.ts.
---
--- ENTWURF: noch nicht eingespielt. Nach Jörgens OK per Supabase-MCP
--- apply_migration (Name: healthcheck_laeufe) einspielen, dann diese Datei als
--- supabase/migrations/<version>_healthcheck_laeufe.sql ablegen (siehe CLAUDE.md).
 
 CREATE TABLE IF NOT EXISTS healthcheck_laeufe (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
