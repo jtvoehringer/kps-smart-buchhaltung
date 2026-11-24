@@ -9,9 +9,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { buildNav, isActivePath } from './navigation';
 
-export default function TabNav() {
+export default function TabNav({ superadmin }: { superadmin: boolean }) {
   const pathname = usePathname();
-  const gruppen = buildNav();
+  const gruppen = buildNav({ superadmin });
 
   const aktiveGruppe =
     gruppen.find(g => g.items.some(i => isActivePath(pathname, i.href)))

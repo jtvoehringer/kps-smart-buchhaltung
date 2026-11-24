@@ -4,7 +4,7 @@ import {
   ClipboardList, Wallet, Landmark, FileText, User, Truck,
   LayoutDashboard, Settings, Upload, BarChart3, Boxes,
   CreditCard, CalendarCheck, CalendarRange, Tags, Repeat, ScanLine, Percent,
-  SquareKanban, Building2, History, Gauge,
+  SquareKanban, Building2, History, Gauge, HeartPulse, ChartLine,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -81,16 +81,30 @@ const SYSTEM: NavGroup = {
   items: [{ href: '/einstellungen', label: 'Einstellungen', icon: Settings, keywords: 'konfiguration profil' }],
 };
 
+// Welle 10: Kunden-Health-Check der betreuten Websites (Morgenlauf).
+// Mandantenübergreifende ICP-Daten – nur für Superadmins, rechts von System.
+// Pfad bewusst nicht /kunden-…, sonst würde „Kunden“ (Fakturierung) mit aktiv.
+const HEALTH_CHECK: NavGroup = {
+  key: 'healthcheck',
+  label: 'Kunden-Health-Check',
+  items: [
+    { href: '/health-check',         label: 'Übersicht', icon: HeartPulse, keywords: 'health check website kunden ampel wordpress hetych datenbank ssl updates morgenlauf' },
+    { href: '/health-check/verlauf', label: 'Verlauf',   icon: ChartLine,  keywords: 'health check verlauf datenbankgröße prüfläufe historie' },
+  ],
+};
+
 // Entscheidung 08.09.2026: Die E&A Suite wird nur noch von einer Person
 // genutzt (kein Kanzlei-Vertrieb). Rollen spielen in der Oberfläche keine
 // Rolle mehr – wer angemeldet ist, sieht alles. Der Kanzlei-Bereich
 // (Mandantenverwaltung, Benutzer) wurde entfernt.
-export function buildNav(): NavGroup[] {
-  return [...GRUPPEN, SYSTEM];
+// Ausnahme seit Welle 10: der Kunden-Health-Check nur für Superadmins.
+export function buildNav({ superadmin = false }: { superadmin?: boolean } = {}): NavGroup[] {
+  return superadmin ? [...GRUPPEN, SYSTEM, HEALTH_CHECK] : [...GRUPPEN, SYSTEM];
 }
 
 export function isActivePath(pathname: string, href: string) {
   if (href === '/dashboard') return pathname === '/dashboard';
+  if (href === '/health-check') return pathname === '/health-check';
   if (href === '/buchungen') return pathname === '/buchungen' || /^\/buchungen\/(neu|[^/]+\/bearbeiten)/.test(pathname);
   // Pipeline umfasst Neuanlage und Detail, nicht die übrigen Akquise-Seiten
   if (href === '/akquise') return pathname === '/akquise' || /^\/akquise\/(neu|[0-9a-f-]{36})(\/|$)/.test(pathname);

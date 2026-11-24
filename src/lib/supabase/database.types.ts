@@ -3,6 +3,8 @@
 // Entspricht dem aktuellen Schema inkl. aller Migrationen 001–016
 // ============================================================
 
+import type { HealthcheckLauf, HealthcheckLaufInsert } from '../healthcheck';
+
 export type VatRate = 0 | 10 | 13 | 20;
 export type TransactionType = 'income' | 'expense';
 export type UserRole = 'admin' | 'kanzlei' | 'klient' | 'superadmin';
@@ -1044,6 +1046,12 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<Asset>;
+        Relationships: [];
+      };
+      healthcheck_laeufe: {
+        Row: HealthcheckLauf;
+        Insert: HealthcheckLaufInsert;
+        Update: Partial<HealthcheckLaufInsert>;
         Relationships: [];
       };
       acq_companies: {

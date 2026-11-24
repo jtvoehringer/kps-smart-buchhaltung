@@ -11,17 +11,19 @@ import CommandPalette from './CommandPalette';
 export default function AppShell({
   companyName,
   clientId,
+  superadmin,
   children,
 }: {
   companyName: string;
   clientId: string | null;
+  superadmin: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-bg print:h-auto print:overflow-visible">
       <Topbar companyName={companyName} />
-      <CommandPalette clientId={clientId} />
-      <TabNav />
+      <CommandPalette clientId={clientId} superadmin={superadmin} />
+      <TabNav superadmin={superadmin} />
       <main className="flex-1 min-w-0 overflow-y-auto print:overflow-visible">
         {children}
         <footer className="px-6 pb-6 pt-2 max-w-6xl mx-auto flex flex-wrap justify-between gap-2 font-mono text-[11px] text-ink-3 print:px-0">
