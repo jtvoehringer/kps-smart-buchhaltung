@@ -3,13 +3,17 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import AppShell from './AppShell';
 import { getMyClientId } from '@/lib/supabase/get-my-client';
+import { istSuperadmin } from '@/lib/supabase/ist-superadmin';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const clientId = await getMyClientId(supabase, user.id);
+  const [clientId, superadmin] = await Promise.all([
+    getMyClientId(supabase, user.id),
+    istSuperadmin(supabase, user.id),
+  ]);
   const { data: client } = !clientId ? { data: null } : await supabase
     .from('clients')
     .select('company_name')
@@ -38,6 +42,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <AppShell
         companyName={client?.company_name ?? 'E&A Suite'}
         clientId={clientId}
+        superadmin={superadmin}
       >
         {children}
       </AppShell>

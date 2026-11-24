@@ -52,7 +52,7 @@ const datum = (iso: string) =>
 
 const STATUS: Record<string, string> = { draft: 'Entwurf', open: 'Offen', paid: 'Bezahlt', cancelled: 'Storniert' };
 
-export default function CommandPalette({ clientId }: { clientId: string | null }) {
+export default function CommandPalette({ clientId, superadmin }: { clientId: string | null; superadmin: boolean }) {
   const router = useRouter();
   const [offen, setOffen] = useState(false);
   const [q, setQ] = useState('');
@@ -63,7 +63,7 @@ export default function CommandPalette({ clientId }: { clientId: string | null }
 
   // ── Statische Einträge: Seiten + Aktionen je Rolle ────────────────
   const statisch = useMemo<Eintrag[]>(() => {
-    const seiten: Eintrag[] = buildNav().flatMap(g =>
+    const seiten: Eintrag[] = buildNav({ superadmin }).flatMap(g =>
       g.items.map(i => ({
         id: `s:${i.href}`, gruppe: 'Seiten' as const, label: i.label, detail: g.label, icon: i.icon, href: i.href,
         keywords: `${g.label} ${i.keywords ?? ''}`,
@@ -88,7 +88,7 @@ export default function CommandPalette({ clientId }: { clientId: string | null }
       run: async () => { await createClient().auth.signOut(); window.location.href = '/login'; },
     });
     return [...aktionen, ...seiten];
-  }, []);
+  }, [superadmin]);
 
   // ── Öffnen/Schließen: Strg+K, ⌘K, Kopfleisten-Knopf ─────────────
   useEffect(() => {
